@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>SparkSync Life &amp; Work OS — Radiant Spark LLC</title>
+    <meta name="description" content="SparkSync Mobile OS &amp; Health Telemetry Platform by Radiant Spark LLC. Daily readiness, ECG heart rate tracking, smart photo cleaner, and binary prediction markets." />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#030712" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SparkSync" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        background-color: #030712;
+        color: #f8fafc;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: rgba(3, 7, 18, 0.94);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .brand-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+      }
+      .brand-sub {
+        font-size: 10px;
+        color: #94a3b8;
+        font-family: monospace;
+        text-transform: uppercase;
+      }
+      .nav-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .app-container {
+        max-width: 480px;
+        margin: 20px auto;
+        width: 100%;
+        background: #090d16;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 36px;
+        padding: 18px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        position: relative;
+      }
+      .dynamic-island {
+        background: #000000;
+        border-radius: 20px;
+        padding: 6px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 12px;
+        font-family: monospace;
+        margin-bottom: 16px;
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .card {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 12px;
+        cursor: pointer;
+        width: 100%;
+        text-align: center;
+        display: block;
+        text-decoration: none;
+      }
+      .bottom-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        background: rgba(15, 23, 42, 0.95);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 12px 0;
+        position: sticky;
+        bottom: 0;
+        margin-top: auto;
+      }
+      .nav-tab {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 11px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      .nav-tab.active {
+        color: #38bdf8;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#2563eb,#38bdf8); display:flex; align-items:center; justify-content:center; font-size:16px;">⚡</div>
+        <div>
+          <div class="brand-title">SparkSync Mobile OS</div>
+          <div class="brand-sub">Radiant Spark LLC · Standalone PWA</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="sparkdeals.html" class="nav-btn" style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.4);">🔥 SparkDeals App</a>
+        <a href="index.html" class="nav-btn" style="background:rgba(255,255,255,0.06); color:#cbd5e1; border:1px solid rgba(255,255,255,0.12);">🌐 Corporate Site</a>
+      </div>
+    </header>
+
+    <div style="flex:1; padding:20px; display:flex; flex-direction:column; align-items:center;">
+      <div class="app-container">
+        <!-- Dynamic Island -->
+        <div class="dynamic-island">
+          <span style="color:#38bdf8;">22:34 5G</span>
+          <span style="display:flex; align-items:center; gap:5px; color:#f87171;"><span style="width:6px; height:6px; background:#ef4444; border-radius:50%; animation:pulse 1s infinite;"></span> <span id="heart-rate-display">75</span> bpm</span>
+          <span style="color:#34d399;">84% 🔋</span>
+        </div>
+
+        <!-- Top Chips -->
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px;">
+          <div style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:10px; color:#a5b4fc; font-weight:700;">SS AGENT</div>
+            <div style="font-size:11px; color:#ffffff; font-weight:800;">Active ⚡</div>
+          </div>
+          <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:8px; text-align:center;">
+            <div style="font-size:10px; color:#6ee7b7; font-weight:700;">PRO PLAN</div>
+            <div style="font-size:11px; color:#ffffff; font-weight:800;">$9.99/mo</div>
+          </div>
+          <a href="sparkdeals.html" style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:8px; text-align:center; text-decoration:none; display:block;">
+            <div style="font-size:10px; color:#fcd34d; font-weight:700;">DEALS</div>
+            <div style="font-size:11px; color:#ffffff; font-weight:800;">🔥 Hot Deals</div>
+          </a>
+        </div>
+
+        {/* Readiness Card */}
+        <div class="card" style="background:linear-gradient(135deg, rgba(30,27,75,0.8), rgba(15,23,42,0.95)); border-color:rgba(99,102,241,0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:11px; font-weight:700; color:#a5b4fc; font-family:monospace;">TUESDAY, OCT 27</span>
+            <span style="font-size:11px; font-weight:800; color:#34d399; background:rgba(16,185,129,0.2); padding:2px 8px; border-radius:6px;">READINESS 94/100</span>
+          </div>
+          <h3 style="font-size:16px; font-weight:800; margin-bottom:6px;">SparkSync Life &amp; Work OS</h3>
+          <p style="font-size:12px; color:#94a3b8; line-height:1.5;">Your optical PPG sensors, binary prediction bets, enterprise tasks, and smart photo cleaner are fully synchronized.</p>
+        </div>
+
+        {/* Apple Watch Telemetry */}
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:12px; font-weight:800; color:#38bdf8;">⌚ Apple Watch Telemetry</span>
+            <span style="font-size:10px; color:#10b981; font-weight:700;">● Live BLE</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; text-align:center;">
+            <div style="background:rgba(255,255,255,0.04); padding:8px; border-radius:8px;">
+              <div style="font-size:10px; color:#94a3b8;">Heart Rate</div>
+              <div style="font-size:15px; font-weight:800; color:#f43f5e;" id="hr-stat">75 bpm</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04); padding:8px; border-radius:8px;">
+              <div style="font-size:10px; color:#94a3b8;">Active Cal</div>
+              <div style="font-size:15px; font-weight:800; color:#fbbf24;">640 kcal</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04); padding:8px; border-radius:8px;">
+              <div style="font-size:10px; color:#94a3b8;">Sleep Score</div>
+              <div style="font-size:15px; font-weight:800; color:#34d399;">91 Optimal</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Smart Photo Cleaner */}
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:800; color:#f59e0b;">🗑️ Smart Photo Cleaner</span>
+            <span style="font-size:10px; color:#34d399; font-weight:700;">7.1 MB Reclaimable</span>
+          </div>
+          <p style="font-size:11px; color:#94a3b8; margin-bottom:10px;">Found 3 duplicate burst clusters in your gallery.</p>
+          <button onclick="alert('Successfully cleaned duplicate photos and recovered 7.1 MB storage!')" class="btn-primary" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#030712;">
+            1-Tap Clean Duplicates
+          </button>
+        </div>
+
+        <div style="text-align:center; margin-top:14px;">
+          <a href="sparkdeals.html" style="color:#fbbf24; font-size:12px; font-weight:700; text-decoration:none;">
+            Looking for Hot Steals &amp; Discounts? Open SparkDeals Hub ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+      <button class="nav-tab active"><span>🗂️</span> Tasks</button>
+      <a href="sparkdeals.html" class="nav-tab"><span>🔥</span> Deals</a>
+      <button class="nav-tab"><span>⚡</span> Bets</button>
+      <button class="nav-tab"><span>📈</span> Health</button>
+      <button class="nav-tab"><span>📊</span> Markets</button>
+    </div>
+
+    <script>
+      // Simulate live heart rate pulse
+      setInterval(() => {
+        const delta = Math.floor(Math.random() * 5) - 2;
+        let hr = 75 + delta;
+        if (hr < 70) hr = 72;
+        if (hr > 78) hr = 76;
+        document.getElementById('heart-rate-display').textContent = hr;
+        document.getElementById('hr-stat').textContent = hr + ' bpm';
+      }, 3000);
+    </script>
+  </body>
+</html>

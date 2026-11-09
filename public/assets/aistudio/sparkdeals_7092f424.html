@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#030712" />
+  <title>SparkDeals Live — Real-Time Black Friday, Clothing &amp; Tech Deals</title>
+  <meta name="description" content="SparkDeals Live Hub. Verified bargains across Amazon US, Amazon India, SHEIN, Temu, Walmart, Best Buy, Flipkart, DHgate, AliExpress, and Etsy. Intermediary safe harbor active." />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #030712;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    .live-ticker {
+      background: #090e1a;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 11px;
+    }
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } 100% { opacity: 1; transform: scale(1); } }
+    .ticker-text {
+      color: #cbd5e1;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .live-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .shopper-count {
+      color: #34d399;
+      font-family: monospace;
+      font-weight: 700;
+      background: rgba(52, 211, 153, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(52, 211, 153, 0.2);
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(3, 7, 18, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    }
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+    .brand-subtitle {
+      font-size: 10px;
+      color: #94a3b8;
+      font-family: monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+    .nav-btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #030712;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    }
+    .nav-btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .nav-btn-download {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .hero-banner {
+      padding: 32px 20px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .hero-title {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+    .hero-lede {
+      color: #94a3b8;
+      font-size: 14px;
+      max-width: 800px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .search-container {
+      position: relative;
+      max-width: 650px;
+      margin-bottom: 18px;
+    }
+    .search-input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      padding: 12px 16px 12px 42px;
+      border-radius: 12px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .search-input:focus {
+      border-color: #fbbf24;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-size: 16px;
+    }
+    .filters-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding-left: 20px;
+      padding-right: 20px;
+      scrollbar-width: none;
+    }
+    .filter-chip {
+      padding: 7px 14px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-chip.active {
+      background: #fbbf24;
+      color: #030712;
+      border-color: #fbbf24;
+      box-shadow: 0 2px 10px rgba(251, 191, 36, 0.35);
+    }
+    .deals-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 10px 20px 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .deal-card {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(7, 12, 22, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all 0.25s;
+    }
+    .deal-card:hover {
+      border-color: rgba(245, 158, 11, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
+    }
+    .deal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .temp-chip {
+      background: rgba(239, 68, 68, 0.18);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .merchant-badge {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fbbf24;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .deal-visual {
+      background: rgba(3, 7, 18, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      font-size: 28px;
+    }
+    .deal-visual small {
+      font-size: 10px;
+      color: #fbbf24;
+      font-weight: 700;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+    .deal-title {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      color: #ffffff;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .deal-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+    .deal-pricing {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-bottom: 12px;
+    }
+    .price-deal {
+      font-size: 18px;
+      font-weight: 900;
+      color: #fbbf24;
+    }
+    .price-orig {
+      font-size: 12px;
+      color: #64748b;
+      text-decoration: line-through;
+      margin-left: 6px;
+    }
+    .savings-badge {
+      font-size: 10px;
+      font-weight: 800;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .deal-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .upvote-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .cta-btn {
+      flex: 1;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: none;
+      text-align: center;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .legal-shield-box {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 2px solid rgba(245, 158, 11, 0.4);
+      border-radius: 18px;
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+    .install-box {
+      max-width: 1200px;
+      margin: 10px auto 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.4), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 16px;
+      font-size: 13px;
+    }
+    .legal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .legal-card {
+      background: rgba(3, 7, 18, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .legal-card strong {
+      color: #fbbf24;
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    /* Modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      padding: 24px;
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="live-ticker">
+    <div style="display:flex; align-items:center; gap:8px; min-width:0; flex:1;">
+      <span class="live-badge"><span class="live-dot"></span> LIVE RADAR</span>
+      <span class="ticker-text" id="live-ticker-text">👗 SHEIN Dresses $12.99 · ⚡ Walmart AirPods Pro 2 $169 · 🏡 Temu Pantry Cart $14.80 · 📺 Best Buy OLED $1,199 · 🇮🇳 OnePlus 5G ₹16,999</span>
+    </div>
+    <div class="live-meta">
+      <span class="shopper-count">👁️ 1,482 shoppers live</span>
+      <span style="color:#fbbf24; font-size:10px; font-weight:700;">🟢 Auto-Sync: ON</span>
+    </div>
+  </div>
+
+  <header>
+    <div class="brand-group">
+      <div class="brand-logo">🔥</div>
+      <div>
+        <div class="brand-title">SparkDeals Live Hub</div>
+        <div class="brand-subtitle">Amazon US · Amazon India · SHEIN · Temu · Walmart</div>
+      </div>
+    </div>
+    <div class="nav-actions">
+      <button onclick="openInstallModal()" class="nav-btn nav-btn-download">📲 Install App (iOS/Android)</button>
+      <a href="website.html" class="nav-btn nav-btn-secondary">🌐 Corporate Site</a>
+      <a href="app.html" class="nav-btn nav-btn-primary">⚡ SparkSync App</a>
+    </div>
+  </header>
+
+  <!-- How to Install Guide Banner -->
+  <div class="install-box">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+      <div>
+        <strong style="color:#34d399; font-size:14px; display:block;">📲 Install SparkDeals Directly on iPhone or Android</strong>
+        <span style="color:#94a3b8; font-size:12px;">Get instant price drop push alerts and one-tap access directly on your phone's home screen!</span>
+      </div>
+      <button onclick="openInstallModal()" style="background:#10b981; color:#030712; padding:8px 18px; border-radius:8px; font-weight:800; border:none; cursor:pointer; font-size:12px;">
+        View Installation Steps ↗
+      </button>
+    </div>
+  </div>
+
+  <div class="hero-banner">
+    <div class="hero-pill">🛡️ Big Retailer Safe Harbor &amp; Intermediary Shield</div>
+    <h1 class="hero-title">Live Steals across <span style="color:#fbbf24;">Clothing, Household &amp; Tech</span></h1>
+    <p class="hero-lede">Dedicated separate sections for <strong>Amazon US (🇺🇸)</strong> and <strong>Amazon India (🇮🇳)</strong>, plus <strong>SHEIN, Temu, Walmart, Best Buy, Flipkart, DHgate, AliExpress, and Etsy</strong> with commission-earning referral tags.</p>
+    
+    <div class="search-container">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="deal-search-box" class="search-input" placeholder="Search dresses, sweaters, pantry carts, AirPods, OLED TV, laptops, shoes..." />
+    </div>
+  </div>
+
+  <!-- Store Filter Chips with Separate Amazon US and Amazon India -->
+  <div class="filters-bar">
+    <button class="filter-chip active" data-filter="all">🔥 All Deals</button>
+    <button class="filter-chip" data-filter="shein">👗 SHEIN Fashion</button>
+    <button class="filter-chip" data-filter="temu">🏡 Temu Home &amp; Kitchen</button>
+    <button class="filter-chip" data-filter="amazon_us">🇺🇸 Amazon US</button>
+    <button class="filter-chip" data-filter="amazon_in">🇮🇳 Amazon India</button>
+    <button class="filter-chip" data-filter="walmart">Walmart</button>
+    <button class="filter-chip" data-filter="bestbuy">Best Buy</button>
+    <button class="filter-chip" data-filter="flipkart">Flipkart</button>
+    <button class="filter-chip" data-filter="dhgate">DHgate Wholesale</button>
+    <button class="filter-chip" data-filter="aliexpress">AliExpress</button>
+    <button class="filter-chip" data-filter="alibaba">Alibaba B2B</button>
+    <button class="filter-chip" data-filter="etsy">Etsy Handmade</button>
+    <button class="filter-chip" data-filter="wish">Wish</button>
+  </div>
+
+  <div class="deals-container" id="deals-list">
+    <!-- Populated by JavaScript -->
+  </div>
+
+  <!-- Stripe Business Revenue & Automated INR to USD Conversion -->
+  <div class="legal-shield-box" style="border-color: rgba(16, 185, 129, 0.4);">
+    <h3 style="color:#34d399; font-size:16px; margin-bottom:6px;">💳 Stripe Business Revenue Gateway · Automated INR ➔ USD FX Conversion</h3>
+    <p>100% of all company revenue — from share trading commissions, binary prediction event fees, and e-commerce referrals — is processed directly through <strong>Radiant Spark LLC's verified Stripe Business Account</strong>. All transactions and customer accounts are handled securely by Stripe with zero bank account forms required on this site.</p>
+    <div class="legal-grid">
+      <div class="legal-card">
+        <strong>🇮🇳 ➔ 🇺🇸 Automated INR to USD Conversion</strong>
+        <p>When customers in India transact in Indian Rupees (₹ INR), Stripe automatically converts the payment into US Dollars ($ USD) at mid-market rates (₹83.45 = $1 USD). Funds deposit into Radiant Spark LLC's US commercial account with zero currency loss.</p>
+      </div>
+      <div class="legal-card">
+        <strong>⚡ 3-Stream Commission Engine (Trades, Bets, Deals)</strong>
+        <p>Commissions from Robinhood-style share trades, Kalshi event contracts, and retail deals (Amazon, Walmart, Best Buy, Temu, SHEIN) accumulate automatically and settle on a rolling daily schedule via Stripe Auto-Payouts.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statutory Anti-Lawsuit Shield -->
+  <div class="legal-shield-box" id="legal-shield">
+    <h3 style="color:#fbbf24; font-size:16px; margin-bottom:6px;">🛡️ SparkDeals Big Retailer Anti-Lawsuit Shield &amp; Safe Harbor</h3>
+    <p>SparkDeals is an automated price-comparison indexer operated by <strong>Radiant Spark LLC</strong> (Atlanta, GA 30350, USA) and <strong>RDNT Sparkle Industries LLP</strong> (India). Under 47 U.S.C. § 230 and Section 79 of the Indian IT Act, 2000, we enjoy complete intermediary safe harbor immunity. We do NOT warehouse, ship, fulfill, or warrant products.</p>
+    
+    <div class="legal-grid">
+      <div class="legal-card">
+        <strong>1. Shipping &amp; Delivery Disclaimer</strong>
+        <p>We are 100% NOT RESPONSIBLE for shipping schedules, transit delays, courier handling, customs duties, or lost packages from Walmart, Best Buy, Amazon, Temu, SHEIN, DHgate, Wish, Alibaba, or AliExpress.</p>
+      </div>
+      <div class="legal-card">
+        <strong>2. Zero Return &amp; Defect Liability</strong>
+        <p>We do NOT accept product returns or issue refunds. Defective, damaged, or non-conforming items must be resolved directly with the destination merchant where payment was processed.</p>
+      </div>
+      <div class="legal-card">
+        <strong>3. Covenant Not to Sue &amp; Arbitration</strong>
+        <p>Users and commercial corporations irrevocably agree to hold harmless and NEVER SUE Radiant Spark LLC or RDNT Sparkle Industries LLP. Binding AAA arbitration in Atlanta, GA applies ($0 liability cap).</p>
+      </div>
+      <div class="legal-card">
+        <strong>4. Nominative Trademark Use</strong>
+        <p>Trademarks (Walmart, Best Buy, Amazon, Slickdeals, Apple, Sony, LG) belong to their respective owners and are referenced solely for nominative fair use under 15 U.S.C. § 1125.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install Modal -->
+  <div class="modal-overlay" id="installModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #334155; pb-3;">
+        <h3 style="color:#ffffff; font-size:16px; font-weight:800;">📲 How to Download to Android &amp; iOS</h3>
+        <button onclick="closeInstallModal()" style="background:none; border:none; color:#94a3b8; font-size:18px; cursor:pointer;">✕</button>
+      </div>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+        <button id="btnTabAndroid" onclick="switchModalTab('android')" style="padding:8px; border-radius:8px; background:#10b981; color:#030712; font-weight:bold; border:none; cursor:pointer;">🤖 Android</button>
+        <button id="btnTabIos" onclick="switchModalTab('ios')" style="padding:8px; border-radius:8px; background:#1e293b; color:#ffffff; font-weight:bold; border:1px solid #334155; cursor:pointer;">🍏 Apple iOS</button>
+      </div>
+
+      <div id="tabContentAndroid" style="space-y:10px; font-size:12px; line-height:1.6;">
+        <p><strong>1. Open Chrome</strong> on your Android phone.</p>
+        <p><strong>2. Tap Menu (⋮)</strong> in the top-right corner.</p>
+        <p><strong>3. Tap "Install App"</strong> or "Add to Home Screen".</p>
+        <p><strong>4. Confirm</strong> and the SparkDeals app appears on your phone screen!</p>
+      </div>
+
+      <div id="tabContentIos" style="display:none; space-y:10px; font-size:12px; line-height:1.6;">
+        <p><strong>1. Open Safari</strong> on your iPhone or iPad.</p>
+        <p><strong>2. Tap the Share button</strong> (square with up arrow ⎋ at bottom).</p>
+        <p><strong>3. Tap "Add to Home Screen"</strong> (⊞).</p>
+        <p><strong>4. Tap "Add"</strong> in the top right. SparkDeals now launches full-screen directly from your home screen!</p>
+      </div>
+
+      <div style="margin-top:20px; text-align:right;">
+        <button onclick="closeInstallModal()" style="background:#fbbf24; color:#030712; font-weight:800; padding:8px 16px; border-radius:8px; border:none; cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dealsData = [
+      // 1. SHEIN Clothing
+      {
+        id: "shein-dress",
+        merchant: "SHEIN",
+        category: "shein clothing fashion",
+        temp: "🔥 +2,840°",
+        emoji: "👗 🌸",
+        subtitle: "Viral Summer Dress",
+        title: "SHEIN French Floral High-Waist Bohemian Summer Midi Dress",
+        desc: "Chic lightweight A-line silhouette with sweetheart neckline and puff sleeves. Wrinkle-resistant direct-to-consumer fashion.",
+        dealPrice: "$12.99",
+        origPrice: "$42.00",
+        savings: "Save $29.01 (69% OFF)",
+        votes: 3840,
+        url: "https://us.shein.com/?cdn_rsite=ak&ref=www&rep=dir&ret=us",
+        color: "linear-gradient(135deg, #db2777, #be185d)"
+      },
+      {
+        id: "shein-sweater",
+        merchant: "SHEIN",
+        category: "shein clothing fashion",
+        temp: "🔥 +2,120°",
+        emoji: "🧶 ✨",
+        subtitle: "Cozy Knit Cardigan",
+        title: "SHEIN Oversized Chunky Knit Cozy Button-Up Cardigan Sweater",
+        desc: "Ultra-soft waffle knit, drop shoulder design, vintage buttons. Available in 8 warm pastel shades.",
+        dealPrice: "$16.49",
+        origPrice: "$54.00",
+        savings: "Save $37.51 (70% OFF)",
+        votes: 2950,
+        url: "https://us.shein.com/?cdn_rsite=ak&ref=www&rep=dir&ret=us",
+        color: "linear-gradient(135deg, #db2777, #be185d)"
+      },
+
+      // 2. TEMU Household & Kitchen
+      {
+        id: "temu-cart",
+        merchant: "Temu",
+        category: "temu home",
+        temp: "🔥 +3,180°",
+        emoji: "🛒 🏡",
+        subtitle: "Kitchen Organization",
+        title: "Temu 3-Tier Carbon Steel Heavy Duty Rolling Kitchen & Pantry Cart",
+        desc: "Multifunctional utility trolley with 360° lockable caster wheels, breathable mesh baskets. Holds up to 60 lbs.",
+        dealPrice: "$14.80",
+        origPrice: "$68.00",
+        savings: "Save $53.20 (78% OFF)",
+        votes: 4120,
+        url: "https://www.temu.com/",
+        color: "linear-gradient(135deg, #f97316, #ea580c)"
+      },
+      {
+        id: "temu-pillow",
+        merchant: "Temu",
+        category: "temu home",
+        temp: "🔥 +2,480°",
+        emoji: "🛏️ 💤",
+        subtitle: "Memory Foam Pillow",
+        title: "Ergonomic Cervical Memory Foam Contour Bed Pillow with Cooling Cover",
+        desc: "Orthopedic contour neck support pillow with cooling ice-silk washable pillowcase for side, back, and stomach sleepers.",
+        dealPrice: "$11.20",
+        origPrice: "$49.00",
+        savings: "Save $37.80 (77% OFF)",
+        votes: 3450,
+        url: "https://www.temu.com/",
+        color: "linear-gradient(135deg, #f97316, #ea580c)"
+      },
+
+      // 3. AMAZON US
+      {
+        id: "amazon-us-stanley",
+        merchant: "Amazon US",
+        category: "amazon_us home",
+        temp: "🔥 +2,910°",
+        emoji: "🥤 ✨",
+        subtitle: "Viral Tumbler",
+        title: "Stanley Quencher H2.0 FlowState Stainless Steel Tumbler 40oz",
+        desc: "Keeps drinks ice cold for 48 hours. Fits car cup holders, reusable straw, comfort-grip handle.",
+        dealPrice: "$35.00",
+        origPrice: "$45.00",
+        savings: "Save $10.00 (22% OFF)",
+        votes: 3950,
+        url: "https://www.amazon.com/b/?node=284507",
+        color: "linear-gradient(135deg, #f59e0b, #d97706)"
+      },
+      {
+        id: "amazon-us-levis",
+        merchant: "Amazon US",
+        category: "amazon_us clothing",
+        temp: "🔥 +2,150°",
+        emoji: "👖 👕",
+        subtitle: "Men's Stretch Jeans",
+        title: "Levi's Men's 505 Regular Fit Durable Stretch Denim Jeans",
+        desc: "Classic straight leg style with comfortable regular fit through seat and thigh, heavy-duty zipper fly.",
+        dealPrice: "$39.99",
+        origPrice: "$69.50",
+        savings: "Save $29.51 (42% OFF)",
+        votes: 3120,
+        url: "https://www.amazon.com/b/?node=7141123011",
+        color: "linear-gradient(135deg, #f59e0b, #d97706)"
+      },
+      {
+        id: "amazon-us-ipad",
+        merchant: "Amazon US",
+        category: "amazon_us electronics",
+        temp: "🔥 +3,420°",
+        emoji: "📱 💻",
+        subtitle: "Apple Doorbuster",
+        title: "Apple iPad (10th Generation) 10.9-inch Liquid Retina Display (Wi-Fi, 64GB)",
+        desc: "A14 Bionic chip, 12MP Ultra Wide front camera with Center Stage, 12MP Wide back camera, Touch ID, Wi-Fi 6.",
+        dealPrice: "$279.00",
+        origPrice: "$349.00",
+        savings: "Save $70.00 (20% OFF)",
+        votes: 4890,
+        url: "https://www.amazon.com/dp/B0BJLXMVMV",
+        color: "linear-gradient(135deg, #f59e0b, #d97706)"
+      },
+
+      // 4. AMAZON INDIA
+      {
+        id: "amazon-in-nord",
+        merchant: "Amazon India",
+        category: "amazon_in electronics",
+        temp: "🔥 +3,890°",
+        emoji: "📱 ⚡",
+        subtitle: "OnePlus 5G Exclusive",
+        title: "OnePlus Nord CE4 Lite 5G (8GB RAM, 128GB Storage, Super Silver)",
+        desc: "Flagship 50MP Sony LYT-600 camera with OIS, 120Hz AMOLED 2100 nits display, 5500mAh battery with 80W SUPERVOOC charging.",
+        dealPrice: "₹16,999",
+        origPrice: "₹20,999",
+        savings: "Save ₹4,000 (19% OFF)",
+        votes: 4580,
+        url: "https://www.amazon.in/gp/product/B0DSKNKCYX?th=1&aref=VrDJYnGzEW&pd_rd_plhdr=t&pf_rd_r=VWRJZK8QKCQ7ZVF3XXPM",
+        color: "linear-gradient(135deg, #ea580c, #c2410c)"
+      },
+      {
+        id: "amazon-in-uspa",
+        merchant: "Amazon India",
+        category: "amazon_in clothing",
+        temp: "🔥 +1,820°",
+        emoji: "👕 ✨",
+        subtitle: "Men's Pique Polo",
+        title: "U.S. Polo Assn. Men's Solid Pure Cotton Pique Polo T-Shirt",
+        desc: "Premium breathable combed cotton pique fabric with ribbed collar, signature embroidered chest logo.",
+        dealPrice: "₹899",
+        origPrice: "₹1,999",
+        savings: "Save ₹1,100 (55% OFF)",
+        votes: 2410,
+        url: "https://www.amazon.in/b/?node=1968024031",
+        color: "linear-gradient(135deg, #ea580c, #c2410c)"
+      },
+
+      // 5. WALMART
+      {
+        id: "walmart-airpods",
+        merchant: "Walmart",
+        category: "walmart electronics",
+        temp: "🔥 +3,750°",
+        emoji: "🎧 ⚡",
+        subtitle: "Walmart Rollback",
+        title: "Apple AirPods Pro (2nd Gen) with USB-C MagSafe Case — Black Friday Price Match",
+        desc: "Active Noise Cancellation with Adaptive Audio, Transparency mode, Personalized Spatial Audio with head tracking.",
+        dealPrice: "$169.00",
+        origPrice: "$249.00",
+        savings: "Save $80.00 (32% OFF)",
+        votes: 4980,
+        url: "https://www.walmart.com/ip/Apple-AirPods-Pro-2nd-Generation-with-MagSafe-Case-USB-C/2908869848",
+        color: "linear-gradient(135deg, #0284c7, #0369a1)"
+      },
+      {
+        id: "walmart-dining",
+        merchant: "Walmart",
+        category: "walmart home",
+        temp: "🔥 +2,310°",
+        emoji: "🪑 🍽️",
+        subtitle: "Dining Table Set",
+        title: "Mainstays 5-Piece Modern Solid Wood Dining Table and 4 Chairs Set",
+        desc: "Espresso-finish solid wood dining set with easy-wipe tabletop and sturdy high-back chairs. Ideal for apartments.",
+        dealPrice: "$138.00",
+        origPrice: "$229.00",
+        savings: "Save $91.00 (40% OFF)",
+        votes: 2890,
+        url: "https://www.walmart.com/browse/home/furniture/4044_103150",
+        color: "linear-gradient(135deg, #0284c7, #0369a1)"
+      },
+
+      // 6. BEST BUY
+      {
+        id: "bestbuy-oled",
+        merchant: "Best Buy",
+        category: "bestbuy electronics",
+        temp: "🔥 +2,850°",
+        emoji: "📺 ✨",
+        subtitle: "Best Buy Door签",
+        title: "LG 65\" Class C3 Series OLED 4K UHD Smart webOS TV — Best Buy Drop",
+        desc: "Self-lit OLED pixels with 100% color fidelity, α9 AI Processor Gen6, Dolby Vision IQ & Dolby Atmos, 120Hz native refresh.",
+        dealPrice: "$1,199.99",
+        origPrice: "$1,999.99",
+        savings: "Save $800.00 (40% OFF)",
+        votes: 3980,
+        url: "https://www.bestbuy.com/site/lg-65-class-c3-series-oled-4k-uhd-smart-webos-tv/6535929.p",
+        color: "linear-gradient(135deg, #eab308, #ca8a04)"
+      },
+      {
+        id: "bestbuy-ninja",
+        merchant: "Best Buy",
+        category: "bestbuy home",
+        temp: "🔥 +2,640°",
+        emoji: "🍳 🍗",
+        subtitle: "DualZone Air Fryer",
+        title: "Ninja Foodi 8-qt 2-Basket DualZone Air Fryer with Smart Finish",
+        desc: "Two independent 4-qt baskets let you cook 2 foods 2 ways and finish at the same time. 6 versatile cooking programs.",
+        dealPrice: "$119.99",
+        origPrice: "$199.99",
+        savings: "Save $80.00 (40% OFF)",
+        votes: 3340,
+        url: "https://www.bestbuy.com/site/small-appliances/air-fryers/pcmcat1527787363412.c",
+        color: "linear-gradient(135deg, #eab308, #ca8a04)"
+      },
+
+      // 7. FLIPKART
+      {
+        id: "flipkart-shoes",
+        merchant: "Flipkart",
+        category: "flipkart clothing",
+        temp: "🔥 +2,780°",
+        emoji: "👟 🏃",
+        subtitle: "Puma Running Shoes",
+        title: "Puma Men's Softfoam Propel Lightweight Running & Training Shoes",
+        desc: "High-cushioning Softfoam+ sockliner for step-in comfort, durable rubber traction outsole, breathable athletic mesh.",
+        dealPrice: "₹1,499",
+        origPrice: "₹4,999",
+        savings: "Save ₹3,500 (70% OFF)",
+        votes: 3120,
+        url: "https://www.flipkart.com/mens-footwear/pr?sid=osp,cil",
+        color: "linear-gradient(135deg, #2563eb, #1d4ed8)"
+      },
+      {
+        id: "flipkart-clp",
+        merchant: "Flipkart",
+        category: "flipkart electronics",
+        temp: "🔥 +3,410°",
+        emoji: "🇮🇳 🛒",
+        subtitle: "Electronics CLP Hub",
+        title: "Flipkart Electronics & Supermart CLP March Mega Store (Up to 80% OFF)",
+        desc: "Flipkart exclusive verified deals across home audio, kitchen appliances, smartphones, and fashion apparel.",
+        dealPrice: "Starting ₹999",
+        origPrice: "₹4,999",
+        savings: "Up to 80% OFF",
+        votes: 3640,
+        url: "https://www.flipkart.com/new-elec-clp-march-at-store",
+        color: "linear-gradient(135deg, #2563eb, #1d4ed8)"
+      },
+
+      // 8. DHGATE
+      {
+        id: "dhgate-shirts",
+        merchant: "DHgate",
+        category: "dhgate clothing",
+        temp: "🔥 +1,580°",
+        emoji: "👕 📦",
+        subtitle: "5-Pack Cotton Tees",
+        title: "5-Pack Heavyweight 240 GSM Combed Cotton Oversized Unisex T-Shirts",
+        desc: "Pre-shrunk 100% combed cotton, drop shoulder street aesthetic, double-stitched crewneck collar. Bulk wholesale lot.",
+        dealPrice: "$24.50",
+        origPrice: "$95.00",
+        savings: "Save $70.50 (74% OFF)",
+        votes: 2190,
+        url: "https://www.dhgate.com/",
+        color: "linear-gradient(135deg, #0891b2, #0e7490)"
+      },
+
+      // 9. ALIEXPRESS
+      {
+        id: "aliexpress-espresso",
+        merchant: "AliExpress",
+        category: "aliexpress home",
+        temp: "🔥 +2,280°",
+        emoji: "☕ 🚗",
+        subtitle: "Portable Espresso",
+        title: "Portable Electric Espresso Machine 19-Bar Pressure for Travel & Car",
+        desc: "Compatible with Nespresso pods & ground coffee, self-heating in 3 minutes, USB-C rechargeable 7500mAh lithium battery.",
+        dealPrice: "$28.90",
+        origPrice: "$79.00",
+        savings: "Save $50.10 (63% OFF)",
+        votes: 3290,
+        url: "https://www.aliexpress.us/?gatewayAdapt=glo2usa",
+        color: "linear-gradient(135deg, #e11d48, #be123c)"
+      },
+
+      // 10. ALIBABA
+      {
+        id: "alibaba-towels",
+        merchant: "Alibaba",
+        category: "alibaba home",
+        temp: "🔥 +1,740°",
+        emoji: "🧖 📦",
+        subtitle: "100-Pack Egyptian Towels",
+        title: "100-Pack Organic Egyptian Cotton Quick-Dry Kitchen & Bath Towels",
+        desc: "Factory direct lot of 600 GSM zero-twist luxury Egyptian cotton towels. Ideal for boutique rentals and corporate gifts.",
+        dealPrice: "$28.00",
+        origPrice: "$120.00",
+        savings: "Save $92.00 (76% OFF)",
+        votes: 2180,
+        url: "https://www.alibaba.com/",
+        color: "linear-gradient(135deg, #d97706, #b45309)"
+      },
+
+      // 11. ETSY
+      {
+        id: "etsy-desk",
+        merchant: "Etsy",
+        category: "etsy home",
+        temp: "🔥 +2,190°",
+        emoji: "🪵 ✨",
+        subtitle: "Artisan Wood Organizer",
+        title: "Handcrafted Solid Black Walnut Desk Organizer & Wireless Phone Dock",
+        desc: "Artisan carved from sustainably harvested American walnut, beeswax matte finish, cable routing management.",
+        dealPrice: "$34.00",
+        origPrice: "$85.00",
+        savings: "Save $51.00 (60% OFF)",
+        votes: 2780,
+        url: "https://www.etsy.com/",
+        color: "linear-gradient(135deg, #ea580c, #c2410c)"
+      },
+
+      // 12. WISH
+      {
+        id: "wish-lamp",
+        merchant: "Wish",
+        category: "wish home",
+        temp: "🔥 +1,910°",
+        emoji: "💡 🛏️",
+        subtitle: "Dimmable Touch Lamp",
+        title: "Nordic Minimalist Dimmable LED Bedside Lamp with Wireless Phone Charger",
+        desc: "Touch-sensitive 3-level brightness control, 15W Qi fast wireless charging base, 360° flexible arch light bar.",
+        dealPrice: "$14.00",
+        origPrice: "$48.00",
+        savings: "Save $34.00 (70% OFF)",
+        votes: 2310,
+        url: "https://www.wish.com/",
+        color: "linear-gradient(135deg, #0284c7, #0369a1)"
+      }
+    ];
+
+    function renderDeals(filter = "all", query = "") {
+      const container = document.getElementById("deals-list");
+      container.innerHTML = "";
+      
+      const filtered = dealsData.filter(d => {
+        const matchesFilter = filter === "all" || d.category.includes(filter);
+        const matchesQuery = !query || 
+          d.title.toLowerCase().includes(query.toLowerCase()) || 
+          d.merchant.toLowerCase().includes(query.toLowerCase()) ||
+          d.desc.toLowerCase().includes(query.toLowerCase());
+        return matchesFilter && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:#94a3b8;">No matching deals found for this filter. Try another store!</div>';
+        return;
+      }
+
+      filtered.forEach(deal => {
+        const card = document.createElement("article");
+        card.className = "deal-card";
+        card.innerHTML = `
+          <div class="deal-top">
+            <span class="temp-chip">${deal.temp}</span>
+            <span class="merchant-badge">${deal.merchant}</span>
+          </div>
+          <div class="deal-visual">
+            <div>${deal.emoji}</div>
+            <small>${deal.subtitle}</small>
+          </div>
+          <h3 class="deal-title">${deal.title}</h3>
+          <p class="deal-desc">${deal.desc}</p>
+          <div class="deal-pricing">
+            <span class="price-deal">${deal.dealPrice}</span>
+            <span class="price-orig">${deal.origPrice}</span>
+            <span class="savings-badge">${deal.savings}</span>
+          </div>
+          <div class="deal-actions">
+            <button class="upvote-btn" onclick="upvoteDeal('${deal.id}', this)">🔥 <span>${deal.votes}</span></button>
+            <a href="${deal.url}" target="_blank" rel="noopener noreferrer sponsored" class="cta-btn" style="background:${deal.color};">
+              See Deal @ ${deal.merchant} ↗
+            </a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function upvoteDeal(id, btn) {
+      const span = btn.querySelector("span");
+      let count = parseInt(span.textContent, 10);
+      count += 1;
+      span.textContent = count;
+      btn.style.color = "#ef4444";
+      btn.style.borderColor = "#ef4444";
+    }
+
+    document.querySelectorAll(".filter-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        renderDeals(btn.dataset.filter, document.getElementById("deal-search-box").value);
+      });
+    });
+
+    document.getElementById("deal-search-box").addEventListener("input", (e) => {
+      const activeFilter = document.querySelector(".filter-chip.active")?.dataset.filter || "all";
+      renderDeals(activeFilter, e.target.value);
+    });
+
+    function openInstallModal() {
+      document.getElementById('installModal').classList.add('active');
+    }
+
+    function closeInstallModal() {
+      document.getElementById('installModal').classList.remove('active');
+    }
+
+    function switchModalTab(platform) {
+      if (platform === 'android') {
+        document.getElementById('tabContentAndroid').style.display = 'block';
+        document.getElementById('tabContentIos').style.display = 'none';
+        document.getElementById('btnTabAndroid').style.background = '#10b981';
+        document.getElementById('btnTabAndroid').style.color = '#030712';
+        document.getElementById('btnTabIos').style.background = '#1e293b';
+        document.getElementById('btnTabIos').style.color = '#ffffff';
+      } else {
+        document.getElementById('tabContentAndroid').style.display = 'none';
+        document.getElementById('tabContentIos').style.display = 'block';
+        document.getElementById('btnTabIos').style.background = '#6366f1';
+        document.getElementById('btnTabIos').style.color = '#ffffff';
+        document.getElementById('btnTabAndroid').style.background = '#1e293b';
+        document.getElementById('btnTabAndroid').style.color = '#ffffff';
+      }
+    }
+
+    renderDeals();
+  </script>
+</body>
+</html>

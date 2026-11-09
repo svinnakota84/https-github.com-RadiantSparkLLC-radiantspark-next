@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>SparkSync &amp; SparkDeals Hub Mobile</title>
+  <meta name="description" content="SparkSync Life &amp; Work OS and real-time SparkDeals curated price drop aggregator." />
+
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#030712" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SparkSync" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #030712;
+      color: #f8fafc;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .safe-top { padding-top: env(safe-area-inset-top, 14px); }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .glow-card { box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5); }
+    .neon-border-blue { border: 1px solid rgba(59,130,246,0.3); }
+    .neon-border-amber { border: 1px solid rgba(245,158,11,0.35); }
+
+    #appToast {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex justify-center min-h-screen">
+
+  <!-- Mobile Viewport Container -->
+  <div class="w-full max-w-md min-h-screen flex flex-col bg-[#030712] relative pb-24 shadow-2xl">
+
+    <header class="safe-top px-4 pt-3 pb-2 sticky top-0 z-40 bg-[#030712]/95 backdrop-blur-md border-b border-slate-900/80">
+      <div class="flex items-center justify-between text-xs mb-2">
+        <span class="font-bold text-slate-200 tracking-tight" id="clockTime">00:00</span>
+
+        <div class="px-3 py-1 bg-black rounded-full border border-slate-800 flex items-center gap-2 shadow-inner">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+          </span>
+          <span class="text-[11px] font-mono text-rose-400 font-bold" id="liveBpmDisplay">75 bpm</span>
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        </div>
+
+        <div class="flex items-center gap-1.5 text-slate-400 text-[10px]">
+          <span class="font-mono">5G</span>
+          <span>📶</span>
+          <span class="font-bold text-slate-200">84%</span>
+          <span>🔋</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <div class="flex items-center -space-x-1.5 shrink-0 px-2 py-1.5 bg-slate-900/90 rounded-xl border border-slate-800 shadow-sm">
+          <div class="w-5 h-5 rounded-full bg-blue-600 border border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow-sm">R</div>
+          <div class="w-5 h-5 rounded-full bg-purple-600 border border-slate-900 flex items-center justify-center text-[9px] font-bold text-white shadow-sm">+2</div>
+        </div>
+
+        <button id="chipSparksync" onclick="switchAppTab('sparksync')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-900/70 to-purple-900/70 border border-purple-500/50 text-purple-200 text-[11px] font-bold flex items-center gap-1.5 shrink-0 transition-transform active:scale-95 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span>SS Agent</span>
+        </button>
+
+        <button onclick="triggerProModal()" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-900/70 to-cyan-900/70 border border-cyan-500/50 text-cyan-200 text-[11px] font-bold flex items-center gap-1 shrink-0 transition-transform active:scale-95 shadow-sm">
+          <span>💳</span>
+          <span>$9.99/mo</span>
+        </button>
+
+        <button id="chipDeals" onclick="switchAppTab('deals')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-950/80 to-orange-950/80 border border-amber-500/60 text-amber-300 text-[11px] font-bold flex items-center gap-1.5 shrink-0 transition-transform active:scale-95 shadow-sm">
+          <span>🔥</span>
+          <span>Deals</span>
+        </button>
+
+        <button onclick="downloadZip('radiantspark-final.zip')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-500/60 text-emerald-300 text-[11px] font-bold flex items-center gap-1 shrink-0 transition-transform active:scale-95 shadow-sm" title="Download GitHub Package ZIP">
+          <span>⬇️</span>
+          <span>ZIP</span>
+        </button>
+
+        <button onclick="showToast('Notifications: Real-time price drop & vitals alerts active.')" class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center text-xs shrink-0 relative">
+          <span>🔔</span>
+          <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+        </button>
+      </div>
+    </header>
+
+    <main id="viewSparksync" class="p-4 space-y-4 flex-1">
+      <div class="flex items-center justify-between text-xs px-1">
+        <span class="text-cyan-400 font-extrabold uppercase tracking-widest text-[11px] font-mono" id="appDateDisplay">
+          LOADING...
+        </span>
+        <div class="flex items-center gap-1.5">
+          <span class="text-slate-400 uppercase text-[10px] tracking-wider font-semibold">READINESS</span>
+          <span class="font-mono text-emerald-400 font-bold text-xs tracking-wider">94/100</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div onclick="switchAppTab('markets')" class="p-3.5 rounded-2xl bg-gradient-to-b from-[#141d2e] to-[#0d131f] border border-amber-500/30 flex flex-col justify-between cursor-pointer hover:border-amber-400 transition-all active:scale-[0.98]">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold">⚡</span>
+              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-500/30">0.5% Fee</span>
+            </div>
+            <h3 class="font-extrabold text-sm text-slate-100 leading-snug">Binary Bets</h3>
+            <p class="text-[11px] text-slate-400 mt-1 leading-snug">Robinhood &amp; Kalshi-style Yes/No options</p>
+          </div>
+          <span class="text-[10px] text-amber-400 font-bold mt-3 block">View Markets ↗</span>
+        </div>
+
+        <div onclick="simulateEcg()" class="p-3.5 rounded-2xl bg-gradient-to-b from-[#211527] to-[#120b18] border border-rose-500/30 flex flex-col justify-between cursor-pointer hover:border-rose-400 transition-all active:scale-[0.98]">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="w-7 h-7 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm">❤️</span>
+              <span class="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                Live ECG
+              </span>
+            </div>
+            <h3 class="font-extrabold text-sm text-slate-100 leading-snug">Live Vitals &amp; Radar</h3>
+            <p class="text-[11px] text-slate-400 mt-1 leading-snug">Optical PPG waveform &amp; BLE handshake</p>
+          </div>
+          <span class="text-[10px] text-rose-400 font-bold mt-3 block">Sync Watch ↗</span>
+        </div>
+      </div>
+
+      <button onclick="triggerProModal()" class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-purple-900/90 via-indigo-900/90 to-blue-900/90 border border-purple-500/40 text-white font-extrabold text-xs flex items-center justify-between shadow-lg shadow-purple-900/30 hover:scale-[1.01] active:scale-[0.98] transition-all">
+        <span class="flex items-center gap-2">
+          <span>👑</span>
+          <span class="tracking-wide">Activate SparkSync Pro</span>
+        </span>
+        <span class="bg-black/40 px-2.5 py-1 rounded-lg text-purple-300 font-mono text-[11px] border border-purple-400/30">
+          $9.99 / mo ↗
+        </span>
+      </button>
+
+      <div class="relative p-4 rounded-2xl bg-gradient-to-b from-[#0b1424] to-[#070d17] border border-blue-500/30 space-y-3 overflow-hidden shadow-xl">
+        <canvas id="vitals3dCanvas" class="absolute inset-0 w-full h-full pointer-events-none opacity-45 z-0"></canvas>
+        <div class="relative z-10 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-cyan-400 text-sm">⌚</span>
+            <h4 class="text-xs font-bold text-slate-100 tracking-tight">Apple Watch &amp; Health Telemetry</h4>
+            <span class="text-[9px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.5 rounded-full font-mono font-bold">3D Live</span>
+          </div>
+          <span class="text-[11px] text-cyan-400 font-bold flex items-center gap-0.5 cursor-pointer hover:underline">Dashboard <span>›</span></span>
+        </div>
+
+        <div class="relative z-10 grid grid-cols-3 gap-2 text-center">
+          <div class="p-2.5 rounded-xl bg-slate-900/80 backdrop-blur-sm border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-0.5">Heart Rate</span>
+            <div class="text-base font-extrabold text-rose-400 font-mono flex items-center justify-center gap-1">
+              <span>❤️</span> <span id="vitalsHeartRate">75</span>
+            </div>
+            <small class="text-[9px] text-slate-500 block">Rest 54 bpm</small>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900/80 backdrop-blur-sm border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-0.5">Active Cal</span>
+            <div class="text-base font-extrabold text-amber-400 font-mono flex items-center justify-center gap-1">
+              <span>🔥</span> <span>640</span>
+            </div>
+            <small class="text-[9px] text-slate-500 block">/ 750 kcal</small>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900/80 backdrop-blur-sm border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-0.5">Sleep Score</span>
+            <div class="text-base font-extrabold text-cyan-400 font-mono">91</div>
+            <small class="text-[9px] text-emerald-400 font-semibold block">Optimal</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-gradient-to-b from-[#111927] to-[#0a0f1a] border border-cyan-500/25 space-y-3">
+        <div class="flex items-center justify-between text-xs">
+          <div class="flex items-center gap-1.5 text-cyan-400 font-bold">
+            <span>🖼️</span>
+            <span>Smart Photo Cleaner &amp; Adjustments</span>
+          </div>
+          <span class="text-[11px] text-cyan-400 font-bold cursor-pointer hover:underline">Open Gallery ›</span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center text-rose-400 text-lg">🗑️</div>
+            <div>
+              <div class="text-xs font-bold text-slate-100">7.1 MB Recoverable Storage</div>
+              <div class="text-[10px] text-slate-400">Found 3 duplicate burst clusters · 1-tap cleaning</div>
+            </div>
+          </div>
+          <button onclick="cleanDuplicates(this)" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-rose-900/70 to-pink-900/70 border border-rose-500/40 text-rose-200 text-xs font-bold hover:scale-105 active:scale-95 transition-all">
+            Clean Dups
+          </button>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-gradient-to-b from-[#0b1424] to-[#070d17] border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+            <span class="text-emerald-400">📈</span>
+            <span>Market Pulse</span>
+          </div>
+          <span class="text-[11px] text-cyan-400 font-bold">Full Markets ›</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+            <div>
+              <span class="text-xs font-black text-white block">SPY</span>
+              <span class="text-[11px] text-slate-400 font-mono">$588.42</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">+0.84%</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex justify-between items-center">
+            <div>
+              <span class="text-xs font-black text-white block">QQQ</span>
+              <span class="text-[11px] text-slate-400 font-mono">$498.75</span>
+            </div>
+            <span class="text-xs font-bold text-emerald-400 font-mono bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">+1.25%</span>
+          </div>
+        </div>
+      </div>
+
+      <div onclick="switchAppTab('deals')" class="p-4 rounded-2xl bg-gradient-to-r from-amber-950/60 to-orange-950/60 border border-amber-500/40 flex items-center justify-between cursor-pointer hover:border-amber-400 transition-all">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🔥</span>
+          <div>
+            <h4 class="text-xs font-bold text-amber-300">Browse Live SparkDeals Hub</h4>
+            <p class="text-[10px] text-slate-300">Walmart, Amazon, Best Buy &amp; India Steals</p>
+          </div>
+        </div>
+        <span class="text-xs font-extrabold text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-lg border border-amber-500/30">Open Deals ↗</span>
+      </div>
+    </main>
+
+    <!-- VIEW B: MARKETS (Trading Integration) -->
+    <main id="viewMarkets" class="p-4 space-y-4 flex-1 hidden">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-800">Binary Markets</h2>
+        <span class="text-xs mono text-slate-400">Fee: 0.5% per trade</span>
+      </div>
+      <div id="market-container" class="space-y-4">
+        <div class="glass p-6 rounded-3xl text-center text-slate-500">Connecting to Oracle DB...</div>
+      </div>
+    </main>
+
+    <!-- VIEW C: SPARKDEALS HUB -->
+    <main id="viewDeals" class="p-4 space-y-3 flex-1 hidden">
+      <div class="flex items-center justify-between pb-1">
+        <div class="flex items-center gap-2">
+          <img src="/assets/icon.svg" alt="SparkDeals" class="w-9 h-9 rounded-xl object-contain shadow-md shadow-amber-500/20 border border-amber-500/30" />
+          <div>
+            <div class="flex items-center gap-1.5">
+              <h2 class="text-sm font-extrabold text-white tracking-tight">SparkDeals Hub</h2>
+              <span class="text-[9px] bg-rose-600 text-white font-extrabold px-1.5 py-0.2 rounded font-mono">LIVE</span>
+            </div>
+            <span class="text-[10px] text-slate-400">Stripe Linked · Android APK &amp; PWA</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-950/50 border border-emerald-800/50 px-2 py-1 rounded-lg">
+          <span>👁️</span> <span id="dealHuntersCount">1477</span>
+        </div>
+      </div>
+
+      <div class="relative">
+        <input type="text" id="dealSearchInput" oninput="handleDealSearch(this.value)" placeholder="Search dresses, electronics, Home..." class="w-full bg-[#0d1527] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition-colors" />
+        <span class="absolute right-3 top-2.5 text-slate-500 text-xs">🔍</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none" id="storeFilterBar">
+        <button onclick="filterStore('all', this)" class="store-pill active px-3 py-1.5 rounded-full text-xs font-extrabold bg-amber-500 text-black shadow-sm shrink-0">All Stores</button>
+        <button onclick="filterStore('Amazon US', this)" class="store-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">Amazon US</button>
+        <button onclick="filterStore('Amazon India', this)" class="store-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">Amazon India</button>
+        <button onclick="filterStore('Walmart', this)" class="store-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">Walmart</button>
+        <button onclick="filterStore('Best Buy', this)" class="store-pill px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 shrink-0">Best Buy</button>
+      </div>
+
+      <div class="p-3.5 rounded-xl bg-[#141b27] border border-amber-500/35 flex items-start gap-2.5">
+        <span class="text-amber-400 text-sm mt-0.5">🛡️</span>
+        <div>
+          <strong class="text-xs text-amber-300 block font-bold">100% Intermediary Immunity</strong>
+          <p class="text-[11px] text-slate-300 leading-snug mt-0.5">Radiant Spark LLC indexes direct search links. All purchases fulfilled by merchants. $0 liability for shipping/returns.</p>
+        </div>
+      </div>
+
+      <div id="dealsContainer" class="space-y-3">
+        <!-- Sample Deal Card -->
+        <article class="deal-item p-4 rounded-2xl bg-gradient-to-b from-[#0f172a] to-[#090d16] border border-slate-800 space-y-3 cursor-pointer" data-store="Amazon US, Amazon India" data-title="Apple iPad 10th Gen">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-bold bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded border border-blue-500/30">Amazon US</span>
+              <span class="text-[10px] font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">Amazon India</span>
+            </div>
+            <span class="text-[11px] font-bold text-rose-400 bg-rose-500/15 px-2 py-0.5 rounded-md border border-rose-500/30">🔥 +3,420°</span>
+          </div>
+          <h3 class="text-sm font-extrabold text-white leading-snug">Apple iPad (10th Gen) 10.9-inch (Wi-Fi, 64GB, Silver)</h3>
+          <div class="flex items-baseline justify-between">
+            <div class="flex items-baseline gap-2">
+              <span class="text-xl font-black text-amber-400 font-mono">$279.00 / ₹29,990</span>
+              <span class="text-xs text-slate-500 line-through font-mono">$349 / ₹39,900</span>
+            </div>
+            <span class="text-xs font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">20% OFF</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <a href="https://www.amazon.com/s?k=Apple+iPad+10th+Gen+64GB+Silver&tag=sparkdeal-20" target="_blank" class="py-2 px-2.5 rounded-xl bg-blue-600 text-white font-bold text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]">🇺🇸 Amazon USA ↗</a>
+            <a href="https://www.amazon.in/s?k=Apple+iPad+10th+Gen+64GB+Silver&tag=sparkdeal-21" target="_blank" class="py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-bold text-[11px] flex items-center justify-center gap-1 shadow-sm active:scale-[0.98]">🇮🇳 Amazon India ↗</a>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-[#050914]/95 backdrop-blur-xl border-t border-slate-800/80 px-1.5 py-2 flex items-center justify-between z-50 safe-bottom">
+      <button onclick="switchAppTab('sparksync')" id="navTasks" class="app-nav-btn active flex-1 flex flex-col items-center gap-1 text-cyan-400 transition-colors">
+        <span class="text-base">🔲</span><span class="text-[9px] font-bold">Tasks</span>
+      </button>
+      <button onclick="switchAppTab('deals')" id="navDeals" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-amber-400 transition-colors">
+        <span class="text-base">🔥</span><span class="text-[9px] font-bold">Deals</span>
+      </button>
+      <button onclick="switchAppTab('markets')" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-amber-300 transition-colors">
+        <span class="text-base">⚡</span><span class="text-[9px] font-semibold">Bets</span>
+      </button>
+      <button onclick="switchAppTab('sparksync'); simulateEcg();" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-rose-400 transition-colors">
+        <span class="text-base">📈</span><span class="text-[9px] font-semibold">Health</span>
+      </button>
+      <button onclick="showToast('Daily Readiness: 94/100 Optimal.')" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-emerald-400 transition-colors">
+        <span class="text-base">☑️</span><span class="text-[9px] font-semibold">Ready</span>
+      </button>
+      <button onclick="switchAppTab('markets')" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-cyan-400 transition-colors">
+        <span class="text-base">📊</span><span class="text-[9px] font-semibold">Markets</span>
+      </button>
+      <button onclick="showToast('Smart Photo Cleaner: 7.1 MB reclaimed.')" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-purple-400 transition-colors">
+        <span class="text-base">🖼️</span><span class="text-[9px] font-semibold">Gallery</span>
+      </button>
+      <button onclick="showToast('News Intel: Clean energy updates active.')" class="app-nav-btn flex-1 flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors">
+        <span class="text-base">📰</span><span class="text-[9px] font-semibold">News</span>
+      </button>
+    </nav>
+
+    <div id="appToast" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-blue-500/50 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl opacity-0 pointer-events-none">
+      Notice
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080/ords/sparksync/trading';
+    const USER_ID = 1;
+
+    function switchAppTab(tab) {
+      const views = {
+        'sparksync': document.getElementById('viewSparksync'),
+        'deals': document.getElementById('viewDeals'),
+        'markets': document.getElementById('viewMarkets')
+      };
+      Object.values(views).forEach(v => v.classList.add('hidden'));
+      views[tab].classList.remove('hidden');
+
+      document.querySelectorAll('.app-nav-btn').forEach(btn => btn.classList.replace('text-cyan-400', 'text-slate-400'));
+      if(tab === 'sparksync') document.getElementById('navTasks').classList.replace('text-slate-400', 'text-cyan-400');
+      if(tab === 'deals') document.getElementById('navDeals').classList.replace('text-slate-400', 'text-amber-400');
+
+      if(tab === 'markets') fetchMarkets();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockTime').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+      document.getElementById('appDateDisplay').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function showToast(msg) {
+      const t = document.getElementById('appToast');
+      t.innerText = msg;
+      t.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => t.classList.add('opacity-0', 'pointer-events-none'), 2500);
+    }
+
+    async function fetchMarkets() {
+      const container = document.getElementById('market-container');
+      try {
+        const response = await fetch(`${API_BASE}/markets`);
+        const data = await response.json();
+        container.innerHTML = '';
+        data.items.forEach(event => {
+          container.innerHTML += `
+            <div class="glass rounded-3xl p-6 border-l-4 border-indigo-500">
+              <div class="flex justify-between items-start mb-6">
+                <div>
+                  <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-bold uppercase">${event.category}</span>
+                  <h3 class="text-lg font-bold mt-2">${event.question}</h3>
+                </div>
+                <div class="text-right">
+                  <span class="text-xs text-slate-400 block">Probability</span>
+                  <span class="text-sm font-bold text-cyan-400">${(event.current_probability * 100).toFixed(1)}%</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <button onclick="executeTrade(${event.event_id}, 'YES')" class="bg-emerald-500/10 border border-emerald-500/50 p-4 rounded-2xl text-emerald-400 font-bold text-xl active:scale-95 transition-all">YES <span class="mono float-right">$${event.yes_price}</span></button>
+                <button onclick="executeTrade(${event.event_id}, 'NO')" class="bg-rose-500/10 border border-rose-500/50 p-4 rounded-2xl text-rose-400 font-bold text-xl active:scale-95 transition-all">NO <span class="mono float-right">$${event.no_price}</span></button>
+              </div>
+            </div>
+          `;
+        });
+      } catch (e) {
+        container.innerHTML = `<div class="glass p-6 rounded-3xl text-center text-rose-400">Backend Sync Error. Ensure ORDS is running.</div>`;
+      }
+    }
+
+    async function executeTrade(eventId, side) {
+      try {
+        const res = await fetch(`${API_BASE}/trade`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: USER_ID, event_id: eventId, side: side, amount: 100 })
+        });
+        if (res.ok) {
+          showToast(`Trade Confirmed: ${side} | Fee: $0.50`);
+          fetchMarkets();
+        } else {
+          showToast("Trade failed. Insufficient funds.", "error");
+        }
+      } catch (e) {
+        showToast("Network Error. Check ORDS.", "error");
+      }
+    }
+
+    function simulateEcg() {
+      const bpm = Math.floor(72 + Math.random() * 8);
+      document.getElementById('liveBpmDisplay').innerText = `${bpm} bpm`;
+      document.getElementById('vitalsHeartRate').innerText = bpm;
+      showToast(`Optical PPG Verified: ${bpm} bpm`);
+    }
+
+    function cleanDuplicates(btn) {
+      btn.disabled = true; btn.innerText = 'Cleaning...';
+      setTimeout(() => {
+        btn.innerText = 'Cleaned!';
+        btn.classList.add('bg-emerald-600');
+        showToast('Reclaimed 7.1 MB of duplicate storage!');
+      }, 1000);
+    }
+
+    function handleDealSearch(q) {
+      const lower = q.toLowerCase();
+      document.querySelectorAll('.deal-item').forEach(item => {
+        item.style.display = item.getAttribute('data-title').toLowerCase().includes(lower) ? 'block' : 'none';
+      });
+    }
+
+    function filterStore(store, btn) {
+      document.querySelectorAll('.store-pill').forEach(b => {
+        b.classList.remove('bg-amber-500', 'text-black', 'active');
+        b.classList.add('bg-slate-900', 'text-slate-300');
+      });
+      btn.classList.add('bg-amber-500', 'text-black', 'active');
+      document.querySelectorAll('.deal-item').forEach(item => {
+        item.style.display = (store === 'all' || item.getAttribute('data-store').toLowerCase().includes(store.toLowerCase())) ? 'block' : 'none';
+      });
+    }
+
+    function triggerProModal() { showToast('SparkSync Pro: Telemetry unlocked for $9.99/mo'); }
+
+    async function downloadZip(filename) {
+      showToast('Preparing ' + filename + '...');
+      window.location.href = '/' + filename;
+    }
+
+    (function init3DVitalsPlexus() {
+      const canvas = document.getElementById('vitals3dCanvas');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width, height, dpr = 2;
+      const phi = (1 + Math.sqrt(5)) / 2;
+      const vertices = [[-1, phi, 0], [1, phi, 0], [-1, -phi, 0], [1, -phi, 0], [0, -1, phi], [0, 1, phi], [0, -1, -phi], [0, 1, -phi], [phi, 0, -1], [phi, 0, 1], [-phi, 0, -1], [-phi, 0, 1]].map(([x,y,z]) => {
+        const l = Math.hypot(x,y,z); return [x/l, y/l, z/l];
+      });
+      const edges = [];
+      for(let i=0; i<vertices.length; i++) for(let j=i+1; j<vertices.length; j++) if(Math.hypot(vertices[i][0]-vertices[j][0], vertices[i][1]-vertices[j][1], vertices[i][2]-vertices[j][2]) < 1.15) edges.push([i,j]);
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        width = rect.width; height = rect.height;
+        canvas.width = width * dpr; canvas.height = height * dpr;
+        ctx.scale(dpr, dpr);
+      }
+      window.addEventListener('resize', resize); resize();
+
+      let rotX = 0.3, rotY = 0;
+      function render() {
+        requestAnimationFrame(render);
+        rotY += 0.01;
+        ctx.clearRect(0,0,width,height);
+        const centerX = width/2, centerY = height/2;
+        const radius = Math.min(width, height) * 0.4 * (1 + Math.pow(Math.max(0, Math.sin(Date.now()/800)), 3) * 0.1);
+        const cosX = Math.cos(rotX), sinX = Math.sin(rotX), cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+        const projected = vertices.map(([vx, vy, vz]) => {
+          const x1 = vx*cosY + vz*sinY, z1 = -vx*sinY + vz*cosY;
+          const y2 = vy*cosX - z1*sinX, z2 = vy*sinX + z1*cosX;
+          const scale = 2.4 / (2.4 + z2);
+          return { px: centerX + x1*radius*scale, py: centerY + y2*radius*scale, z: z2, scale };
+        });
+        edges.forEach(([i,j]) => {
+          ctx.beginPath(); ctx.moveTo(projected[i].px, projected[i].py); ctx.lineTo(projected[j].px, projected[j].py);
+          ctx.strokeStyle = `rgba(56, 189, 248, ${Math.max(0.1, (projected[i].z + projected[j].z)*0.3)})`;
+          ctx.lineWidth = 1; ctx.stroke();
+        });
+        projected.forEach((p, idx) => {
+          ctx.beginPath(); ctx.arc(p.px, p.py, 2*p.scale, 0, Math.PI*2);
+          ctx.fillStyle = idx%4===0 ? '#f43f5e' : '#38bdf8'; ctx.fill();
+        });
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>

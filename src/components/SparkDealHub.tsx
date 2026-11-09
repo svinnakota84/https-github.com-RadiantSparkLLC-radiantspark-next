@@ -1,0 +1,2 @@
+import React from 'react';
+export const SparkDealHub = (_props:any) => <section className="p-8 bg-slate-900 rounded-3xl text-white"><h2 className="text-2xl">SparkDeals · Merchant discovery</h2><p className="my-4">A live merchant feed is not connected. Old prices, discounts, ratings and shopper counts have been removed. Check each merchant for today's price, stock, shipping, tax and return terms.</p><a href="./sparkdeals.html" className="text-amber-300 underline">Browse merchants</a></section>;

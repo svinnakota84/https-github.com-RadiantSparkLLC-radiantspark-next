@@ -1,0 +1,21 @@
+{
+  "id": "/app.html",
+  "name": "SparkSync & SparkDeals Hub",
+  "short_name": "SparkSync",
+  "description": "Cross-platform mobile application by Radiant Spark LLC & RDNT Sparkle Industries LLP. Real-time tasks, health vitals, stock markets, and global SparkDeals.",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#090d16",
+  "theme_color": "#0f172a",
+  "categories": ["productivity", "health", "finance", "news"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

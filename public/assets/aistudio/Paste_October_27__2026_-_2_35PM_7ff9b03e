@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#030712" />
+  <meta name="description" content="Explore RDNT Sparkle Industries LLP in India and Radiant Spark LLC in the United States." />
+  <title>Radiant Spark Global | India &amp; U.S. Companies</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-country="global">
+  <div class="cinematic-atmosphere" aria-hidden="true"><canvas id="cinematic-orb"></canvas><div class="ambient-noise"></div></div>
+  <header class="site-header"><div class="container header-inner">
+    <a class="brand" href="index.html" aria-label="Radiant Spark Global home"><span class="brand-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L14.7 9.3L22 12L14.7 14.7L12 22L9.3 14.7L2 12L9.3 9.3L12 2Z" fill="currentColor"/></svg></span><img class="brand-india-logo" src="assets/radiant-sparkle-logo.png" alt="Radiant Sparkle Industries LLP logo" /><span class="brand-copy"><strong data-brand-name>Radiant Spark Global</strong><small data-brand-subtitle>United States · India</small></span></a>
+    <button class="menu-button" aria-label="Open navigation" aria-expanded="false">Menu</button>
+    <nav class="nav" aria-label="Main navigation">
+      <button class="country-tab active" type="button" data-country="global" aria-pressed="true">Radiant Spark Global</button>
+      <button class="country-tab" type="button" data-country="usa" aria-pressed="false">Technology USA</button>
+      <button class="country-tab" type="button" data-country="india" aria-pressed="false">Industries India</button>
+      <a class="nav-link" href="#about" data-global-section="about">About</a>
+      <a class="nav-link" href="#careers" data-global-section="careers">Careers</a>
+      <a class="nav-link" href="#contact" data-global-section="contact">Contact</a>
+      <a class="nav-link" href="#privacy" data-global-section="privacy">Privacy</a>
+      <a href="app.html" style="background: #2563eb; color: #ffffff; padding: 7px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; margin-left: 6px; box-shadow: 0 2px 6px rgba(37,99,235,0.3);">
+        ⚡ Launch SparkSync App
+      </a>
+    </nav>
+  </div></header>
+  <main>
+    <div class="country-page global-page" id="global-page" data-country-page="global">
+      <section class="container hero global-hero">
+        <div class="global-hero-content">
+          <div class="global-hero-pill"><span class="live-dot"></span> Radiant Spark Global · United States + India</div>
+          <h1>Intelligence across<br><em>frontiers.</em></h1>
+          <p class="hero-lede">Connecting U.S. technology services through Radiant Spark LLC with India clean energy, products, and distribution through RDNT Sparkle Industries LLP.</p>
+          <div class="hero-actions global-hero-actions">
+            <a class="button global-primary" href="#global-companies">Explore both companies <span>⌄</span></a>
+            <a href="app.html" style="background: #3b82f6; color: #ffffff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59,130,246,0.35);">
+              ⚡ Launch SparkSync App
+            </a>
+            <button class="button secondary global-ask" type="button" id="global-ask-button">Ask Radiant Intelligence <span class="guide-badge">Guide</span></button>
+          </div>
+          <div class="global-territory-links"><button type="button" data-country="usa"><span>🇺🇸</span> United States · Radiant Spark LLC</button><button type="button" data-country="india"><span>🇮🇳</span> India · RDNT Sparkle Industries LLP</button></div>
+        </div>
+        <div class="hero-meta global-hero-meta"><span><b>Two independent companies</b> · Separate operations</span><span>United States · India</span></div>
+      </section>
+      <section class="container global-metrics" aria-label="Company overview"><div class="metric-card"><span class="metric-value">02</span><span class="metric-label">Distinct companies</span><small>One U.S. company and one India LLP</small></div><div class="metric-card"><span class="metric-value">06</span><span class="metric-label">U.S. technology practices</span><small>Under Spark IT Consulting</small></div><div class="metric-card"><span class="metric-value">04</span><span class="metric-label">India divisions</span><small>Under RDNT Sparkle Industries LLP</small></div></section>
+      <section class="container section global-companies" id="global-companies"><div class="section-head"><div><div class="eyebrow">Choose a company</div><h2>Two teams.<br><em>Clear responsibilities.</em></h2></div><p>The country switch keeps each company’s services, story, and contact path in its own view.</p></div><div class="entity-grid">
+        <article class="entity-card entity-card-usa"><div class="entity-card-art"><img src="assets/spark-it.jpg" alt="Spark IT Consulting image"/><span>United States · Technology</span></div><div class="entity-card-copy"><div class="eyebrow">Radiant Spark LLC</div><h3>Spark IT Consulting</h3><p>Technology consulting, cloud and digital modernization, AI, integration, custom software, and IT advisory.</p><button class="button" type="button" data-country="usa">Open U.S. company <span>↗</span></button></div></article>
+        <article class="entity-card entity-card-india"><div class="entity-card-art"><img src="assets/spark-ev.jpg" alt="RDNT Sparkle Industries LLP India division image"/><span>India · Products &amp; operations</span></div><div class="entity-card-copy"><div class="eyebrow">RDNT Sparkle Industries LLP</div><h3>Four India divisions</h3><p>Spark EV, Sparkle Drinks, Spicy Sparkle Naturals, and Sparkle Distribution Network.</p><button class="button" type="button" data-country="india">Open India company <span>↗</span></button></div></article>
+      </div></section>
+      <section class="container section info-page" id="about"><div class="section-head"><div><div class="eyebrow">About Radiant Spark</div><h2>One vision.<br><em>Two distinct companies.</em></h2></div><p>Radiant Spark Global is the shared website and brand overview. Each company serves its own market and owns its own business activities.</p></div><div class="info-grid"><article class="info-card info-card-usa"><span class="info-kicker">United States</span><h3>Radiant Spark LLC</h3><p>Through Spark IT Consulting, the U.S. company focuses on technology consulting and services including business transformation, cloud modernization, AI, systems integration, custom software, and IT advisory.</p><button class="button secondary" type="button" data-country="usa">View U.S. services ↗</button></article><article class="info-card info-card-india"><span class="info-kicker">India · Andhra Pradesh</span><h3>RDNT Sparkle Industries LLP</h3><p>The India company includes Spark EV, Sparkle Drinks, Spicy Sparkle Naturals, and Sparkle Distribution Network, spanning clean energy, products, and distribution.</p><button class="button secondary" type="button" data-country="india">View India divisions ↗</button></article></div></section>
+      <section class="container section info-page" id="careers"><div class="careers-panel"><div class="eyebrow">Careers · United States</div><h2>Careers and <em>Talent Network</em></h2><p>Radiant Spark LLC welcomes qualified professionals interested in technology consulting, Oracle Cloud, integrations, artificial intelligence, software development, data, and IT staffing opportunities.</p><h3>How to apply</h3><p>Email your résumé and a short introduction to <a href="mailto:info@radiantsparkllc.com?subject=Career%20inquiry%20-%20Radiant%20Spark%20LLC">info@radiantsparkllc.com</a>. Include your primary skills, location, work authorization, and availability.</p><a class="button" href="mailto:info@radiantsparkllc.com?subject=Career%20inquiry%20-%20Radiant%20Spark%20LLC">Apply by email ↗</a><div class="privacy-callout">Submitting a résumé does not guarantee employment or placement. Please do not email Social Security numbers, passport copies, banking information, passwords, or other sensitive personal information.</div></div></section>
+      <section class="container section info-page" id="contact"><div class="section-head"><div><div class="eyebrow">Contact</div><h2>Let’s start a <em>conversation.</em></h2></div><p>Select the company that matches your inquiry so it reaches the right team.</p></div><div class="info-grid"><article class="info-card info-card-usa"><span class="info-kicker">Technology · United States</span><h3>Radiant Spark LLC</h3><p>For Spark IT Consulting, cloud, AI, integration, staffing, or career inquiries.</p><a class="button" href="mailto:info@radiantsparkllc.com?subject=Radiant%20Spark%20LLC%20inquiry">Email Radiant Spark LLC ↗</a><a class="text-link" href="https://radiantsparkllc.com/" target="_blank" rel="noopener noreferrer">Visit radiantsparkllc.com ↗</a></article><article class="info-card info-card-india"><span class="info-kicker">Industries · India</span><h3>RDNT Sparkle Industries LLP</h3><p>For Spark EV, Sparkle Drinks, Spicy Sparkle Naturals, or Sparkle Distribution Network inquiries.</p><a class="button secondary" href="mailto:info@radiantsparkllc.com?subject=RDNT%20Sparkle%20Industries%20LLP%20inquiry">Email info@radiantsparkllc.com ↗</a><p class="contact-note">Please include the India division name in your message so the inquiry can be routed correctly.</p></article></div></section>
+      <section class="container section info-page" id="privacy"><div class="privacy-box privacy-page"><div class="eyebrow">Privacy</div><h2>Privacy and site information</h2><p>This website is a static site. It does not include analytics, advertising pixels, a database, or a contact form. The career and contact links open your email application; information you choose to send is handled by your email provider and the receiving company.</p><p>The website’s hosting provider may process basic technical logs such as IP address, browser, and request time. Review the host’s privacy terms before publishing.</p><div class="privacy-links"><a href="https://www.ftc.gov/business-guidance/privacy-security" target="_blank" rel="noopener noreferrer">U.S. FTC privacy and security resources ↗</a><a href="https://cppa.gov/faq" target="_blank" rel="noopener noreferrer">California privacy resources ↗</a><a href="https://www.meity.gov.in/documents/act-and-policies" target="_blank" rel="noopener noreferrer">India MeitY policies ↗</a></div><p class="contact-note">This general information is not a substitute for the companies’ approved privacy notices. Add the applicable company contact and legal policy before publication.</p></div></section>
+    </div>
+    <div class="country-page" id="india-page" data-country-page="india">
+<section class="container hero">
+      <div><div class="eyebrow">India · Andhra Pradesh · Parent company</div><h1>Building a<br><em>better future.</em></h1><p class="hero-lede">RDNT Sparkle Industries LLP drives innovation and sustainability across clean energy, beverages, food, and distribution. One India-based company, with businesses designed around everyday needs and a more sustainable tomorrow.</p><div class="hero-actions"><a class="button" href="#divisions">Explore India divisions <span>↘</span></a><button class="button secondary" type="button" data-country="usa">View U.S. company <span>↗</span></button></div></div>
+      <div class="hero-visual"><div class="visual-glow" aria-hidden="true"></div><img src="assets/spark-ev.jpg" alt="Spark EV concept: electric mobility and charging" /><span class="hero-label">RDNT Sparkle Industries LLP · India</span></div>
+      <div class="hero-meta"><span><b>India parent company</b> · RDNT Sparkle Industries LLP</span><span>Established July 7, 2026 · Andhra Pradesh</span></div>
+    </section>
+<section class="container metrics-band" aria-label="India company facts"><div class="metric-card"><span class="metric-value">04</span><span class="metric-label">India divisions</span><small>Four businesses under RDNT Sparkle Industries LLP</small></div><div class="metric-card"><span class="metric-value">AP</span><span class="metric-label">Andhra Pradesh</span><small>Regional clean energy and distribution focus</small></div><div class="metric-card"><span class="metric-value">2026</span><span class="metric-label">Established</span><small>RDNT Sparkle Industries LLP</small></div></section>
+    <section class="container section" id="divisions"><div class="section-head"><div><div class="eyebrow">India divisions</div><h2>Clean energy, products<br><em>&amp; distribution.</em></h2></div><p>Explore the India businesses within RDNT Sparkle Industries LLP. Spark IT Consulting is listed separately under Radiant Spark LLC on the U.S. page.</p></div>
+      <div class="division-grid">
+        <article class="division-card"><div class="division-image"><img src="assets/spark-ev.jpg" alt="Electric vehicle and charging station" loading="lazy" /></div><div class="division-body"><span class="division-tag">RDNT Sparkle Industries LLP · Clean energy</span><h3>Spark EV</h3><p>Solar power solutions, EV charging infrastructure planning, installation coordination, battery-ready energy concepts, and clean-energy development across Andhra Pradesh.</p><a class="learn" href="#india-contact">Explore Spark EV ↗</a></div></article>
+        <article class="division-card"><div class="division-image"><img src="assets/sparkle-drinks.jpg" alt="Sparkle Drinks product range" loading="lazy" /></div><div class="division-body"><span class="division-tag">RDNT Sparkle Industries LLP · Beverages</span><h3>Sparkle Drinks</h3><p>Beverage product development, manufacturing partnerships, wholesale distribution, brand growth, and market expansion subject to applicable FSSAI, GST, and local approvals.</p><a class="learn" href="#india-contact">Explore Sparkle Drinks ↗</a></div></article>
+        <article class="division-card"><div class="division-image"><img src="assets/spicy-sparkle-naturals.jpg" alt="Spicy Sparkle Naturals product range" loading="lazy" /></div><div class="division-body"><span class="division-tag">RDNT Sparkle Industries LLP · Food</span><h3>Spicy Sparkle Naturals</h3><p>Premium natural snacks and dry-fruit products, with a focus on carefully sourced ingredients and a wholesome everyday choice.</p><a class="learn" href="#india-contact">Explore Naturals ↗</a></button></div></article>
+        <article class="division-card"><div class="division-image"><img src="assets/sparkle-distribution.jpg" alt="Sparkle Distribution Network delivery truck" loading="lazy" /></div><div class="division-body"><span class="division-tag">RDNT Sparkle Industries LLP · Distribution</span><h3>Sparkle Distribution Network</h3><p>In-house regional supply-chain and last-mile delivery operations supporting Sparkle Drinks, local cargo, business distribution, and future solar-powered shared-fleet services.</p><a class="learn" href="#india-contact">Explore distribution ↗</a></div></article>
+      </div>
+      <div class="features"><div class="feature"><i>◎</i><div><strong>Four India divisions</strong><span>One India parent company</span></div></div><div class="feature"><i>✳</i><div><strong>Innovation driven</strong><span>Technology and sustainability</span></div></div><div class="feature"><i>◉</i><div><strong>Andhra Pradesh focus</strong><span>Guntur and beyond</span></div></div><div class="feature"><i>↗</i><div><strong>Sustainable future</strong><span>Building for tomorrow</span></div></div></div>
+    </section>
+
+    <!-- START: SparkDeal Hub (Slickdeals for India) -->
+    <section class="container section" id="india-deals">
+        <div class="section-head">
+            <div>
+                <div class="eyebrow" style="color: #fbbf24;">🔥 Exclusive Offers</div>
+                <h2>SparkDeal Hub<br><em>Curated Indian Steals.</em></h2>
+            </div>
+            <p>The best deals in India, hand-picked for the Radiant Spark community. From clean energy to and daily essentials.</p>
+        </div>
+        <div class="deal-filters" style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px;">
+            <button class="filter-btn active" style="background: #3b82f6; color: white; padding: 5px 15px; border-radius: 20px; font-size: 12px; white-space: nowrap;">All Deals</button>
+            <button class="filter-btn" style="background: rgba(255,255,255,0.1); color: #ccc; padding: 5px 15px; border-radius: 20px; font-size: 12px; white-space: nowrap;">Energy</button>
+            <button class="filter-btn" style="background: rgba(255,255,255,0.1); color: #ccc; padding: 5px 15px; border-radius: 20px; font-size: 12px; white-space: nowrap;">Electronics</button>
+            <button class="filter-btn" style="background: rgba(255,255,255,0.1); color: #ccc; padding: 5px 15px; border-radius: 20px; font-size: 12px; white-space: nowrap;">Wellness</button>
+        </div>
+        <div class="deal-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+            <div class="deal-card glass" style="padding: 20px; border-radius: 24px; position: relative; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">30% OFF</div>
+                <div style="width: 100%; height: 150px; background: #1e293b; border-radius: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; color: #475569; font-size: 12px;">Product Image</div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 5px;">Premium Solar Home Kit</h3>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+                    <span style="font-size: 18px; font-weight: 800; color: #fbbf24;">₹35,000</span>
+                    <span style="text-decoration: line-through; color: #64748b; font-size: 14px;">₹50,000</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button style="background: rgba(255,255,255,0.1); border: none; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;">🔥 120</button>
+                    <a href="#" style="background: #3b82f6; color: white; padding: 8px 16px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 12px;">Get Deal ↗</a>
+                </div>
+            </div>
+        </div>
+        <div class="privacy-callout" style="margin-top: 30px; padding: 15px; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; border-radius: 8px; font-size: 11px; color: #94a3b8; line-height: 1.6;">
+            <strong style="color: #ef4444;">Legal Disclaimer:</strong> SparkDeal Hub is a curation service. Prices and availability are subject to change by the original vendors. RDNT Sparkle Industries LLP does not guarantee the accuracy of third-party pricing and is not responsible for transaction disputes between the user and the seller. We may earn an affiliate commission from some of the links provided here.
+        </div>
+    </section>
+
+    <section class="container section faq-section"><div class="section-head"><div><div class="eyebrow">India company guide</div><h2>Questions, <em>answered.</em></h2></div><p>Learn where each India business sits and what it focuses on.</p></div><div class="faq-list"><details><summary>Which company operates the India divisions?</summary><p>Spark EV, Sparkle Drinks, Spicy Sparkle Naturals, and Sparkle Distribution Network are presented under RDNT Sparkle Industries LLP.</p></details><details><summary>What does Spark EV focus on?</summary><p>Solar power concepts, electric vehicle charging infrastructure planning, and clean energy development in Andhra Pradesh.</p></details><details><summary>Which divisions cover products and delivery?</summary><p>Sparkle Drinks and Spicy Sparkle Naturals focus on consumer products. Sparkle Distribution Network covers regional supply chain and last-mile delivery initiatives.</p></details></div></section>
+    <section class="container section" id="india-contact"><div class="company-panel"><div><div class="eyebrow">India parent company</div><h2>RDNT Sparkle Industries LLP</h2><p>Clean energy, beverages, food, and regional distribution initiatives in India.</p></div><a class="button" href="mailto:info@radiantsparkllc.com?subject=RDNT%20Sparkle%20Industries%20LLP%20inquiry">Email info@radiantsparkllc.com ↗</a></div></section>
+    <section class="container privacy">
+        <div class="privacy-box">
+            <h2 style="color: #fbbf24;">India Privacy & Legal Shield</h2>
+            <p>RDNT Sparkle Industries LLP operates in strict accordance with the <strong>Information Technology Act</strong> and the <strong>Consumer Protection Act</strong> of India.</p>
+            <div class="info-grid" style="text-align: left; margin-top: 20px; font-size: 13px; color: #cbd5e1;">
+                <article style="margin-bottom: 20px;">
+                    <strong style="color: white; display: block; margin-bottom: 5px;">🛡️ Intermediary Status</strong>
+                    <p>RDNT Sparkle Industries LLP acts as an intermediary for the SparkDeal Hub. We do not host, sell, or ship third-party products. All purchases are made directly via the vendor's platform.</p>
+                </article>
+                <article style="margin-bottom: 20px;">
+                    <strong style="color: white; display: block; margin-bottom: 5px;">🔒 Data Security</strong>
+                    <p>All user interactions on the India portal are processed through encrypted channels. We do not store financial payment data on our local servers; all payments are handled by secure, PCI-DSS compliant third-party gateways.</p>
+                </article>
+                <article style="margin-bottom: 20px;">
+                    <strong style="color: white; display: block; margin-bottom: 5px;">⚖️ Limitation of Liability</strong>
+                    <p>By using this portal, you agree that Radiant Spark Global and its subsidiaries are not liable for any direct or indirect damages resulting from the use of the deals or services listed here.</p>
+                </article>
+            </div>
+            <p class="contact-note" style="margin-top: 20px;">For legal inquiries or takedown requests, please email our legal compliance officer at <a href="mailto:legal@radiantsparkllc.com" style="color: #fbbf24;">legal@radiantsparkllc.com</a>.</p>
+        </div>
+    </section>
+    </div>
+    <div class="country-page" id="usa-page" data-country-page="usa" hidden>
+<section class="container hero"><div><div class="eyebrow">United States · Radiant Spark LLC</div><h1>Technology for<br><em>what’s next.</em></h1><p class="hero-lede">Spark IT Consulting helps organizations modernize systems, improve operations, and make technology work harder for their business.</p>
+  <div class="hero-actions">
+    <a class="button" href="#services">Explore IT services <span>↘</span></a>
+    <a href="app.html" style="background: #3b82f6; color: #ffffff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59,130,246,0.35);">
+      ⚡ Launch SparkSync App
+    </a>
+    <a class="button secondary" href="https://radiantsparkllc.com/" target="_blank" rel="noopener noreferrer">Visit Radiant Spark LLC <span>↗</span></a>
+  </div>
+</div><div class="hero-visual"><div class="visual-glow" aria-hidden="true"></div><img src="assets/spark-it.jpg" alt="Spark IT Consulting technology and Oracle Cloud services" /><span class="it-hero-logo">Spark IT Consulting · USA</span><span class="hero-label">Radiant Spark LLC</span></div><div class="hero-meta"><span><b>Technology company</b> · United States</span><span>Established September 1, 2025 · Radiant Spark LLC</span></div></section>
+<section class="container metrics-band" aria-label="United States company facts"><div class="metric-card"><span class="metric-value">06</span><span class="metric-label">Service practices</span><small>Under Spark IT Consulting</small></div><div class="metric-card"><span class="metric-value">US</span><span class="metric-label">United States</span><small>Radiant Spark LLC</small></div><div class="metric-card"><span class="metric-value">2025</span><span class="metric-label">Established</span><small>Radiant Spark LLC</small></div></section>
+<section class="container section" id="services"><div class="section-head"><div><div class="eyebrow">Spark IT Consulting</div><h2>Build smarter.<br><em>Move with confidence.</em></h2></div><p>Technology consulting and delivery services for businesses ready to improve, integrate, and scale their operations.</p></div><div class="service-grid"><article class="service-card"><span class="service-num">01 / TRANSFORMATION</span><h3>Business transformation</h3><p>Enterprise process improvement and re-engineering to support operational change and sustainable growth.</p></article><article class="service-card"><span class="service-num">02 / MODERNIZATION</span><h3>Digital transformation</h3><p>Cloud-first modernization, automation, and digital innovation to improve how teams work.</p></article><article class="service-card"><span class="service-num">03 / INTELLIGENCE</span><h3>Artificial intelligence</h3><p>AI strategy, deployment, and infrastructure planning for practical enterprise use cases.</p></article><article class="service-card"><span class="service-num">04 / PLATFORMS</span><h3>Technology &amp; integration</h3><p>Cloud infrastructure, systems integration, APIs, and enterprise platform implementation.</p></article><article class="service-card"><span class="service-num">05 / ENGINEERING</span><h3>Custom solutions</h3><p>Custom software and platform development aligned with specific business needs.</p></article><article class="service-card"><span class="service-num">06 / ADVISORY</span><h3>IT consulting &amp; staffing</h3><p>Oracle Fusion HCM, SQL troubleshooting, systems advisory, and technology talent solutions.</p></article></div></section>
+<section class="container section faq-section"><div class="section-head"><div><div class="eyebrow">U.S. company guide</div><h2>Find the right <em>service.</em></h2></div><p>Spark IT Consulting presents technology services through Radiant Spark LLC in the United States.</p></div><div class="faq-list"><details><summary>Which company provides Spark IT Consulting?</summary><p>Spark IT Consulting is presented under Radiant Spark LLC, the U.S. company.</p></details><details><summary>What services are listed?</summary><p>Business transformation, digital modernization, artificial intelligence, technology integration, custom software, and IT consulting and staffing.</p></details><details><summary>Where can I contact the U.S. company?</summary><p>Use the official Radiant Spark LLC website: <a href="https://radiantsparkllc.com/" target="_blank" rel="noopener noreferrer">radiantsparkllc.com</a>.</p></details></div></section>
+<section class="container section" id="usa-contact"><div class="company-panel"><div><div class="eyebrow">United States · Radiant Spark LLC</div><h2>Spark IT Consulting</h2><p>Business and technology services provided through Radiant Spark LLC in the United States.</p></div><a class="button" href="https://radiantsparkllc.com/" target="_blank" rel="noopener noreferrer">Contact Radiant Spark LLC ↗</a></div></section><section class="container privacy"><div class="privacy-box"><h2>Privacy &amp; security</h2><p>This static page has no contact form or analytics code. Its displayed images are included in the site files. Hosting platforms may process basic connection logs. Privacy rules vary by location; review official information from the <a href="https://www.ftc.gov/business-guidance/privacy-security" target="_blank" rel="noopener noreferrer">Federal Trade Commission</a> and the <a href="https://cppa.gov/faq" target="_blank" rel="noopener noreferrer">California Privacy Protection Agency</a>. Add the company’s approved privacy policy and contact before publishing.</p></div></section>
+    </div>
+  </main>
+  <footer><div class="container footer-inner"><span class="country-footer" data-country-footer="global">© <span data-current-year></span> Radiant Spark Global · Company overview</span><span class="country-footer" data-country-footer="india" hidden>© <span data-current-year></span> RDNT Sparkle Industries LLP · India</span><span class="country-footer" data-country-footer="usa" hidden>© <span data-current-year></span> Radiant Spark LLC · United States</span><div class="footer-links"><button class="footer-country" type="button" data-country="global">Radiant Spark Global</button><button class="footer-country" type="button" data-country="usa">Radiant Spark LLC · USA</button><button class="footer-country" type="button" data-country="india" data-scroll-to="divisions">India divisions</button><button class="footer-country" type="button" data-global-section="contact">Contact</button><button class="footer-country" type="button" data-global-section="privacy">Privacy</button><button class="footer-country" type="button" data-global-section="careers">Careers</button></div></div>
+  </footer>
+
+  <section class="assistant-panel" id="spark-assistant" role="dialog" aria-label="Radiant Spark website guide" aria-modal="false" hidden>
+    <header class="assistant-header"><span class="assistant-mark" aria-hidden="true">⚡</span><div><strong>Radiant Intelligence</strong><small><i class="assistant-status-dot"></i>Radiant Spark website guide</small></div><button class="assistant-close" id="assistant-close" type="button" aria-label="Close chat">×</button></header>
+    <div class="assistant-messages" id="assistant-messages" aria-live="polite"><div class="assistant-message assistant-reply">Hello! I am Radiant Intelligence, the company guide for Radiant Spark Global. I can answer questions about U.S. technology services under Radiant Spark LLC and India businesses under RDNT Sparkle Industries LLP.</div></div>
+    <div class="assistant-prompts" aria-label="Suggested questions"><button type="button" data-chat-prompt="Tell me about the U.S. IT and Oracle services">💻 U.S. IT &amp; Oracle</button><button type="button" data-chat-prompt="Explain Spark EV and solar services in India">⚡ India Spark EV</button><button type="button" data-chat-prompt="Tell me about Sparkle Drinks and Spicy Sparkle Naturals">🥤 Beverages &amp; Food</button></div>
+    <form class="assistant-form" id="assistant-form"><label class="sr-only" for="assistant-input">Ask a question</label><input id="assistant-input" type="text" autocomplete="off" placeholder="Ask a question…" /><button type="submit" aria-label="Send question">↑</button></form>
+    <div class="assistant-footnote">Answers are guided by information on this website.</div>
+  </section>
+  <button class="assistant-toggle" id="assistant-toggle" type="button" aria-controls="spark-assistant" aria-expanded="false"><span aria-hidden="true">⚡</span> Ask Radiant Intelligence</button>
+  <script src="site.js" defer></script>
+</body>
+</html>

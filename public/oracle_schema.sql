@@ -1,0 +1,173 @@
+-- ====================================================================
+-- RADIANT SPARK GLOBAL / RDNT SPARKLE INDUSTRIES LLP
+-- ORACLE DATABASE 19c / 21c / 23ai & AUTONOMOUS DATABASE (ATP) DDL SCHEMA
+-- Architected by: Marcus Vance (Enterprise Systems & ORDS Engineer)
+-- Compatible with: Oracle REST Data Services (ORDS) & Oracle Cloud
+-- ====================================================================
+
+-- 1. SPARKLE DRINKS INVENTORY TABLE (ON-HAND STOCK & LOCATIONS)
+CREATE TABLE SPARK_INVENTORY (
+    SKU_ID              VARCHAR2(32) PRIMARY KEY,
+    PRODUCT_NAME        VARCHAR2(128) NOT NULL,
+    HSN_CODE            VARCHAR2(16) DEFAULT '2202',
+    FSSAI_LICENSE       VARCHAR2(32) DEFAULT '10126999000142',
+    UNIT_PRICE_INR      NUMBER(10,2) NOT NULL,
+    CASE_SIZE           NUMBER(4) DEFAULT 24,
+    VIZAG_PLANT_CASES   NUMBER(10) DEFAULT 18450,
+    VIJAYAWADA_DEPOT    NUMBER(10) DEFAULT 6200,
+    AMAZON_FBA_HYD1     NUMBER(10) DEFAULT 4800,
+    TOTAL_ON_HAND       NUMBER(10) GENERATED ALWAYS AS (VIZAG_PLANT_CASES + VIJAYAWADA_DEPOT + AMAZON_FBA_HYD1),
+    REORDER_THRESHOLD   NUMBER(10) DEFAULT 5000,
+    TEMP_SETPOINT_C     NUMBER(4,1) DEFAULT 3.2,
+    LAST_UPDATED        TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Seed Initial Beverage Inventory
+INSERT INTO SPARK_INVENTORY (SKU_ID, PRODUCT_NAME, UNIT_PRICE_INR, VIZAG_PLANT_CASES, VIJAYAWADA_DEPOT, AMAZON_FBA_HYD1)
+VALUES ('drk-1', 'Botanical Berry Spritz (24x250ml)', 1560.00, 18450, 6200, 4800);
+
+INSERT INTO SPARK_INVENTORY (SKU_ID, PRODUCT_NAME, UNIT_PRICE_INR, VIZAG_PLANT_CASES, VIJAYAWADA_DEPOT, AMAZON_FBA_HYD1)
+VALUES ('drk-2', 'Citrus Herbal Tonic (24x250ml)', 1440.00, 12200, 4100, 3200);
+
+INSERT INTO SPARK_INVENTORY (SKU_ID, PRODUCT_NAME, UNIT_PRICE_INR, VIZAG_PLANT_CASES, VIJAYAWADA_DEPOT, AMAZON_FBA_HYD1)
+VALUES ('drk-3', 'Ginger Mint Sparkler (24x250ml)', 1320.00, 9500, 3400, 2600);
+
+INSERT INTO SPARK_INVENTORY (SKU_ID, PRODUCT_NAME, UNIT_PRICE_INR, VIZAG_PLANT_CASES, VIJAYAWADA_DEPOT, AMAZON_FBA_HYD1)
+VALUES ('drk-4', 'Active Electrolyte Fusion (24x250ml)', 1680.00, 15300, 5800, 4100);
+
+-- 2. CUSTOMER & DEALER ORDERS TABLE
+CREATE TABLE SPARK_ORDERS (
+    ORDER_ID            VARCHAR2(64) PRIMARY KEY,
+    ORDER_DATE          DATE DEFAULT SYSDATE,
+    CUSTOMER_TYPE       VARCHAR2(32) NOT NULL, -- 'dealer', 'super_stockist', 'd2c'
+    BUYER_NAME          VARCHAR2(128) NOT NULL,
+    BUSINESS_NAME       VARCHAR2(256),
+    BUYER_GSTIN         VARCHAR2(32),
+    DESTINATION_CITY    VARCHAR2(128) NOT NULL,
+    DESTINATION_STATE   VARCHAR2(64) DEFAULT 'Andhra Pradesh',
+    SKU_ID              VARCHAR2(32) REFERENCES SPARK_INVENTORY(SKU_ID),
+    CASES_ORDERED       NUMBER(8) NOT NULL,
+    TOTAL_CANS          NUMBER(10) NOT NULL,
+    SUBTOTAL_INR        NUMBER(12,2) NOT NULL,
+    DISCOUNT_PCT        NUMBER(5,2) DEFAULT 0,
+    DISCOUNT_AMT_INR    NUMBER(12,2) DEFAULT 0,
+    TAXABLE_VALUE_INR   NUMBER(12,2) NOT NULL,
+    GST_RATE_PCT        NUMBER(5,2) DEFAULT 28.00,
+    CGST_AMOUNT_INR     NUMBER(12,2) NOT NULL,
+    SGST_AMOUNT_INR     NUMBER(12,2) NOT NULL,
+    IGST_AMOUNT_INR     NUMBER(12,2) DEFAULT 0,
+    GRAND_TOTAL_INR     NUMBER(12,2) NOT NULL,
+    ORDER_STATUS        VARCHAR2(32) DEFAULT 'RECEIVED', -- 'RECEIVED', 'ALLOCATED', 'INVOICED', 'DISPATCHED'
+    CREATED_AT          TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. FACTORY BOTTLING REQUISITION SLIPS TABLE
+CREATE TABLE SPARK_REQUISITIONS (
+    REQUISITION_ID      VARCHAR2(64) PRIMARY KEY,
+    ORDER_ID            VARCHAR2(64) REFERENCES SPARK_ORDERS(ORDER_ID),
+    PLANT_FACILITY      VARCHAR2(128) DEFAULT 'Visakhapatnam Bottling Line #3',
+    BATCH_CODE          VARCHAR2(64) NOT NULL,
+    BAR_PRESSURE        NUMBER(4,2) DEFAULT 3.40,
+    TANK_TEMP_C         NUMBER(4,2) DEFAULT 1.80,
+    CANS_ALLOCATED      NUMBER(10) NOT NULL,
+    BERRY_EXTRACT_KG    NUMBER(8,2),
+    SPRING_WATER_LITERS NUMBER(10,2),
+    AUTHORIZED_BY       VARCHAR2(64) DEFAULT 'Rajesh Varma (AI Bottling Director)',
+    STATUS              VARCHAR2(32) DEFAULT 'IN_PRODUCTION',
+    CREATED_AT          TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. STATUTORY GST TAX INVOICES & CUSTOMER RECEIPTS TABLE
+CREATE TABLE SPARK_INVOICES (
+    INVOICE_ID          VARCHAR2(64) PRIMARY KEY,
+    ORDER_ID            VARCHAR2(64) REFERENCES SPARK_ORDERS(ORDER_ID),
+    INVOICE_DATE        DATE DEFAULT SYSDATE,
+    SELLER_ENTITY       VARCHAR2(128) DEFAULT 'RDNT Sparkle Industries LLP',
+    SELLER_GSTIN        VARCHAR2(32) DEFAULT '37AAHFR1102K1Z9',
+    FSSAI_CENTRAL_LIC   VARCHAR2(32) DEFAULT '10126999000142',
+    BUYER_NAME          VARCHAR2(128) NOT NULL,
+    BUYER_GSTIN         VARCHAR2(32),
+    HSN_CODE            VARCHAR2(16) DEFAULT '2202',
+    TAXABLE_VALUE_INR   NUMBER(12,2) NOT NULL,
+    CGST_AMOUNT_INR     NUMBER(12,2) NOT NULL,
+    SGST_AMOUNT_INR     NUMBER(12,2) NOT NULL,
+    TOTAL_INVOICE_INR   NUMBER(12,2) NOT NULL,
+    RECEIPT_NO          VARCHAR2(64),
+    PAYMENT_STATUS      VARCHAR2(32) DEFAULT 'VERIFIED',
+    IRN_HASH            VARCHAR2(128),
+    QR_SIGNATURE        VARCHAR2(256),
+    AUTHORIZED_BY       VARCHAR2(64) DEFAULT 'Elena Rostova (AI Financial Specialist)'
+);
+
+-- 5. AMAZON FBA & COLD-CHAIN DISPATCH WAYBILLS TABLE
+CREATE TABLE SPARK_SHIPMENTS (
+    WAYBILL_NO          VARCHAR2(64) PRIMARY KEY,
+    ORDER_ID            VARCHAR2(64) REFERENCES SPARK_ORDERS(ORDER_ID),
+    INVOICE_ID          VARCHAR2(64) REFERENCES SPARK_INVOICES(INVOICE_ID),
+    AMAZON_TRACKING_ID  VARCHAR2(64) NOT NULL, -- e.g. TBA3091829012-9041
+    CARRIER_SERVICE     VARCHAR2(64) DEFAULT 'Amazon Logistics / RDNT EV Reefer',
+    SORT_HUB_GATE       VARCHAR2(32) DEFAULT 'HYD1 - BAY 04',
+    DELIVERY_SLA        VARCHAR2(64) DEFAULT 'PRIORITY 1-DAY PRIME',
+    VEHICLE_NUMBER      VARCHAR2(32) DEFAULT 'AP-31-EV-8840',
+    DRIVER_NAME         VARCHAR2(64) DEFAULT 'Suresh Kumar',
+    DRIVER_CONTACT      VARCHAR2(32) DEFAULT '+91 98480 22331',
+    CHAMBER_TEMP_C      NUMBER(4,2) DEFAULT 3.20,
+    TOTAL_WEIGHT_KG     NUMBER(8,2) NOT NULL,
+    DISPATCH_STATUS     VARCHAR2(32) DEFAULT 'EN_ROUTE',
+    DISPATCH_TIMESTAMP  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    DISPATCHED_BY       VARCHAR2(64) DEFAULT 'Capt. Vikram Naidu (AI VP Cold-Chain)'
+);
+
+-- ====================================================================
+-- ENABLE ORDS (ORACLE REST DATA SERVICES) AUTO-REST ON ALL TABLES
+-- (Run this in Oracle SQL Developer or Database Actions to expose HTTPS REST)
+-- ====================================================================
+BEGIN
+    ORDS.ENABLE_SCHEMA(
+        p_enabled             => TRUE,
+        p_schema              => USER,
+        p_url_mapping_type    => 'BASE_PATH',
+        p_url_mapping_pattern => 'sparkle',
+        p_auto_rest_auth      => FALSE
+    );
+
+    ORDS.ENABLE_OBJECT(
+        p_enabled        => TRUE,
+        p_schema         => USER,
+        p_object         => 'SPARK_INVENTORY',
+        p_object_type    => 'TABLE',
+        p_object_alias   => 'inventory'
+    );
+
+    ORDS.ENABLE_OBJECT(
+        p_enabled        => TRUE,
+        p_schema         => USER,
+        p_object         => 'SPARK_ORDERS',
+        p_object_type    => 'TABLE',
+        p_object_alias   => 'orders'
+    );
+
+    ORDS.ENABLE_OBJECT(
+        p_enabled        => TRUE,
+        p_schema         => USER,
+        p_object         => 'SPARK_INVOICES',
+        p_object_type    => 'TABLE',
+        p_object_alias   => 'invoices'
+    );
+
+    ORDS.ENABLE_OBJECT(
+        p_enabled        => TRUE,
+        p_schema         => USER,
+        p_object         => 'SPARK_SHIPMENTS',
+        p_object_type    => 'TABLE',
+        p_object_alias   => 'shipments'
+    );
+
+    COMMIT;
+END;
+/
+
+-- Sample REST Endpoints now active in Oracle Cloud:
+-- GET  https://<your-host>.oraclecloudapps.com/ords/sparkle/inventory/
+-- POST https://<your-host>.oraclecloudapps.com/ords/sparkle/orders/
+-- GET  https://<your-host>.oraclecloudapps.com/ords/sparkle/shipments/
