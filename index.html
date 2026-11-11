@@ -30,11 +30,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
-      body {
+      html, body {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         background-color: #030712;
         color: #f8fafc;
         overflow-x: hidden;
+        overflow-y: auto;
+        height: auto;
       }
       .font-mono {
         font-family: 'JetBrains Mono', monospace;
@@ -42,6 +44,16 @@
       ::-webkit-scrollbar { width: 6px; }
       ::-webkit-scrollbar-track { background: #030712; }
       ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+
+      @keyframes ticker {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-ticker {
+        display: inline-flex;
+        animation: ticker 32s linear infinite;
+        will-change: transform;
+      }
     </style>
   </head>
   <body class="bg-[#030712] text-slate-100 min-h-screen selection:bg-blue-600 selection:text-white font-sans antialiased overflow-x-hidden">
@@ -355,6 +367,31 @@
                   <span class="font-bold text-emerald-400">▲ +3.20%</span>
                 </div>
               </div>
+            </div>
+
+            <!-- Right Action: TradingView Legal Shield & External Link -->
+            <div class="flex items-center shrink-0 border-l border-slate-800">
+              <button
+                type="button"
+                onclick="openModal('tradingViewLegalModal')"
+                class="px-3 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border-r border-slate-800 text-[11px] font-bold transition-colors flex items-center gap-1.5"
+                title="View TradingView & Market Data Safe Harbor Legal Disclaimer"
+              >
+                <span>⚖️</span>
+                <span class="hidden lg:inline">TradingView Legal Shield</span>
+                <span class="lg:hidden">Legal</span>
+              </button>
+
+              <a
+                href="https://www.tradingview.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="hidden md:flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[11px] font-bold transition-colors"
+                title="TradingView Financial Market Data Platform"
+              >
+                <span>TradingView Live</span>
+                <span class="text-blue-400">↗</span>
+              </a>
             </div>
           </div>
         </div>

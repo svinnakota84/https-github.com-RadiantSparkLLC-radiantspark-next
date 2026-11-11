@@ -108,10 +108,17 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
           </div>
 
           {/* Mobile PWA & App Launch Quick Links */}
-          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
             <span className="text-xs font-mono font-bold text-amber-300 uppercase tracking-wider block">
-              ⚡ Web Apps &amp; Mobile PWA Direct Links
+              ⚡ Mobile Apps &amp; PWA Direct Home Screen Installation
             </span>
+
+            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 space-y-1.5 leading-relaxed font-sans">
+              <strong className="text-emerald-400 block font-bold font-mono">📱 Mobile Home Screen Installation Guide:</strong>
+              <div>• <strong>Apple iPhone / iPad (iOS Safari):</strong> Tap Share button (<span className="text-cyan-300">⎋</span>) at the bottom toolbar ➔ select <strong className="text-white font-semibold">"Add to Home Screen"</strong>.</div>
+              <div>• <strong>Android Phones (Google Chrome):</strong> Tap 3 dots menu (<span className="text-cyan-300">⋮</span>) in top right ➔ select <strong className="text-white font-semibold">"Install App"</strong> or <strong className="text-white font-semibold">"Add to Home screen"</strong>.</div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
               <a
                 href="/app.html"

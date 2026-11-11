@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, ExternalLink, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, ExternalLink, ShieldCheck, Scale } from 'lucide-react';
+import { TradingViewLegalDisclaimerModal } from './TradingViewLegalDisclaimerModal';
 
 interface TickerQuote {
   symbol: string;
@@ -31,6 +32,7 @@ const INITIAL_QUOTES: TickerQuote[] = [
 
 export const LiveMarketTickerBar: React.FC = () => {
   const [quotes, setQuotes] = useState<TickerQuote[]>(INITIAL_QUOTES);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
 
   // Live price fluctuation simulation every 3 seconds
   useEffect(() => {
@@ -53,60 +55,82 @@ export const LiveMarketTickerBar: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-slate-950 border-y border-slate-800/80 overflow-hidden relative select-none font-mono text-xs z-30">
-      <div className="max-w-7xl mx-auto flex items-center">
-        {/* Left Badge */}
-        <div className="z-10 bg-slate-950/95 pr-3 pl-3 py-2 border-r border-slate-800 flex items-center gap-2 shrink-0 shadow-lg">
-          <div className="flex items-center gap-1.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>REAL-TIME MARKETS</span>
+    <>
+      <div className="bg-slate-950 border-y border-slate-800/80 overflow-hidden relative select-none font-mono text-xs z-30">
+        <div className="max-w-7xl mx-auto flex items-center">
+          {/* Left Badge */}
+          <div className="z-10 bg-slate-950/95 pr-3 pl-3 py-2 border-r border-slate-800 flex items-center gap-2 shrink-0 shadow-lg">
+            <div className="flex items-center gap-1.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>REAL-TIME MARKETS</span>
+            </div>
+          </div>
+
+          {/* Scrolling Ticker Track */}
+          <div className="overflow-hidden whitespace-nowrap flex-1 py-1.5 relative">
+            <div className="inline-flex items-center gap-6 animate-ticker hover:[animation-play-state:paused]">
+              {quotes.concat(quotes).map((q, idx) => {
+                const isPos = q.changePct >= 0;
+                return (
+                  <a
+                    key={`${q.symbol}-${idx}`}
+                    href={q.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-xs transition-all hover:scale-105 ${
+                      isPos
+                        ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:border-emerald-400'
+                        : 'bg-rose-950/40 border-rose-500/30 text-rose-300 hover:border-rose-400'
+                    }`}
+                    title={`View live market activity for ${q.name}`}
+                  >
+                    <span className="font-extrabold text-white tracking-tight">{q.symbol}</span>
+                    <span className="text-[10px] text-slate-400 hidden sm:inline">{q.name}</span>
+                    <span className="font-bold text-white font-mono">
+                      {q.currency}{q.price.toLocaleString()}
+                    </span>
+                    <span className="font-bold flex items-center gap-0.5 font-mono">
+                      {isPos ? <TrendingUp className="w-3 h-3 text-emerald-400" /> : <TrendingDown className="w-3 h-3 text-rose-400" />}
+                      <span>{isPos ? '+' : ''}{q.changePct.toFixed(2)}%</span>
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Right Action: TradingView Legal Shield & External Link */}
+          <div className="flex items-center shrink-0 border-l border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsLegalModalOpen(true)}
+              className="px-3 py-2 bg-purple-950/80 hover:bg-purple-900 text-purple-200 border-r border-slate-800 text-[11px] font-bold transition-colors flex items-center gap-1.5"
+              title="View TradingView & Market Data Safe Harbor Legal Disclaimer"
+            >
+              <span>⚖️</span>
+              <span className="hidden lg:inline">TradingView Legal Shield</span>
+              <span className="lg:hidden">Legal</span>
+            </button>
+
+            <a
+              href="https://www.tradingview.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-[11px] font-bold transition-colors"
+              title="TradingView Financial Market Data Platform"
+            >
+              <span>TradingView Live</span>
+              <ExternalLink className="w-3 h-3 text-blue-400" />
+            </a>
           </div>
         </div>
-
-        {/* Scrolling Ticker Track */}
-        <div className="overflow-hidden whitespace-nowrap flex-1 py-1.5 relative">
-          <div className="inline-flex items-center gap-6 animate-ticker hover:[animation-play-state:paused]">
-            {quotes.concat(quotes).map((q, idx) => {
-              const isPos = q.changePct >= 0;
-              return (
-                <a
-                  key={`${q.symbol}-${idx}`}
-                  href={q.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border text-xs transition-all hover:scale-105 ${
-                    isPos
-                      ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300 hover:border-emerald-400'
-                      : 'bg-rose-950/40 border-rose-500/30 text-rose-300 hover:border-rose-400'
-                  }`}
-                  title={`View live market activity for ${q.name}`}
-                >
-                  <span className="font-extrabold text-white tracking-tight">{q.symbol}</span>
-                  <span className="text-[10px] text-slate-400 hidden sm:inline">{q.name}</span>
-                  <span className="font-bold text-white font-mono">
-                    {q.currency}{q.price.toLocaleString()}
-                  </span>
-                  <span className="font-bold flex items-center gap-0.5 font-mono">
-                    {isPos ? <TrendingUp className="w-3 h-3 text-emerald-400" /> : <TrendingDown className="w-3 h-3 text-rose-400" />}
-                    <span>{isPos ? '+' : ''}{q.changePct.toFixed(2)}%</span>
-                  </span>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right External Link */}
-        <a
-          href="https://www.nasdaq.com/market-activity"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden md:flex items-center gap-1.5 px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border-l border-slate-800 text-[11px] font-bold shrink-0 transition-colors"
-        >
-          <span>Nasdaq Live</span>
-          <ExternalLink className="w-3 h-3 text-blue-400" />
-        </a>
       </div>
-    </div>
+
+      {/* TradingView Legal Shield Modal */}
+      <TradingViewLegalDisclaimerModal
+        isOpen={isLegalModalOpen}
+        onClose={() => setIsLegalModalOpen(false)}
+      />
+    </>
   );
 };
