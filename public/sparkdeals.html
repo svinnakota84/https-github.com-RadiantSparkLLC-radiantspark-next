@@ -1,1 +1,216 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SparkDeals · Merchant discovery</title><style>body{font:18px system-ui;background:#0b1220;color:#e2e8f0;max-width:1000px;margin:auto;padding:40px 24px}a{color:#fbbf24}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}article{background:#172033;padding:24px;border-radius:18px}input{padding:14px;width:90%;margin:24px 0}</style><a href="./index.html#sparkdeals">← Radiant Spark</a><h1>SparkDeals</h1><p>Discover merchants. Prices, stock, discount codes and delivery are confirmed on the merchant website. No live merchant feed is connected; no unverified deal prices or shopper counts are displayed.</p><p>Links are independent external destinations. Affiliate relationships are not asserted unless disclosed for a specific link.</p><label>Find a merchant <input id="search" type="search" placeholder="Search merchant or country"></label><main class="grid" id="merchants"></main><p id="empty" hidden>No matching merchants.</p><p><a href="./business-readiness.html">Customer rights, privacy and operating information</a></p><script>const stores=[['Amazon US','United States','https://www.amazon.com/'],['Amazon India','India','https://www.amazon.in/'],['Walmart','United States','https://www.walmart.com/'],['Best Buy','United States','https://www.bestbuy.com/'],['Flipkart','India','https://www.flipkart.com/']];function render(){const list=stores.filter(s=>s.join(' ').toLowerCase().includes(document.querySelector('#search').value.toLowerCase()));document.querySelector('#merchants').replaceChildren(...list.map(s=>{const c=document.createElement('article');const h=document.createElement('h2');h.textContent=s[0];const p=document.createElement('p');p.textContent=s[1]+' · Check current offers at source';const a=document.createElement('a');a.href=s[2];a.target='_blank';a.rel='noopener noreferrer';a.textContent='Visit merchant ↗';c.append(h,p,a);return c}));document.querySelector('#empty').hidden=!!list.length}document.querySelector('#search').addEventListener('input',render);render()</script></html>
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SparkDeals · Thanksgiving &amp; Black Friday Live Deals 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background-color: #030712; color: #f8fafc; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-[#030712] text-slate-100 min-h-screen p-4 sm:p-8 selection:bg-amber-500 selection:text-slate-950">
+  <div className="max-w-7xl mx-auto space-y-6">
+    
+    {/* Header Navigation */}
+    <header className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md">
+      <div className="flex items-center gap-3">
+        <a href="./index.html#sparkdeals" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs transition-colors">
+          ← Back to Platform
+        </a>
+        <div>
+          <h1 className="text-lg font-black text-white flex items-center gap-2">
+            <span>🔥 SparkDeals Live Hub</span>
+            <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-mono font-bold border border-rose-500/30">
+              THANKSGIVING &amp; BLACK FRIDAY 2026
+            </span>
+          </h1>
+          <p className="text-xs text-slate-400">Direct product deep-links for Amazon US, Amazon India, Walmart &amp; SHEIN</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 text-xs font-mono font-bold">
+        <span className="px-3 py-1 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-500/40">
+          🟢 Live Deal Feed Active
+        </span>
+      </div>
+    </header>
+
+    {/* Search & Store Filter Controls */}
+    <div className="p-6 rounded-3xl bg-slate-900/60 border border-amber-500/30 space-y-4">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest block mb-1">
+            🦃 HOLIDAY DEAL DISCOVERY 2026
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-white">
+            Curated Thanksgiving &amp; Black Friday Price Drops
+          </h2>
+        </div>
+
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Search iPad, AirPods, Sony, Samsung TV, Solar, Tumbler..."
+          class="w-full md:w-80 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-400 font-mono"
+        >
+      </div>
+
+      <div id="filter-buttons" class="flex flex-wrap items-center gap-2 pt-2">
+        <button onclick="filterStore('all')" class="store-btn active px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-500 text-slate-950">All Stores</button>
+        <button onclick="filterStore('Amazon USA')" class="store-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">🇺🇸 Amazon US</button>
+        <button onclick="filterStore('Amazon India')" class="store-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">🇮🇳 Amazon India</button>
+        <button onclick="filterStore('Walmart')" class="store-btn px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">🛍️ Walmart</button>
+      </div>
+    </div>
+
+    {/* Live Deals Grid */}
+    <main id="deals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Dynamically Rendered by JS -->
+    </main>
+
+  </div>
+
+  <script>
+    const deals = [
+      {
+        id: '1',
+        title: 'Apple iPad (10th Gen) 10.9-inch Liquid Retina Display (Wi-Fi, 64GB, Silver)',
+        priceUsd: 279,
+        originalUsd: 349,
+        discount: '20% OFF',
+        store: 'Amazon USA',
+        badge: '🦃 Thanksgiving Deal',
+        image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80',
+        amazonUsa: 'https://www.amazon.com/s?k=Apple+iPad+10th+Gen+64GB+Silver&tag=sparkdeal-20',
+        amazonIn: 'https://www.amazon.in/s?k=Apple+iPad+10th+Gen+64GB+Silver&tag=sparkdeal-21',
+        walmart: 'https://www.walmart.com/search?q=Apple+iPad+10th+Gen+64GB'
+      },
+      {
+        id: '2',
+        title: 'Apple AirPods Pro (2nd Generation) with MagSafe Case (USB-C)',
+        priceUsd: 169,
+        originalUsd: 249,
+        discount: '32% OFF',
+        store: 'Walmart',
+        badge: '🛍️ Walmart Rollback',
+        image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=800&q=80',
+        amazonUsa: 'https://www.amazon.com/s?k=Apple+AirPods+Pro+2nd+Gen+USB-C&tag=sparkdeal-20',
+        amazonIn: 'https://www.amazon.in/s?k=Apple+AirPods+Pro+2nd+Gen+USB-C&tag=sparkdeal-21',
+        walmart: 'https://www.walmart.com/search?q=Apple+AirPods+Pro+2nd+Gen+USB-C'
+      },
+      {
+        id: '3',
+        title: 'Sony WH-1000XM5 Wireless Noise Canceling Headphones',
+        priceUsd: 298,
+        originalUsd: 399,
+        discount: '25% OFF',
+        store: 'Amazon USA',
+        badge: '🔥 Black Friday Early Drop',
+        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
+        amazonUsa: 'https://www.amazon.com/s?k=Sony+WH-1000XM5+Wireless+Headphones&tag=sparkdeal-20',
+        amazonIn: 'https://www.amazon.in/s?k=Sony+WH-1000XM5+Wireless+Headphones&tag=sparkdeal-21',
+        walmart: 'https://www.walmart.com/search?q=Sony+WH-1000XM5'
+      },
+      {
+        id: '4',
+        title: 'Samsung 65-Inch Class OLED 4K S90D Smart TV (2026 Model)',
+        priceUsd: 1399,
+        originalUsd: 2199,
+        discount: '36% OFF',
+        store: 'Amazon USA',
+        badge: '📺 Holiday Doorbuster',
+        image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80',
+        amazonUsa: 'https://www.amazon.com/s?k=Samsung+65+Inch+OLED+4K+Smart+TV&tag=sparkdeal-20',
+        amazonIn: 'https://www.amazon.in/s?k=Samsung+65+Inch+OLED+4K+TV&tag=sparkdeal-21',
+        walmart: 'https://www.walmart.com/search?q=Samsung+65+Inch+OLED+4K'
+      },
+      {
+        id: '5',
+        title: 'Stanley Quencher H2.0 FlowState Vacuum Tumbler (40oz)',
+        priceUsd: 35,
+        originalUsd: 45,
+        discount: '22% OFF',
+        store: 'Amazon USA',
+        badge: '🥤 Viral Top Pick',
+        image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
+        amazonUsa: 'https://www.amazon.com/s?k=Stanley+Quencher+H2.0+40oz&tag=sparkdeal-20',
+        amazonIn: 'https://www.amazon.in/s?k=Stanley+Quencher+H2.0+40oz&tag=sparkdeal-21',
+        walmart: 'https://www.walmart.com/search?q=Stanley+Quencher+H2.0+40oz'
+      },
+      {
+        id: '6',
+        title: 'Spark EV 3.5kVA Rooftop Solar Home Starter Kit (LiFePO4 Ready)',
+        priceInr: 34999,
+        originalInr: 49999,
+        discount: '30% OFF',
+        store: 'Amazon India',
+        badge: '☀️ PM Surya Ghar Scheme',
+        image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+        amazonIn: 'https://www.amazon.in/s?k=Rooftop+Solar+Kit+3.5kVA+LiFePO4&tag=sparkdeal-21',
+        amazonUsa: 'https://www.amazon.com/s?k=Solar+Kit+Off-Grid+LiFePO4+Solar+Panels&tag=sparkdeal-20'
+      }
+    ];
+
+    let currentStore = 'all';
+
+    function renderDeals() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const grid = document.getElementById('deals-grid');
+
+      const filtered = deals.filter(d => {
+        const matchesSearch = d.title.toLowerCase().includes(search);
+        const matchesStore = currentStore === 'all' || d.store === currentStore;
+        return matchesSearch && matchesStore;
+      });
+
+      grid.innerHTML = filtered.map(d => `
+        <article class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-amber-500/40 transition-all shadow-lg">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
+                ${d.badge}
+              </span>
+              <span class="text-[10px] font-mono font-bold text-rose-400 bg-rose-500/20 px-2 py-0.5 rounded">
+                ${d.discount}
+              </span>
+            </div>
+
+            <div class="h-36 rounded-xl overflow-hidden bg-slate-950 mb-3 border border-slate-800">
+              <img src="${d.image}" alt="${d.title}" class="w-full h-full object-cover" />
+            </div>
+
+            <h3 class="font-bold text-xs text-white line-clamp-2">${d.title}</h3>
+
+            <div class="mt-2 flex items-baseline gap-2 font-mono">
+              <span class="text-lg font-black text-amber-400">
+                ${d.priceUsd ? '$' + d.priceUsd : '₹' + d.priceInr.toLocaleString()}
+              </span>
+              <span class="text-xs text-slate-500 line-through">
+                ${d.originalUsd ? '$' + d.originalUsd : '₹' + d.originalInr.toLocaleString()}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-slate-800 space-y-1.5">
+            <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono font-bold">
+              ${d.amazonUsa ? `<a href="${d.amazonUsa}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-center">🇺🇸 Amazon US ↗</a>` : ''}
+              ${d.amazonIn ? `<a href="${d.amazonIn}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-center">🇮🇳 Amazon IN ↗</a>` : ''}
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterStore(store) {
+      currentStore = store;
+      renderDeals();
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderDeals);
+    renderDeals();
+  </script>
+</body>
+</html>

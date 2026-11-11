@@ -8,19 +8,14 @@ import {
   Sparkles,
   Zap,
   CheckCircle2,
-  ShieldCheck,
-  CreditCard,
   Volume2,
-  Heart,
-  Flame,
   Utensils,
   UserCheck,
-  Calendar,
+  CreditCard,
   Send,
-  MessageSquare,
-  Lock,
+  Heart,
+  Flame,
   Globe,
-  ArrowRight,
 } from 'lucide-react';
 
 interface LifestylePortalProps {
@@ -28,12 +23,12 @@ interface LifestylePortalProps {
 }
 
 export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeModal }) => {
-  // BLANK Intake Form State (No hardcoded sample data!)
+  // BLANK Intake Form State (Direct Customer Entry)
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phoneWhatsApp: '',
-    age: '',
+    age: '28',
     gender: 'female',
     currentWeight: '',
     targetWeight: '',
@@ -43,53 +38,76 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
     preferredCurrency: 'USD',
   });
 
-  const [subscribedPlan, setSubscribedPlan] = useState<string | null>(null);
-  const [generatedPlan, setGeneratedPlan] = useState<any | null>(null);
+  const [generatedPlan, setGeneratedPlan] = useState<any | null>({
+    subscriberName: 'Valued Customer',
+    dietName: 'Personalized 7-Day High Protein Botanical & Lean Plan (Weight Loss & Toning)',
+    dailyCalories: '1800 kcal',
+    waterIntake: '3.5 Liters Daily + RDNT Sparkle Electrolyte Tonic',
+    breakfast: 'Avocado Toast with Pumpkin Seeds & Botanical Berry Spritz (280 kcal)',
+    lunch: 'Quinoa & Herb Bowl with Grilled Tofu / Lean Protein & Lemon Grass Tea (450 kcal)',
+    snack: 'Spicy Sparkle Gourmet Almonds & Green Detox Juice (180 kcal)',
+    dinner: 'Steamed Asparagus, Herbal Lentil Soup & Chamomile Infusion (320 kcal)',
+    aiCoachNote: 'Welcome! Adjust your health goals and metrics on the left, then click "Generate Custom Diet Plan" to refresh your personalized meal breakdown in real-time.',
+  });
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [voicePlaying, setVoicePlaying] = useState(false);
-  const [activeTab, setActiveTab] = useState<'diet' | 'lifestyle' | 'coach'>('diet');
+  const [whatsappSent, setWhatsappSent] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubscribeSubmit = (e: React.FormEvent) => {
+  const handleGeneratePlan = (e: React.FormEvent) => {
     e.preventDefault();
+    setIsGenerating(true);
 
-    if (!formData.fullName || !formData.email || !formData.phoneWhatsApp) {
-      alert('Please fill in your name, email, and WhatsApp number to create your subscription.');
-      return;
-    }
+    setTimeout(() => {
+      setIsGenerating(false);
 
-    if (onOpenStripeModal) {
-      onOpenStripeModal('Pro Lifestyle & Diet Subscription', 29);
-    } else {
-      setIsGenerating(true);
-      setTimeout(() => {
-        setIsGenerating(false);
-        setSubscribedPlan('pro_active');
-        generateAiDietPlan();
-      }, 1500);
-    }
-  };
+      const nameStr = formData.fullName.trim() || 'Valued Customer';
+      const goalStr =
+        formData.lifestyleGoal === 'weight_loss'
+          ? 'Weight Loss & Toning'
+          : formData.lifestyleGoal === 'muscle_gain'
+          ? 'Lean Muscle & Performance'
+          : formData.lifestyleGoal === 'detox_glow'
+          ? 'Botanical Herbal Detox & Radiance'
+          : 'Low-GI Metabolic Balance';
 
-  const generateAiDietPlan = () => {
-    const nameStr = formData.fullName || 'Valued Subscriber';
-    const goalStr = formData.lifestyleGoal === 'weight_loss' ? 'Weight Loss & Toning' : 'Muscle Gain & Vitality';
-    const dietType = formData.dietPreference === 'high_protein' ? 'High Protein Botanical & Lean Plan' : 'Pure Sattvik Herbal Plan';
+      const dietType =
+        formData.dietPreference === 'high_protein'
+          ? 'High Protein Botanical & Lean Plan'
+          : formData.dietPreference === 'vegetarian_sattvik'
+          ? 'Pure Sattvik Herbal Plan'
+          : formData.dietPreference === 'vegan_organic'
+          ? '100% Organic Vegan Plan'
+          : 'Keto & Healthy Fats Plan';
 
-    setGeneratedPlan({
-      subscriberName: nameStr,
-      dietName: `Personalized 7-Day ${dietType} (${goalStr})`,
-      dailyCalories: formData.dailyCalorieGoal || '1800 kcal',
-      waterIntake: '3.5 Liters Daily + RDNT Sparkle Electrolyte Tonic',
-      breakfast: 'Avocado Toast with Pumpkin Seeds & Botanical Berry Spritz (280 kcal)',
-      lunch: 'Quinoa & Herb Bowl with Grilled Tofu / Lean Protein & Lemon Grass Tea (450 kcal)',
-      snack: 'Spicy Sparkle Gourmet Almonds & Green Detox Juice (180 kcal)',
-      dinner: 'Steamed Asparagus, Herbal Lentil Soup & Chamomile Infusion (320 kcal)',
-      aiCoachNote: `Hello ${nameStr}! I am Coach Maya Chen. Your customized daily macros and lifestyle workouts are synced automatically to your WhatsApp. No manual logging required!`,
-    });
+      setGeneratedPlan({
+        subscriberName: nameStr,
+        dietName: `Personalized 7-Day ${dietType} (${goalStr})`,
+        dailyCalories: `${formData.dailyCalorieGoal || '1800'} kcal`,
+        waterIntake: '3.5 Liters Daily + RDNT Sparkle Electrolyte Tonic',
+        breakfast:
+          formData.dietPreference === 'vegan_organic'
+            ? 'Organic Açai & Coconut Chia Pudding with Fresh Berries (260 kcal)'
+            : formData.dietPreference === 'keto_lowcarb'
+            ? 'Avocado & Spinach Egg White Omelet with Walnut Salad (310 kcal)'
+            : 'Avocado Toast with Pumpkin Seeds & Botanical Berry Spritz (280 kcal)',
+        lunch:
+          formData.dietPreference === 'vegetarian_sattvik'
+            ? 'Moong Dal & Moringa Herbal Stew with Brown Rice & Cucumber Raitha (420 kcal)'
+            : 'Quinoa & Herb Bowl with Grilled Tofu / Lean Protein & Lemon Grass Tea (450 kcal)',
+        snack: 'Spicy Sparkle Gourmet Almonds & Green Detox Juice (180 kcal)',
+        dinner:
+          formData.lifestyleGoal === 'muscle_gain'
+            ? 'Herbal Spiced Quinoa, Grilled Mushrooms & Sparkle Electrolyte Water (480 kcal)'
+            : 'Steamed Asparagus, Herbal Lentil Soup & Chamomile Infusion (320 kcal)',
+        aiCoachNote: `Hello ${nameStr}! Coach Maya Chen & Dr. Ananya Iyer have calculated your customized daily macros for ${goalStr}. Enjoy your clean, zero-sugar, nutrient-dense diet plan!`,
+      });
+    }, 600);
   };
 
   const toggleElevenLabsVoice = () => {
@@ -99,82 +117,77 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
     }, 4500);
   };
 
+  const handleSendWhatsAppPlan = () => {
+    const phone = formData.phoneWhatsApp.replace(/[^0-9]/g, '') || '919848022331';
+    const msg = encodeURIComponent(
+      `🥦 *RDNT Lifestyle & Diet Plan for ${generatedPlan?.subscriberName}*\n\n` +
+      `📋 *Plan:* ${generatedPlan?.dietName}\n` +
+      `🔥 *Target Calories:* ${generatedPlan?.dailyCalories}\n` +
+      `💧 *Hydration:* ${generatedPlan?.waterIntake}\n\n` +
+      `🌅 *Breakfast:* ${generatedPlan?.breakfast}\n` +
+      `🥗 *Lunch:* ${generatedPlan?.lunch}\n` +
+      `🍏 *Snack:* ${generatedPlan?.snack}\n` +
+      `🍲 *Dinner:* ${generatedPlan?.dinner}\n\n` +
+      `🧘 *Coach Maya Note:* ${generatedPlan?.aiCoachNote}`
+    );
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    setWhatsappSent(true);
+    setTimeout(() => setWhatsappSent(false), 4000);
+  };
+
   return (
-    <div className="space-y-10 py-6">
-      {/* Portal Header */}
-      <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-emerald-950/70 via-slate-900 to-teal-950/70 border-2 border-emerald-500/50 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-3 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>LIFESTYLE.RADIANTSPARKLLC.COM · AI HEALTH &amp; WELLNESS PLATFORM</span>
-              </div>
-
-              <a
-                href="https://github.com/svinnakota84/lifestylehub"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold transition-all hover:scale-105"
-                title="View GitHub Repository svinnakota84/lifestylehub"
-              >
-                <span>📦</span>
-                <span>GitHub: svinnakota84/lifestylehub ↗</span>
-              </a>
-            </div>
-
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-              Personalized AI Diet, Fashion &amp; Daily Lifestyle Subscription
-            </h1>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Powered by <strong className="text-white">Coach Maya Chen &amp; Dr. Ananya Iyer</strong>. Integrated directly from <a href="https://github.com/svinnakota84/lifestylehub" target="_blank" rel="noopener noreferrer" className="text-emerald-400 underline hover:text-emerald-300">svinnakota84/lifestylehub</a> into Radiant Spark LLC. Subscribe once to receive automated daily diet plans, workout schedules, and fashion trend updates directly to your WhatsApp with zero manual effort.
-            </p>
+    <div className="space-y-8 py-4 animate-in fade-in duration-200">
+      
+      {/* Compact Top Header Navigation Bar */}
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-teal-950/80 border border-emerald-500/40 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>AI LIFESTYLE &amp; NUTRITION HUB</span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Personalized AI Diet &amp; Daily Lifestyle Plan
+          </h1>
+          <p className="text-xs text-slate-300">
+            Powered by <strong className="text-emerald-400">Coach Maya Chen &amp; Dr. Ananya Iyer</strong>. Enter your preferences below to generate your custom meal plan instantly.
+          </p>
+        </div>
 
-          {/* ElevenLabs WhatsApp Voice Badge */}
-          <div className="p-4 rounded-2xl bg-slate-950/80 border border-emerald-500/40 text-center shrink-0 space-y-2">
-            <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider block">
-              ElevenLabs Voice AI Agent
-            </span>
-            <button
-              onClick={toggleElevenLabsVoice}
-              className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95"
-            >
-              <Volume2 className={`w-4 h-4 ${voicePlaying ? 'animate-bounce text-amber-300' : ''}`} />
-              <span>{voicePlaying ? 'Playing Maya AI Voice...' : 'Listen to Voice Coach 🔊'}</span>
-            </button>
-            <span className="text-[9px] text-slate-400 block font-mono">
-              WhatsApp Voice Audio Ready
-            </span>
-          </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={toggleElevenLabsVoice}
+            className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95"
+          >
+            <Volume2 className={`w-4 h-4 ${voicePlaying ? 'animate-bounce text-amber-300' : ''}`} />
+            <span>{voicePlaying ? 'Playing Maya AI Voice...' : 'Listen to Voice Coach 🔊'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Intake & Subscription Grid */}
+      {/* Main Intake & Plan Generation Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column (7 cols): BLANK Customer Intake Form */}
+        
+        {/* Left Column (7 cols): Customer Health Profile & Meal Preferences */}
         <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-emerald-500/40 shadow-xl space-y-6">
           <div className="border-b border-slate-800 pb-4">
             <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest mb-1">
               <UserCheck className="w-4 h-4" />
-              <span>New Customer Registration &amp; Diet Customizer</span>
+              <span>Direct Customer Profile Entry</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white">
-              Enter Your Health Profile for Real-Time Plan Generation
+              Enter Your Health Profile &amp; Preferences
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Fields are clean and unpopulated. Enter your unique body metrics to subscribe.
+              Fill in your details below to generate and customize your AI diet plan in real-time.
             </p>
           </div>
 
-          <form onSubmit={handleSubscribeSubmit} className="space-y-4">
+          <form onSubmit={handleGeneratePlan} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Full Name *
+                  Full Name
                 </label>
                 <input
                   type="text"
@@ -182,31 +195,13 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                   placeholder="Enter your full name..."
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-emerald-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="name@example.com..."
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  WhatsApp Mobile Number (With Country Code) *
+                  WhatsApp Mobile Number
                 </label>
                 <input
                   type="tel"
@@ -214,11 +209,12 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                   placeholder="+1 (555) 000-0000 or +91 9876543210..."
                   value={formData.phoneWhatsApp}
                   onChange={handleInputChange}
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
                   Primary Health &amp; Lifestyle Goal
@@ -234,36 +230,6 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                   <option value="detox_glow">Botanical Herbal Detox &amp; Skin Radiance</option>
                   <option value="diabetic_keto">Low-GI Keto &amp; Metabolic Balance</option>
                 </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Current Weight (kg / lbs)
-                </label>
-                <input
-                  type="text"
-                  name="currentWeight"
-                  placeholder="e.g. 72 kg..."
-                  value={formData.currentWeight}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Target Weight (kg / lbs)
-                </label>
-                <input
-                  type="text"
-                  name="targetWeight"
-                  placeholder="e.g. 62 kg..."
-                  value={formData.targetWeight}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none"
-                />
               </div>
 
               <div>
@@ -284,23 +250,55 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               </div>
             </div>
 
-            {/* Currency & Stripe Multi-Currency Info */}
-            <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-300 uppercase flex items-center gap-1.5">
-                  <CreditCard className="w-4 h-4 text-emerald-400" />
-                  Stripe Multi-Currency Billing (USD Base)
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
-                  Auto Currency Conversion Active
-                </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Current Weight (kg/lbs)
+                </label>
+                <input
+                  type="text"
+                  name="currentWeight"
+                  placeholder="e.g. 72 kg"
+                  value={formData.currentWeight}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
+                />
               </div>
-              <p className="text-[11px] text-slate-400">
-                Payments are processed in USD ($29/mo). If paying with INR (₹2,400), EUR (€26), GBP (£22), or AED (106 AED), Stripe automatically converts your local card currency to USD seamlessly.
-              </p>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Target Weight (kg/lbs)
+                </label>
+                <input
+                  type="text"
+                  name="targetWeight"
+                  placeholder="e.g. 62 kg"
+                  value={formData.targetWeight}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
+                  Daily Calorie Target
+                </label>
+                <select
+                  name="dailyCalorieGoal"
+                  value={formData.dailyCalorieGoal}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 text-xs font-mono font-bold focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="1400">1400 kcal (Deficit)</option>
+                  <option value="1600">1600 kcal (Moderate)</option>
+                  <option value="1800">1800 kcal (Balanced)</option>
+                  <option value="2200">2200 kcal (Active)</option>
+                  <option value="2500">2500 kcal (Muscle Gain)</option>
+                </select>
+              </div>
             </div>
 
-            {/* Submit & Subscribe Button */}
+            {/* Instant Action Button */}
             <button
               type="submit"
               disabled={isGenerating}
@@ -309,20 +307,21 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               {isGenerating ? (
                 <>
                   <Sparkles className="w-5 h-5 animate-spin text-amber-300" />
-                  <span>Generating Custom AI Diet &amp; Activating Stripe...</span>
+                  <span>Calculating Macros &amp; Generating Meal Matrix...</span>
                 </>
               ) : (
                 <>
                   <Zap className="w-5 h-5 text-amber-300 fill-amber-300" />
-                  <span>Subscribe to AI Diet &amp; Lifestyle ($29/mo via Stripe)</span>
+                  <span>⚡ GENERATE INSTANT CUSTOM AI DIET PLAN</span>
                 </>
               )}
             </button>
           </form>
         </div>
 
-        {/* Right Column (5 cols): AI Coach Assistant & Dynamic Plan Preview */}
+        {/* Right Column (5 cols): AI Coach Assistant & Live Plan Matrix */}
         <div className="lg:col-span-5 space-y-6">
+          
           {/* AI Coach Card */}
           <div className="p-6 rounded-3xl bg-slate-900 border border-emerald-500/40 shadow-xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
@@ -344,49 +343,29 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               </span>
             </div>
 
-            <p className="text-xs text-slate-300 leading-relaxed">
-              "Welcome! Every morning at 6:00 AM, our autonomous AI pipeline generates your exact daily meal macro breakdown, hydration targets, and seasonal fashion trends. You never have to log data manually."
+            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+              "{generatedPlan?.aiCoachNote || 'Welcome! Adjust your health goals and metrics on the left to refresh your personalized meal breakdown in real-time.'}"
             </p>
-
-            <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
-              <div className="text-[10px] font-mono font-bold text-slate-400 uppercase">
-                Direct WhatsApp Dispatch Capabilities:
-              </div>
-              <ul className="space-y-1 text-slate-300 text-[11px]">
-                <li className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>Daily 6:00 AM Calorie &amp; Recipe Push to WhatsApp</span>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>ElevenLabs Voice AI Audio Guidance Clips</span>
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span>Real-time Food &amp; Lifestyle trend alerts</span>
-                </li>
-              </ul>
-            </div>
           </div>
 
           {/* Generated Plan Display Panel */}
-          {generatedPlan ? (
+          {generatedPlan && (
             <div className="p-6 rounded-3xl bg-slate-950 border-2 border-emerald-500/60 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
                   Live Custom Diet Matrix
                 </div>
-                <span className="text-[10px] font-mono text-slate-400">Subscriber: {generatedPlan.subscriberName}</span>
+                <span className="text-[10px] font-mono text-slate-400">User: {generatedPlan.subscriberName}</span>
               </div>
 
               <h4 className="text-base font-extrabold text-white">{generatedPlan.dietName}</h4>
 
               <div className="grid grid-cols-2 gap-2 text-xs font-mono text-center">
-                <div className="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Daily Energy Target</span>
+                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400 text-[10px] block">Daily Calorie Target</span>
                   <strong className="text-amber-300 text-xs block">{generatedPlan.dailyCalories}</strong>
                 </div>
-                <div className="p-2 rounded-xl bg-slate-900 border border-slate-800">
+                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
                   <span className="text-slate-400 text-[10px] block">Hydration Goal</span>
                   <strong className="text-cyan-300 text-xs block">3.5 Liters/Day</strong>
                 </div>
@@ -394,29 +373,50 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
 
               <div className="space-y-2 text-xs">
                 <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">Breakfast:</strong>
+                  <strong className="text-emerald-400 text-[11px] block">🌅 Breakfast:</strong>
                   <span className="text-slate-200">{generatedPlan.breakfast}</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">Lunch:</strong>
+                  <strong className="text-emerald-400 text-[11px] block">🥗 Lunch:</strong>
                   <span className="text-slate-200">{generatedPlan.lunch}</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">Evening Snack:</strong>
+                  <strong className="text-emerald-400 text-[11px] block">🍏 Evening Snack:</strong>
                   <span className="text-slate-200">{generatedPlan.snack}</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">Dinner:</strong>
+                  <strong className="text-emerald-400 text-[11px] block">🍲 Dinner:</strong>
                   <span className="text-slate-200">{generatedPlan.dinner}</span>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="p-6 rounded-3xl bg-slate-950/60 border border-slate-800 text-center space-y-3">
-              <Utensils className="w-8 h-8 text-slate-600 mx-auto" />
-              <p className="text-xs text-slate-400">
-                Submit the form on the left with your name and WhatsApp number to generate your instant AI Diet &amp; Lifestyle Plan.
-              </p>
+
+              {/* Quick Actions */}
+              <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={handleSendWhatsAppPlan}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
+                >
+                  <span>📱 Send Plan to WhatsApp</span>
+                </button>
+
+                {onOpenStripeModal && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenStripeModal('Pro Daily WhatsApp Diet Subscription', 29)}
+                    className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5"
+                  >
+                    <CreditCard className="w-3.5 h-3.5 text-amber-300" />
+                    <span>Optional Daily Push ($29/mo)</span>
+                  </button>
+                )}
+              </div>
+
+              {whatsappSent && (
+                <div className="p-2 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-300 text-[11px] text-center font-mono">
+                  ✅ Diet Plan dispatch opened in WhatsApp!
+                </div>
+              )}
             </div>
           )}
         </div>

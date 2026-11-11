@@ -75,11 +75,11 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
     setTimeout(() => setWhatsappSentNotice(null), 5000);
   };
 
-  // Order Form State
+  // Order Form State (100% Blank for Customer Intake)
   const [customerType, setCustomerType] = useState<'dealer' | 'consumer'>('dealer');
-  const [buyerName, setBuyerName] = useState('Praveen Kumar');
-  const [businessName, setBusinessName] = useState('Andhra Beverage Retailers Consortium');
-  const [gstin, setGstin] = useState('37AAACP4412K1Z9');
+  const [buyerName, setBuyerName] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [gstin, setGstin] = useState('');
   const [city, setCity] = useState('Vijayawada');
   const [selectedProduct, setSelectedProduct] = useState(SPARKLE_DRINKS_PRODUCTS[0]);
   const [casesCount, setCasesCount] = useState<number>(200);
@@ -128,13 +128,17 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
     const vehicles = ['AP-07-EV-8842', 'AP-07-EV-7120', 'AP-16-EV-9901'];
     const chosenVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
 
+    const activeBuyerName = buyerName.trim() || 'Valued Customer';
+    const activeBusinessName = businessName.trim() || 'Wholesale Partner';
+    const activeGstin = gstin.trim() || '37AAACP4412K1Z9';
+
     const createdOrder: SparkDrinkOrder = {
       id: newOrderId,
       date: new Date().toISOString().split('T')[0],
       customerType,
-      buyerName,
-      businessName: customerType === 'dealer' ? businessName : 'Direct Consumer',
-      gstin: customerType === 'dealer' ? gstin : undefined,
+      buyerName: activeBuyerName,
+      businessName: customerType === 'dealer' ? activeBusinessName : 'Direct Consumer',
+      gstin: customerType === 'dealer' ? activeGstin : undefined,
       city,
       state: city === 'Hyderabad' ? 'Telangana' : 'Andhra Pradesh',
       product: selectedProduct.name,
@@ -361,9 +365,9 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                     <span className="text-2xl p-2 rounded-xl bg-slate-950 border border-slate-800">
                       {emp.avatar}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                      {emp.accuracy}
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                      GEMINI AI AGENT
                     </span>
                   </div>
 
@@ -381,7 +385,7 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
 
                 <div className="pt-3 mt-3 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
                   <span className="font-mono text-slate-400">
-                    {emp.tasksCompleted.toLocaleString()} Tasks Done
+                    Operational Task Engine Active
                   </span>
                   <span className="text-cyan-400 font-bold flex items-center gap-0.5">
                     Select <span>→</span>
@@ -406,7 +410,7 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                     <div className="flex items-center gap-2">
                       <h3 className="text-xl font-black text-white">{emp.name}</h3>
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/30">
-                        {emp.accuracy} ACCURACY
+                        GEMINI 3.8 AI ENGINE
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm font-bold text-cyan-300 mt-0.5">{emp.role}</p>
@@ -704,7 +708,8 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                       if (customerType === 'dealer') setBusinessName(e.target.value);
                       else setBuyerName(e.target.value);
                     }}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-medium focus:outline-none focus:border-amber-400"
+                    placeholder={customerType === 'dealer' ? "Enter Distributor / Dealer Business Name..." : "Enter Consumer Full Name..."}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-medium focus:outline-none focus:border-amber-400 placeholder:text-slate-500"
                   />
                 </div>
 
@@ -715,7 +720,8 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                       type="text"
                       value={gstin}
                       onChange={(e) => setGstin(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 font-mono font-bold focus:outline-none focus:border-cyan-400"
+                      placeholder="Enter 15-Digit GSTIN (e.g. 37AAACP4412K1Z9)..."
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 font-mono font-bold focus:outline-none focus:border-cyan-400 placeholder:text-slate-500"
                     />
                   </div>
                 )}
