@@ -18,13 +18,15 @@ import { RadiantAssistantModal } from './components/RadiantAssistantModal';
 import { TakedownModal } from './components/TakedownModal';
 import { DownloadAppModal } from './components/DownloadAppModal';
 import { BusinessInquiryModal } from './components/BusinessInquiryModal';
+import { SupplierIntakeModal } from './components/SupplierIntakeModal';
+import { OwnerDashboardModal } from './components/OwnerDashboardModal';
 import { CinematicOrb3D } from './components/CinematicOrb3D';
 import { SparkDealsView } from './components/SparkDealsView';
 import { AiBrainView } from './components/AiBrainView';
 import { LiveMarketTickerBar } from './components/LiveMarketTickerBar';
 import { LifestylePortal } from './components/LifestylePortal';
 import { StripeSubscriptionModal } from './components/StripeSubscriptionModal';
-import { Zap, HelpCircle, Check, Building2 } from 'lucide-react';
+import { Zap, HelpCircle, Check, Building2, Handshake, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
@@ -56,8 +58,10 @@ export default function App() {
   const [stripePlanName, setStripePlanName] = useState('Pro Lifestyle Subscription');
   const [stripePriceUsd, setStripePriceUsd] = useState(29);
 
-  // Business Inquiry Modal state
+  // Business Inquiry, Supplier Intake & Owner Dashboard Modal state
   const [isBusinessInquiryOpen, setIsBusinessInquiryOpen] = useState(false);
+  const [isSupplierIntakeOpen, setIsSupplierIntakeOpen] = useState(false);
+  const [isOwnerDashboardOpen, setIsOwnerDashboardOpen] = useState(false);
   const [inquiryDefaultCategory, setInquiryDefaultCategory] = useState('B2B EV Fleet & Solar Distribution');
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -188,6 +192,7 @@ export default function App() {
         onOpenLegalShield={handleOpenLegalShieldSection}
         onOpenDownloadApp={() => setIsDownloadAppOpen(true)}
         onOpenBusinessInquiry={() => handleOpenBusinessInquiryModal()}
+        onOpenSupplierIntake={() => setIsSupplierIntakeOpen(true)}
       />
 
       {/* Real-Time Live Market Ticker Tape (Webull & LiveTrades Style) */}
@@ -312,10 +317,30 @@ export default function App() {
 
       {/* Persistent Floating Controls */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5">
+        {/* Floating Owner Dashboard Button */}
+        <button
+          onClick={() => setIsOwnerDashboardOpen(true)}
+          className="group px-4 py-2 rounded-full bg-slate-900/90 hover:bg-slate-800 text-blue-300 border border-blue-500/40 font-bold text-xs shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
+          title="Open Executive Owner Dashboard & Exception Console"
+        >
+          <Crown className="w-3.5 h-3.5 text-amber-400" />
+          <span>Owner Dashboard</span>
+        </button>
+
+        {/* Floating Supplier Intake Button */}
+        <button
+          onClick={() => setIsSupplierIntakeOpen(true)}
+          className="group px-4 py-2 rounded-full bg-amber-950/90 hover:bg-amber-900 text-amber-200 border border-amber-500/50 font-bold text-xs shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
+          title="Submit Supplier & Vendor Onboarding Application"
+        >
+          <Handshake className="w-3.5 h-3.5 text-amber-400" />
+          <span>Supplier Intake</span>
+        </button>
+
         {/* Floating B2B RFQ Inquiry Button */}
         <button
           onClick={() => handleOpenBusinessInquiryModal()}
-          className="group px-4 py-2.5 rounded-full bg-purple-950/90 hover:bg-purple-900 text-purple-200 border border-purple-500/50 font-bold text-xs shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
+          className="group px-4 py-2 rounded-full bg-purple-950/90 hover:bg-purple-900 text-purple-200 border border-purple-500/50 font-bold text-xs shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
           title="Submit Enterprise RFQ & B2B Volume Pricing Request"
         >
           <Building2 className="w-3.5 h-3.5 text-purple-400" />
@@ -325,7 +350,7 @@ export default function App() {
         {/* Floating Download Dedicated App Button */}
         <button
           onClick={() => setIsDownloadAppOpen(true)}
-          className="group px-4 py-2.5 rounded-full bg-[#1b1409]/90 hover:bg-[#251b0b] text-[#f59e0b] border border-[#f59e0b]/50 font-bold text-xs shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
+          className="group px-4 py-2 rounded-full bg-[#1b1409]/90 hover:bg-[#251b0b] text-[#f59e0b] border border-[#f59e0b]/50 font-bold text-xs shadow-xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
           title="Download dedicated mobile app without corporate web pages"
         >
           <span>📲</span>
@@ -335,7 +360,7 @@ export default function App() {
         {/* Floating SparkSync App Launcher */}
         <button
           onClick={() => setIsSparkSyncOpen(true)}
-          className="group px-4 py-2.5 rounded-full bg-[#0e1e3e]/90 hover:bg-[#132854] text-[#93c5fd] border border-[#3b82f6]/40 font-bold text-xs shadow-xl shadow-blue-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
+          className="group px-4 py-2 rounded-full bg-[#0e1e3e]/90 hover:bg-[#132854] text-[#93c5fd] border border-[#3b82f6]/40 font-bold text-xs shadow-xl shadow-blue-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all backdrop-blur-md"
           title="Launch SparkSync automated pipeline controller"
         >
           <span className="relative flex h-2 w-2">
@@ -381,6 +406,7 @@ export default function App() {
         onNavigateToView={handleNavigateView}
         onOpenSparkSync={() => setIsSparkSyncOpen(true)}
         onOpenLegalShield={handleOpenLegalShieldSection}
+        onOpenBusinessInquiry={handleOpenBusinessInquiryModal}
       />
 
       <TakedownModal
@@ -399,6 +425,16 @@ export default function App() {
         isOpen={isBusinessInquiryOpen}
         onClose={() => setIsBusinessInquiryOpen(false)}
         defaultCategory={inquiryDefaultCategory}
+      />
+
+      <SupplierIntakeModal
+        isOpen={isSupplierIntakeOpen}
+        onClose={() => setIsSupplierIntakeOpen(false)}
+      />
+
+      <OwnerDashboardModal
+        isOpen={isOwnerDashboardOpen}
+        onClose={() => setIsOwnerDashboardOpen(false)}
       />
     </div>
   );

@@ -187,6 +187,17 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* USA Card */}
           <div className="p-8 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 flex flex-col justify-between space-y-6 shadow-xl relative overflow-hidden group hover:border-cyan-400/60 transition-all">
+            {/* Visual Image Banner */}
+            <div className="h-44 -mx-8 -mt-8 mb-2 overflow-hidden relative">
+              <img
+                src="/src/assets/images/hero_cloud_consulting_1794361984579.jpg"
+                alt="Cloud & AI Architecture Control Center"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+            </div>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-500/30">
@@ -222,6 +233,17 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
 
           {/* India Card */}
           <div className="p-8 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-amber-500/30 flex flex-col justify-between space-y-6 shadow-xl relative overflow-hidden group hover:border-amber-400/60 transition-all">
+            {/* Visual Image Banner */}
+            <div className="h-44 -mx-8 -mt-8 mb-2 overflow-hidden relative">
+              <img
+                src="/src/assets/images/hero_india_industries_1794361986465.jpg"
+                alt="Solar & Bottling Facility South India"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+            </div>
+
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest bg-amber-950/60 px-3 py-1 rounded-full border border-amber-500/30">

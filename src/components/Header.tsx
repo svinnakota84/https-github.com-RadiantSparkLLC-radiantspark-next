@@ -20,6 +20,7 @@ interface HeaderProps {
   onOpenLegalShield: () => void;
   onOpenDownloadApp: () => void;
   onOpenBusinessInquiry: () => void;
+  onOpenSupplierIntake?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,6 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLegalShield,
   onOpenDownloadApp,
   onOpenBusinessInquiry,
+  onOpenSupplierIntake,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
@@ -279,6 +281,25 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="text-[10px] text-slate-400 font-normal">US &amp; India HQ Enquiries</span>
                       </div>
                     </button>
+
+                    {onOpenSupplierIntake && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCompanyDropdownOpen(false);
+                          onOpenSupplierIntake();
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-900/90 flex items-center gap-2.5 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-sm group-hover:scale-105 transition-transform">
+                          🤝
+                        </div>
+                        <div>
+                          <strong className="block dark:text-white group-hover:text-amber-500">Supplier Intake</strong>
+                          <span className="text-[10px] text-slate-400 font-normal">Vendor Onboarding Application</span>
+                        </div>
+                      </button>
+                    )}
 
                     <button
                       type="button"
