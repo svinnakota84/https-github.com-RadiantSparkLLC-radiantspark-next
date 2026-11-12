@@ -1,24 +1,29 @@
 #!/bin/bash
-# Radiant Spark Global - 1-Click GitHub Deployer Script
+# Radiant Spark Global - One-Click GitHub Push Script
 
-echo "🚀 Preparing Radiant Spark build for GitHub Pages deployment..."
+echo "======================================================="
+echo "   Pushing Latest Codebase to GitHub Repository       "
+echo "   https://github.com/RadiantSparkLLC/radiantspark-site"
+echo "======================================================="
 
-# Rebuild dist & verify zero errors
-npm run lint
-npm run build
-python3 scripts/package_github_zip.py
-
-# Git Commit
-git add -A
-git commit -m "Feat: Complete Radiant Spark platform update (Light/Dark mode, B2B RFQ, blank customer forms)" || true
-git branch -M main
-git remote add origin https://github.com/RadiantSparkLLC/radiantspark-next.git 2>/dev/null || git remote set-url origin https://github.com/RadiantSparkLLC/radiantspark-next.git
-
-echo "🔑 Pushing code to GitHub..."
-if [ -n "$GITHUB_TOKEN" ]; then
-  git push https://${GITHUB_TOKEN}@github.com/RadiantSparkLLC/radiantspark-next.git main --force
-else
-  git push -u origin main --force
+if [ -z "$1" ]; then
+  echo "Usage: ./push_to_github.sh <YOUR_GITHUB_PERSONAL_ACCESS_TOKEN>"
+  echo "Or set GITHUB_TOKEN environment variable."
+  exit 1
 fi
 
-echo "✅ Code pushed! GitHub Actions will now automatically deploy the live site to https://radiantsparkllc.github.io/radiantspark-next/"
+TOKEN=$1
+REMOTE_URL="https://${TOKEN}@github.com/RadiantSparkLLC/radiantspark-site.git"
+
+git config --global --add safe.directory /app/applet
+git config user.email "vsandeep442@gmail.com"
+git config user.name "Radiant Spark Build"
+
+git branch -M main
+git remote remove origin 2>/dev/null
+git remote add origin "$REMOTE_URL"
+
+echo "Pushing to main branch..."
+git push -u origin main --force
+
+echo "✅ Successfully pushed latest code to https://github.com/RadiantSparkLLC/radiantspark-site!"
