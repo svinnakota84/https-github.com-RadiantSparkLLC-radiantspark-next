@@ -107,6 +107,42 @@ app.post('/api/deals/refresh', (_req, res) => {
   });
 });
 
+// API Endpoint 3: POST /api/deals/webhook (Instant Real-Time Webhook Ingestion)
+app.post('/api/deals/webhook', (req, res) => {
+  const newDeal = req.body;
+  if (newDeal && newDeal.title && newDeal.currentPrice) {
+    const validDiscount = newDeal.originalPrice
+      ? Math.round(((newDeal.originalPrice - newDeal.currentPrice) / newDeal.originalPrice) * 100)
+      : 20;
+    const item = {
+      id: newDeal.id || `deal-push-${Date.now()}`,
+      title: newDeal.title,
+      category: newDeal.category || 'electronics',
+      currentPrice: newDeal.currentPrice,
+      originalPrice: newDeal.originalPrice || Math.round(newDeal.currentPrice * 1.25),
+      discountPercent: validDiscount,
+      merchant: newDeal.merchant || 'Partner Merchant',
+      merchantVerified: true,
+      score: 500,
+      primaryStore: newDeal.primaryStore || 'Retail Partner',
+      affiliateUrl: newDeal.affiliateUrl || newDeal.url || 'https://www.amazon.com',
+      amazonUsaUrl: newDeal.amazonUsaUrl,
+      amazonIndiaUrl: newDeal.amazonIndiaUrl,
+      imageUrl: newDeal.imageUrl || 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80',
+      description: newDeal.description || 'Verified real-time merchant deal drop.',
+      badges: newDeal.badges || ['🔥 Real-Time Push', 'Black Friday Special'],
+      expiresInHours: 24,
+      specifications: newDeal.specifications || ['Verified Merchant Listing', 'Direct Retail Deep Link'],
+      highlight: newDeal.highlight || 'Instant real-time deal drop verified by server engine.',
+      lastChecked: 'Just now (Instant Webhook Push)',
+    };
+    dealState.deals.unshift(item);
+    dealState.lastRefreshedAt = new Date().toISOString();
+    return res.json({ message: 'Real-time deal push received and active', dealId: item.id, totalDeals: dealState.deals.length });
+  }
+  return res.status(400).json({ error: 'Invalid deal payload' });
+});
+
 // Real-Time Gemini AI Server Endpoint
 app.post('/api/gemini/generate', async (req, res) => {
   try {

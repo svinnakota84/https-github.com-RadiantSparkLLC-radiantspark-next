@@ -52,9 +52,13 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
     isRefreshing: false,
   });
 
-  // Fetch Live Server API Deals on Mount
+  // Fetch Live Server API Deals on Mount & Poll in Real-Time every 15s
   useEffect(() => {
     fetchServerDeals();
+    const interval = setInterval(() => {
+      fetchServerDeals();
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchServerDeals = async () => {

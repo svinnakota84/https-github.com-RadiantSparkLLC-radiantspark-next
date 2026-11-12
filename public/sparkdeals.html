@@ -304,6 +304,7 @@
 
     document.getElementById('search-input').addEventListener('input', renderDeals);
     loadServerDeals();
+    setInterval(loadServerDeals, 15000); // 15-second real-time polling
   </script>
 </body>
 </html>
