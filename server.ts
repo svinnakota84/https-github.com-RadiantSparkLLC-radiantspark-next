@@ -58,6 +58,78 @@ const CURRENCY_RATES: Record<string, { rate: number; zeroDecimal?: boolean; symb
   JPY: { rate: 154, zeroDecimal: true, symbol: '¥' },
 };
 
+interface BackendSubscriptionPlan {
+  id: string;
+  aliases: string[];
+  name: string;
+  priceUsd: number;
+  interval: 'month' | 'year' | 'one_time';
+  badge: string;
+  description: string;
+  features: string[];
+}
+
+const SUBSCRIPTION_PLANS: BackendSubscriptionPlan[] = [
+  {
+    id: 'lifestyle_spark_monthly',
+    aliases: ['lifespark_monthly', 'lifestyle_spark_pro_monthly', 'lifespark_pro_monthly', 'monthly'],
+    name: 'Lifestyle Spark Pro Monthly',
+    priceUsd: 29,
+    interval: 'month',
+    badge: 'Most Flexible',
+    description: 'Unlimited real-time diet plans, step-by-step recipe prep, workout timers, and cloud progress sync.',
+    features: [
+      'Custom calorie & macro meal matrix',
+      'Full food-making recipes & ingredient lists',
+      'Guided HIIT & low-impact weight-loss workouts',
+      'Saved login profile across web & Lifestyle Spark app',
+    ],
+  },
+  {
+    id: 'lifestyle_spark_annual',
+    aliases: ['lifespark_annual', 'lifestyle_spark_pro_annual', 'lifespark_pro_annual', 'annual'],
+    name: 'Lifestyle Spark Pro Annual',
+    priceUsd: 249,
+    interval: 'year',
+    badge: 'Save 28%',
+    description: 'Full year of continuous nutrition adjustments, recipe library updates, and weight tracking.',
+    features: [
+      'All Lifestyle Spark Pro Monthly features for 12 months',
+      'Priority AI Coach custom meal swaps',
+      'Multi-cuisine Indian, Mediterranean & Keto plans',
+      'Direct Stripe receipt & instant access activation',
+    ],
+  },
+  {
+    id: 'lifestyle_spark_90day',
+    aliases: ['lifespark_90day', '90_day_transformation_pass', 'lifestyle_spark_90_day_pass', '90day'],
+    name: 'Lifestyle Spark 90-Day Pass',
+    priceUsd: 69,
+    interval: 'one_time',
+    badge: 'One-Time Card Payment',
+    description: 'Single one-time payment for a structured 12-week fat-loss meal & training roadmap with no recurring renewal.',
+    features: [
+      'Single non-recurring global card payment',
+      '12-week progressive workout & meal schedule',
+      'WhatsApp meal summary export',
+      'Full Lifestyle Spark Mobile PWA access',
+    ],
+  },
+];
+
+function resolveSubscriptionPlan(planId?: string, planName?: string): BackendSubscriptionPlan {
+  const normId = String(planId || '').trim().toLowerCase();
+  const normName = String(planName || '').trim().toLowerCase();
+  return (
+    SUBSCRIPTION_PLANS.find(
+      (p) =>
+        p.id === normId ||
+        p.aliases.includes(normId) ||
+        p.name.toLowerCase() === normName
+    ) || SUBSCRIPTION_PLANS[0]
+  );
+}
+
 // Initialize Gemini Client only if configured
 const ai = process.env.GEMINI_API_KEY
   ? new GoogleGenAI({
@@ -268,7 +340,7 @@ async function activateUserSubscription({
     users[idx] = {
       ...users[idx],
       subscriptionStatus: 'active',
-      subscriptionPlan: planName || users[idx].subscriptionPlan || 'LifeSpark Pro',
+      subscriptionPlan: planName || users[idx].subscriptionPlan || 'Lifestyle Spark Pro',
       subscriptionCurrency: currency || users[idx].subscriptionCurrency || 'USD',
       stripeCustomerId: customerId || users[idx].stripeCustomerId || null,
       stripeSessionId: sessionId || users[idx].stripeSessionId || null,
@@ -845,14 +917,52 @@ Return plain text under 60 words with no markdown symbols.`;
 // REAL GLOBAL MULTI-CURRENCY STRIPE CHECKOUT & WEBHOOKS
 // ============================================================================
 
+app.get('/api/stripe/plans', (req, res) => {
+  const requestedCurrency = String(req.query.currency || 'USD').toUpperCase();
+  const currencyCfg = CURRENCY_RATES[requestedCurrency] || CURRENCY_RATES.USD;
+  const paymentLinkUrl = process.env.STRIPE_PAYMENT_LINK_URL || process.env.VITE_STRIPE_PAYMENT_LINK_URL || null;
+
+  const plans = SUBSCRIPTION_PLANS.map((plan) => {
+    const rawAmount = plan.priceUsd * currencyCfg.rate;
+    const localizedAmount = currencyCfg.zeroDecimal ? Math.round(rawAmount) : Number(rawAmount.toFixed(2));
+    return {
+      id: plan.id,
+      name: plan.name,
+      priceUsd: plan.priceUsd,
+      interval: plan.interval,
+      badge: plan.badge,
+      description: plan.description,
+      features: plan.features,
+      currency: requestedCurrency in CURRENCY_RATES ? requestedCurrency : 'USD',
+      localizedAmount,
+    };
+  });
+
+  return res.json({
+    appName: 'Lifestyle Spark',
+    connectedPortalUrl: 'https://lifestyle.radiantsparkllc.com/',
+    stripeConnected: Boolean(stripeClient),
+    paymentLinkConfigured: Boolean(paymentLinkUrl),
+    webhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+    mode: stripeClient ? 'checkout_session' : paymentLinkUrl ? 'payment_link' : 'unconfigured',
+    supportedCurrencies: Object.keys(CURRENCY_RATES),
+    plans,
+  });
+});
+
 app.get('/api/stripe/config', (_req, res) => {
   const paymentLinkUrl = process.env.STRIPE_PAYMENT_LINK_URL || process.env.VITE_STRIPE_PAYMENT_LINK_URL || null;
   return res.json({
+    appName: 'Lifestyle Spark',
+    connectedPortalUrl: 'https://lifestyle.radiantsparkllc.com/',
     configured: Boolean(stripeClient),
     paymentLinkConfigured: Boolean(paymentLinkUrl),
     paymentLinkUrl,
+    webhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+    mode: stripeClient ? 'checkout_session' : paymentLinkUrl ? 'payment_link' : 'unconfigured',
     supportedCurrencies: Object.keys(CURRENCY_RATES),
     zeroDecimalCurrencies: ['JPY'],
+    plansCount: SUBSCRIPTION_PLANS.length,
     settlementNote:
       'Charges process through official Stripe Checkout (Visa, Mastercard, Amex, Apple Pay, Google Pay, Link) and settle directly to your linked Radiant Spark Stripe business account.',
   });
@@ -861,19 +971,17 @@ app.get('/api/stripe/config', (_req, res) => {
 app.post('/api/stripe/create-checkout-session', async (req, res) => {
   try {
     const {
-      planId = 'lifespark_monthly',
-      planName = 'LifeSpark Pro Monthly',
-      priceUsd = 29,
+      planId,
+      planName,
       currency = 'USD',
-      billingInterval = 'month',
       email,
       fullName,
       returnPath = '/#lifestyle',
     } = req.body || {};
 
+    const resolvedPlan = resolveSubscriptionPlan(planId, planName);
     const cleanCurrency = String(currency || 'USD').toUpperCase();
     const currencyCfg = CURRENCY_RATES[cleanCurrency] || CURRENCY_RATES.USD;
-    const safePriceUsd = Number(priceUsd) > 0 && Number(priceUsd) < 5000 ? Number(priceUsd) : 29;
 
     if (!stripeClient) {
       const paymentLinkUrl = process.env.STRIPE_PAYMENT_LINK_URL || process.env.VITE_STRIPE_PAYMENT_LINK_URL;
@@ -883,11 +991,15 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
         return res.json({
           mode: 'payment_link',
           url: u.toString(),
+          planId: resolvedPlan.id,
+          planName: resolvedPlan.name,
           currency: cleanCurrency,
         });
       }
       return res.status(503).json({
         code: 'STRIPE_NOT_CONFIGURED',
+        planId: resolvedPlan.id,
+        planName: resolvedPlan.name,
         error:
           'STRIPE_SECRET_KEY is not configured in server secrets yet. Add your Stripe secret key (sk_live_... or sk_test_...) in environment variables (or configure STRIPE_PAYMENT_LINK_URL) to enable live global card charges into your Stripe business account.',
       });
@@ -903,13 +1015,13 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
     const successUrl = `${origin}${basePart}${basePart.includes('?') ? '&' : '?'}checkout=success&session_id={CHECKOUT_SESSION_ID}${hashPart}`;
     const cancelUrl = `${origin}${basePart}${separator}checkout=cancelled${hashPart}`;
 
-    const rawAmount = safePriceUsd * currencyCfg.rate;
+    const rawAmount = resolvedPlan.priceUsd * currencyCfg.rate;
     const unitAmount = currencyCfg.zeroDecimal ? Math.round(rawAmount) : Math.round(rawAmount * 100);
 
     const token = extractRequestToken(req);
     const claims = verifySessionToken(token);
 
-    const isRecurring = billingInterval === 'month' || billingInterval === 'year';
+    const isRecurring = resolvedPlan.interval === 'month' || resolvedPlan.interval === 'year';
 
     const session = await stripeClient.checkout.sessions.create({
       mode: isRecurring ? 'subscription' : 'payment',
@@ -922,13 +1034,13 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
             currency: cleanCurrency.toLowerCase(),
             unit_amount: unitAmount,
             product_data: {
-              name: String(planName),
-              description: `Radiant Spark LifeSpark Global Plan (${cleanCurrency}) — Diet Plans, Recipes & Workouts`,
+              name: resolvedPlan.name,
+              description: `Radiant Spark Lifestyle Spark Global Plan (${cleanCurrency}) — Diet Plans, Recipes & Workouts`,
             },
             ...(isRecurring
               ? {
                   recurring: {
-                    interval: billingInterval === 'year' ? 'year' : 'month',
+                    interval: resolvedPlan.interval === 'year' ? 'year' : 'month',
                   },
                 }
               : {}),
@@ -938,8 +1050,10 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
       billing_address_collection: 'auto',
       allow_promotion_codes: true,
       metadata: {
-        planId: String(planId),
-        planName: String(planName),
+        appName: 'Lifestyle Spark',
+        portalUrl: 'https://lifestyle.radiantsparkllc.com/',
+        planId: resolvedPlan.id,
+        planName: resolvedPlan.name,
         customerName: fullName ? String(fullName) : '',
         userId: claims?.uid || '',
         currency: cleanCurrency,
@@ -952,6 +1066,8 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
       mode: 'checkout_session',
       sessionId: session.id,
       url: session.url,
+      planId: resolvedPlan.id,
+      planName: resolvedPlan.name,
       currency: cleanCurrency,
     });
   } catch (err: any) {
@@ -979,7 +1095,7 @@ app.get('/api/stripe/verify-session', async (req, res) => {
       await activateUserSubscription({
         email: session.customer_details?.email || session.customer_email,
         userId: session.metadata?.userId || session.client_reference_id,
-        planName: session.metadata?.planName || 'LifeSpark Pro',
+        planName: session.metadata?.planName || 'Lifestyle Spark Pro',
         currency: session.currency?.toUpperCase() || session.metadata?.currency || 'USD',
         customerId: typeof session.customer === 'string' ? session.customer : null,
         sessionId: session.id,
@@ -992,7 +1108,7 @@ app.get('/api/stripe/verify-session', async (req, res) => {
       status: session.status,
       amountTotal: session.amount_total,
       currency: session.currency?.toUpperCase() || 'USD',
-      planName: session.metadata?.planName || 'LifeSpark Pro',
+      planName: session.metadata?.planName || 'Lifestyle Spark Pro',
       customerEmail: session.customer_details?.email || session.customer_email || null,
       sessionId: session.id,
     });
@@ -1025,7 +1141,7 @@ app.post('/api/stripe/webhook', async (req: any, res) => {
     await activateUserSubscription({
       email: session.customer_details?.email || session.customer_email,
       userId: session.metadata?.userId || session.client_reference_id,
-      planName: session.metadata?.planName || 'LifeSpark Pro',
+      planName: session.metadata?.planName || 'Lifestyle Spark Pro',
       currency: session.currency?.toUpperCase() || 'USD',
       customerId: typeof session.customer === 'string' ? session.customer : null,
       sessionId: session.id,

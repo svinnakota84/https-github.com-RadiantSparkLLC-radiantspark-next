@@ -1,8 +1,8 @@
 {
   "id": "/lifespark.html",
-  "name": "LifeSpark Diet, Food Recipes & Fitness",
-  "short_name": "LifeSpark",
-  "description": "Personalized diet plans, step-by-step healthy food making, weight-loss exercises, member login, and worldwide Stripe checkout.",
+  "name": "Lifestyle Spark — Diet, Recipes & Fitness",
+  "short_name": "Lifestyle Spark",
+  "description": "Lifestyle Spark Mobile App by Radiant Spark Global: personalized diet plans, step-by-step healthy food making, weight-loss exercises, member login, and worldwide multi-currency Stripe payments.",
   "start_url": "/lifespark.html",
   "scope": "/",
   "display": "standalone",

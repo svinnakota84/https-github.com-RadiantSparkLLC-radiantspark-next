@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>LifeSpark — Real-Time Diet, Food Making &amp; Weight-Loss App</title>
-  <meta name="description" content="LifeSpark Mobile App by Radiant Spark Global: personalized diet plans, step-by-step healthy recipes, weight-loss exercises, member login, and worldwide multi-currency Stripe payments.">
+  <title>Lifestyle Spark — Diet, Food Making &amp; Weight-Loss App</title>
+  <meta name="description" content="Lifestyle Spark Mobile App by Radiant Spark Global: personalized diet plans, step-by-step healthy recipes, weight-loss exercises, member login, and worldwide multi-currency Stripe payments connected to lifestyle.radiantsparkllc.com.">
   <meta name="theme-color" content="#060b16">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="LifeSpark">
+  <meta name="apple-mobile-web-app-title" content="Lifestyle Spark">
   <link rel="manifest" href="/lifespark-manifest.json">
   <link rel="apple-touch-icon" href="/radiant-sparkle-logo.png">
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
@@ -35,7 +35,7 @@
       </a>
 
       <div class="text-center min-w-0">
-        <span class="font-extrabold text-sm sm:text-base text-white tracking-tight truncate block">LifeSpark Mobile</span>
+        <span class="font-extrabold text-sm sm:text-base text-white tracking-tight truncate block">Lifestyle Spark</span>
       </div>
 
       <div class="flex items-center gap-2 shrink-0">
@@ -63,7 +63,7 @@
     <!-- iOS Safari Install Guide Modal -->
     <div id="ios-guide-modal" class="hidden fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
       <div class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700 p-6 space-y-3 text-xs text-slate-300">
-        <h3 class="text-base font-bold text-white">Install LifeSpark on iPhone / iPad</h3>
+        <h3 class="text-base font-bold text-white">Install Lifestyle Spark on iPhone / iPad</h3>
         <p>1. Tap the <strong>Share</strong> icon in Safari toolbar.</p>
         <p>2. Scroll down and tap <strong>Add to Home Screen</strong>.</p>
         <button onclick="document.getElementById('ios-guide-modal').classList.add('hidden')" class="w-full min-h-[44px] rounded-xl bg-emerald-500 text-slate-950 font-extrabold">
@@ -80,21 +80,21 @@
         <div class="md:col-span-7 p-5 sm:p-6 space-y-3 flex flex-col justify-between">
           <div class="space-y-2">
             <div class="text-xs font-mono text-emerald-400">
-              lifestyle.radiantsparkllc.com · Personalized Fat-Loss Nutrition
+              lifestyle.radiantsparkllc.com · Lifestyle Spark Mobile App
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
               Daily Diet Matrix, Home Cooking &amp; Fat-Loss Exercises
             </h1>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Enter your current weight and goal below for instant calorie &amp; macro calculations, explore step-by-step healthy recipes, or upgrade via Stripe worldwide card checkout.
+              Connected with <a href="https://lifestyle.radiantsparkllc.com/" target="_blank" rel="noopener noreferrer" class="text-emerald-300 underline font-semibold">lifestyle.radiantsparkllc.com</a> and backend Stripe Subscription Plans. Enter your current weight and goal for instant calorie &amp; macro calculations or upgrade globally.
             </p>
           </div>
           <div class="flex flex-wrap gap-2 pt-1">
             <button onclick="switchMobileTab('pro')" type="button" class="px-4 py-2.5 min-h-[44px] rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs">
-              Enter Pro Plan (Global Cards)
+              Subscription Plans (Global Cards)
             </button>
             <a href="https://lifestyle.radiantsparkllc.com/" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 min-h-[44px] rounded-xl bg-slate-950 border border-slate-700 text-slate-200 font-bold text-xs flex items-center">
-              Lifestyle Web Hub ↗
+              lifestyle.radiantsparkllc.com ↗
             </a>
           </div>
         </div>
@@ -246,7 +246,7 @@
     <section id="tab-account" class="hidden space-y-5">
       <div id="account-logged-out" class="p-6 rounded-3xl bg-slate-900 border border-slate-800 max-w-xl mx-auto space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 id="auth-heading" class="text-lg font-extrabold text-white">Sign In to LifeSpark</h2>
+          <h2 id="auth-heading" class="text-lg font-extrabold text-white">Sign In to Lifestyle Spark</h2>
           <button onclick="toggleAuthMode()" id="auth-switch-btn" type="button" class="text-xs text-emerald-400 underline font-semibold min-h-[40px]">
             Create New Account
           </button>
@@ -371,10 +371,10 @@
       JPY: { symbol: '¥', rate: 154, zero: true }
     };
 
-    const PLANS = [
-      { id: 'lifespark_monthly', name: 'LifeSpark Pro Monthly', usd: 29, interval: 'month', desc: 'Continuous personalized diet updates, recipes, workouts & cloud progress sync.' },
-      { id: 'lifespark_annual', name: 'LifeSpark Pro Annual', usd: 249, interval: 'year', desc: 'Full 12-month membership saving 28% with multi-cuisine plans.' },
-      { id: 'lifespark_90day', name: '90-Day Transformation Pass', usd: 69, interval: 'one_time', desc: 'Single one-time payment for a structured 12-week fat-loss blueprint.' }
+    let PLANS = [
+      { id: 'lifestyle_spark_monthly', name: 'Lifestyle Spark Pro Monthly', priceUsd: 29, interval: 'month', description: 'Continuous personalized diet updates, recipes, workouts & cloud progress sync.' },
+      { id: 'lifestyle_spark_annual', name: 'Lifestyle Spark Pro Annual', priceUsd: 249, interval: 'year', description: 'Full 12-month membership saving 28% with multi-cuisine plans.' },
+      { id: 'lifestyle_spark_90day', name: 'Lifestyle Spark 90-Day Pass', priceUsd: 69, interval: 'one_time', description: 'Single one-time payment for a structured 12-week fat-loss blueprint.' }
     ];
 
     const RECIPES = [
@@ -621,13 +621,13 @@
       if (res && res.ok) {
         const d = await res.json();
         setMemberUI(d.user);
-        alert('Workout saved to your LifeSpark history.');
+        alert('Workout saved to your Lifestyle Spark history.');
       }
     }
 
     function toggleAuthMode() {
       authMode = authMode === 'login' ? 'register' : 'login';
-      document.getElementById('auth-heading').textContent = authMode === 'register' ? 'Create LifeSpark Account' : 'Sign In to LifeSpark';
+      document.getElementById('auth-heading').textContent = authMode === 'register' ? 'Create Lifestyle Spark Account' : 'Sign In to Lifestyle Spark';
       document.getElementById('auth-switch-btn').textContent = authMode === 'register' ? 'Already have an account? Sign In' : 'Create New Account';
       document.getElementById('auth-name-wrap').classList.toggle('hidden', authMode !== 'register');
       document.getElementById('auth-submit-btn').textContent = authMode === 'register' ? 'Create Account & Save Plan' : 'Sign In & Load Saved Progress';
@@ -693,7 +693,9 @@
     function renderStripePlans() {
       const code = document.getElementById('pro-currency').value || 'USD';
       document.getElementById('stripe-plans-grid').innerHTML = PLANS.map(p => {
-        const formatted = fmtMoney(p.usd, code);
+        const usd = p.priceUsd || p.usd || 29;
+        const desc = p.description || p.desc || '';
+        const formatted = fmtMoney(usd, code);
         const unit = p.interval === 'year' ? '/yr' : p.interval === 'one_time' ? 'one-time' : '/mo';
         return `
           <div class="p-5 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4">
@@ -701,9 +703,9 @@
               <span class="text-xs font-mono text-emerald-400">${esc(p.interval === 'one_time' ? 'One-Time Payment' : 'Recurring Plan')}</span>
               <h3 class="text-lg font-extrabold text-white">${esc(p.name)}</h3>
               <div class="font-mono"><strong class="text-2xl text-white tabular-nums">${esc(formatted)}</strong> <span class="text-xs text-slate-400">${unit}</span></div>
-              <p class="text-xs text-slate-300 leading-relaxed">${esc(p.desc)}</p>
+              <p class="text-xs text-slate-300 leading-relaxed">${esc(desc)}</p>
             </div>
-            <button onclick="startStripeCheckout('${p.id}','${esc(p.name)}',${p.usd},'${p.interval}')" type="button" class="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-extrabold text-xs">
+            <button onclick="startStripeCheckout('${p.id}','${esc(p.name)}',${usd},'${p.interval}')" type="button" class="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-extrabold text-xs">
               Pay ${esc(formatted)} via Stripe Checkout →
             </button>
           </div>
@@ -758,6 +760,16 @@
         .then(d => { if (d && d.authenticated && d.user) setMemberUI(d.user); })
         .catch(() => {});
 
+      fetch('/api/stripe/plans')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (d && Array.isArray(d.plans) && d.plans.length > 0) {
+            PLANS = d.plans;
+            renderStripePlans();
+          }
+        })
+        .catch(() => {});
+
       fetch('/api/stripe/config')
         .then(r => r.ok ? r.json() : null)
         .then(cfg => {
@@ -768,7 +780,7 @@
             ? 'Stripe Live Server Ready · Worldwide Cards, Apple Pay & Google Pay settle directly to your Stripe account.'
             : cfg.paymentLinkConfigured
             ? 'Stripe Payment Link Ready · Worldwide checkout active.'
-            : 'Setup Notice: Add STRIPE_SECRET_KEY in server environment secrets to activate live card charges.';
+            : 'Backend Plans Synced · Add STRIPE_SECRET_KEY in server environment secrets to activate live card charges.';
         }).catch(() => {});
 
       const params = new URLSearchParams(window.location.search);

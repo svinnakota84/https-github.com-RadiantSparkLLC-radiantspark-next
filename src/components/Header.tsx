@@ -395,7 +395,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="button"
               onClick={onOpenDownloadApp}
               className="inline-flex items-center gap-1 px-3 py-1.5 sm:py-2 rounded-xl text-xs font-extrabold text-amber-300 bg-amber-950/80 hover:bg-amber-900 border border-amber-500/50 shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
-              title="Download Mobile Apps (SparkSync OS & LifeSpark App)"
+              title="Download Mobile Apps (SparkSync OS & Lifestyle Spark)"
             >
               <span>📲</span>
               <span className="hidden sm:inline">Apps</span>

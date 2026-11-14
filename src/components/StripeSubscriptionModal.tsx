@@ -24,6 +24,7 @@ import {
 interface StripeSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  planId?: string;
   planName?: string;
   priceUsd?: number;
   billingInterval?: 'month' | 'year' | 'one_time';
@@ -35,7 +36,8 @@ interface StripeSubscriptionModalProps {
 export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = ({
   isOpen,
   onClose,
-  planName = 'LifeSpark Pro Monthly',
+  planId,
+  planName = 'Lifestyle Spark Pro Monthly',
   priceUsd = 29,
   billingInterval = 'month',
   defaultEmail = '',
@@ -103,17 +105,18 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
     setErrorMsg(null);
 
     if (!customerEmail.trim() || !customerEmail.includes('@')) {
-      setErrorMsg('Please enter a valid email address for your Stripe payment receipt and LifeSpark account.');
+      setErrorMsg('Please enter a valid email address for your Stripe payment receipt and Lifestyle Spark account.');
       return;
     }
 
     setIsProcessing(true);
     try {
+      const resolvedPlanId = planId || `${planName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
       const res = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          planId: `${planName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
+          planId: resolvedPlanId,
           planName,
           priceUsd,
           currency,

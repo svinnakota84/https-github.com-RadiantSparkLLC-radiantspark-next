@@ -131,7 +131,7 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
                 href="/lifespark.html"
                 className="p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 hover:text-white hover:border-emerald-500 flex items-center justify-between font-bold"
               >
-                <span>🥗 LifeSpark Mobile App (lifespark.html)</span>
+                <span>🥗 Lifestyle Spark App (lifespark.html)</span>
                 <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
               </a>
             </div>

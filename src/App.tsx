@@ -59,7 +59,8 @@ export default function App() {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [isTakedownOpen, setIsTakedownOpen] = useState(false);
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
-  const [stripePlanName, setStripePlanName] = useState('LifeSpark Pro Monthly');
+  const [stripePlanId, setStripePlanId] = useState('lifestyle_spark_monthly');
+  const [stripePlanName, setStripePlanName] = useState('Lifestyle Spark Pro Monthly');
   const [stripePriceUsd, setStripePriceUsd] = useState(29);
   const [stripeBillingInterval, setStripeBillingInterval] = useState<'month' | 'year' | 'one_time'>('month');
 
@@ -300,7 +301,8 @@ export default function App() {
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             >
               <LifestylePortal
-                onOpenStripeModal={(planName, priceUsd, interval) => {
+                onOpenStripeModal={(planName, priceUsd, interval, planId) => {
+                  if (planId) setStripePlanId(planId);
                   setStripePlanName(planName);
                   setStripePriceUsd(priceUsd);
                   setStripeBillingInterval(interval || 'month');
@@ -423,6 +425,7 @@ export default function App() {
       <StripeSubscriptionModal
         isOpen={isStripeModalOpen}
         onClose={() => setIsStripeModalOpen(false)}
+        planId={stripePlanId}
         planName={stripePlanName}
         priceUsd={stripePriceUsd}
         billingInterval={stripeBillingInterval}

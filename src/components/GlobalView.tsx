@@ -383,7 +383,7 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
               </div>
             </div>
 
-            {/* App 2: LifeSpark Diet, Recipes & Weight-Loss App */}
+            {/* App 2: Lifestyle Spark Diet, Recipes & Weight-Loss App */}
             <div className="p-6 rounded-2xl bg-slate-900/90 border border-emerald-500/35 flex flex-col justify-between space-y-4 shadow-lg hover:border-emerald-400/60 transition-all">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -392,9 +392,9 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
                   </span>
                   <span className="text-xl">🥗</span>
                 </div>
-                <h3 className="text-lg font-bold text-white">LifeSpark Mobile App</h3>
+                <h3 className="text-lg font-bold text-white">Lifestyle Spark</h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  Member login, real-time calorie &amp; macro diet planner, step-by-step home recipes, weight-loss workouts, and worldwide multi-currency Stripe Pro checkout synced with lifestyle.radiantsparkllc.com.
+                  Member login, real-time calorie &amp; macro diet planner, step-by-step home recipes, weight-loss workouts, and worldwide multi-currency Stripe Pro subscription plans synced with lifestyle.radiantsparkllc.com.
                 </p>
               </div>
 
@@ -403,14 +403,14 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
                   href="./lifespark.html"
                   className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs text-center shadow-md transition-all active:scale-95"
                 >
-                  Launch LifeSpark App ↗
+                  Launch Lifestyle Spark ↗
                 </a>
                 <button
                   type="button"
                   onClick={() => onSwitchView('lifestyle')}
                   className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 font-semibold text-xs border border-slate-700"
                 >
-                  Lifestyle Hub
+                  Plans &amp; Hub
                 </button>
               </div>
             </div>

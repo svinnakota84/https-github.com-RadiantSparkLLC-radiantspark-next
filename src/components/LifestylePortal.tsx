@@ -41,7 +41,8 @@ interface LifestylePortalProps {
   onOpenStripeModal?: (
     planName: string,
     priceUsd: number,
-    billingInterval?: 'month' | 'year' | 'one_time'
+    billingInterval?: 'month' | 'year' | 'one_time',
+    planId?: string
   ) => void;
 }
 
@@ -49,8 +50,20 @@ type ActiveTab = 'diet' | 'recipes' | 'workouts' | 'plans';
 
 export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeModal }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('diet');
-  const [showLiveSiteEmbed, setShowLiveSiteEmbed] = useState(false);
+  const [showLiveSiteEmbed, setShowLiveSiteEmbed] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyConfig['code']>('USD');
+  const [backendPlans, setBackendPlans] = useState(LIFESTYLE_PLAN_TIERS);
+  const [stripeBackendState, setStripeBackendState] = useState<{
+    loaded: boolean;
+    connected: boolean;
+    mode: string;
+    webhookConfigured: boolean;
+  }>({
+    loaded: false,
+    connected: false,
+    mode: 'checking',
+    webhookConfigured: false,
+  });
 
   // Customer Auth State
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -170,7 +183,26 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
         message: 'Stripe checkout was cancelled. No card charge was placed.',
       });
     }
-  }, [authToken]);
+    // Fetch authoritative subscription plans & live Stripe connection status from backend
+    fetch(`/api/stripe/plans?currency=${encodeURIComponent(selectedCurrency)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && Array.isArray(data.plans) && data.plans.length > 0) {
+          setBackendPlans(data.plans);
+          setStripeBackendState({
+            loaded: true,
+            connected: Boolean(data.stripeConnected || data.paymentLinkConfigured),
+            mode: data.mode || 'unconfigured',
+            webhookConfigured: Boolean(data.webhookConfigured),
+          });
+        } else {
+          setStripeBackendState((s) => ({ ...s, loaded: true, mode: 'static_fallback' }));
+        }
+      })
+      .catch(() => {
+        setStripeBackendState((s) => ({ ...s, loaded: true, mode: 'static_fallback' }));
+      });
+  }, [authToken, selectedCurrency]);
 
   // Workout Interval Timer
   useEffect(() => {
@@ -307,7 +339,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
       if (res.ok) {
         const data = await res.json();
         setCurrentUser(data.user);
-        setWorkoutStatusMsg(`Saved "${title}" (~${cal} kcal burned) to your LifeSpark log.`);
+        setWorkoutStatusMsg(`Saved "${title}" (~${cal} kcal burned) to your Lifestyle Spark log.`);
       }
     } catch {
       setWorkoutStatusMsg('Could not sync workout right now.');
@@ -390,26 +422,26 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
             <div className="flex flex-wrap items-center gap-2 text-xs text-emerald-400 font-mono">
               <span>lifestyle.radiantsparkllc.com</span>
               <span aria-hidden="true">·</span>
-              <span>LifeSpark Fitness &amp; Nutrition</span>
+              <span>Lifestyle Spark Mobile App</span>
               <span aria-hidden="true">·</span>
               <span>Global Stripe Checkout</span>
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight text-balance">
-              Personalized Diet Plans, Food Making &amp; Weight-Loss Training
+              Lifestyle Spark: Diet Plans, Food Making &amp; Weight-Loss App
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-              Sign in to save your real-time calorie targets, step-by-step home recipes, and fat-loss workouts—integrated directly with{' '}
+              Connected live with{' '}
               <a
                 href="https://lifestyle.radiantsparkllc.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-emerald-300 underline font-semibold"
               >
-                lifestyle.radiantsparkllc.com
+                https://lifestyle.radiantsparkllc.com/
               </a>{' '}
-              and worldwide multi-currency Stripe payments.
+              and our backend Stripe Subscription Plans. Calculate real-time calories &amp; macros, cook healthy weight-loss meals, follow workouts, and pay in any global currency.
             </p>
           </div>
 
@@ -419,7 +451,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg transition-all whitespace-nowrap shrink-0"
             >
               <Smartphone className="w-4 h-4" />
-              <span>Open LifeSpark Mobile App ↗</span>
+              <span>Open Lifestyle Spark App ↗</span>
             </a>
 
             <button
@@ -430,8 +462,8 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               {showLiveSiteEmbed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               <span>
                 {showLiveSiteEmbed
-                  ? 'Hide lifestyle.radiantsparkllc.com Frame'
-                  : 'Preview lifestyle.radiantsparkllc.com Live'}
+                  ? 'Collapse Live Subdomain Frame'
+                  : 'Show lifestyle.radiantsparkllc.com Live'}
               </span>
             </button>
 
@@ -456,36 +488,149 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-200 font-mono">
-            <span>Balanced Macros · Home Prep</span>
+            <span>Lifestyle Spark PWA · Recipes &amp; Fitness</span>
             <span className="text-emerald-300 font-bold">USD · INR · EUR · GBP · AED</span>
           </div>
         </div>
       </section>
 
-      {/* Live Iframe Bridge to https://lifestyle.radiantsparkllc.com/ */}
+      {/* Connected Live Subdomain (https://lifestyle.radiantsparkllc.com/) + Subscription Plans Grid */}
       {showLiveSiteEmbed && (
         <section className="rounded-3xl bg-slate-950 border border-emerald-500/40 overflow-hidden shadow-2xl">
-          <div className="px-5 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs">
-            <span className="font-mono text-emerald-300 font-bold">
-              Live Embed: https://lifestyle.radiantsparkllc.com/
-            </span>
-            <a
-              href="https://lifestyle.radiantsparkllc.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-300 hover:text-white underline flex items-center gap-1"
-            >
-              Open in New Tab <ExternalLink className="w-3 h-3" />
-            </a>
+          <div className="px-5 py-3 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-mono text-emerald-300 font-bold">
+                Connected Live Portal: https://lifestyle.radiantsparkllc.com/
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <a
+                href="/lifespark.html"
+                className="text-emerald-400 hover:text-emerald-300 font-bold underline flex items-center gap-1"
+              >
+                Open Lifestyle Spark App ↗
+              </a>
+              <a
+                href="https://lifestyle.radiantsparkllc.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-slate-300 hover:text-white underline flex items-center gap-1"
+              >
+                Open in New Tab <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
           </div>
           <iframe
             src="https://lifestyle.radiantsparkllc.com/"
-            title="LifestyleHub - lifestyle.radiantsparkllc.com"
-            className="w-full h-[560px] bg-[#FAF7F2]"
+            title="Lifestyle Spark Portal - lifestyle.radiantsparkllc.com"
+            className="w-full h-[520px] bg-[#FAF7F2]"
             loading="lazy"
           />
         </section>
       )}
+
+      {/* Always-Visible Backend-Connected Stripe Subscription Plans Section */}
+      <section className="space-y-5 p-6 rounded-3xl bg-slate-900/90 border border-blue-500/40 shadow-2xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
+              <Globe className="w-4 h-4 text-blue-400" />
+              <span className="text-blue-400 font-bold">
+                Backend Stripe Subscriptions (/api/stripe/plans &amp; Checkout)
+              </span>
+              <span className="text-slate-600">·</span>
+              <span
+                className={
+                  stripeBackendState.connected
+                    ? 'text-emerald-400 font-bold'
+                    : 'text-amber-300 font-semibold'
+                }
+              >
+                {stripeBackendState.connected
+                  ? 'Backend Connected: Ready for Global Charges'
+                  : 'Backend Verified (Add STRIPE_SECRET_KEY in Env for Live Charges)'}
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              Lifestyle Spark Subscription Plans · Global Card Checkout
+            </h2>
+            <p className="text-xs text-slate-300">
+              Select a plan below to connect directly to our Node Stripe backend, calculate localized currency pricing, and complete PCI-compliant Visa, Mastercard, Amex, Apple Pay, or Google Pay settlement into your Radiant Spark Stripe account.
+            </p>
+          </div>
+
+          <div className="shrink-0">
+            <label className="block text-[11px] font-mono text-slate-400 mb-1">
+              Display &amp; Billing Currency
+            </label>
+            <select
+              value={selectedCurrency}
+              onChange={(e) => setSelectedCurrency(e.target.value as CurrencyConfig['code'])}
+              className="w-full sm:w-56 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-xs font-bold focus:border-blue-500 focus:outline-none"
+            >
+              {SUPPORTED_CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {backendPlans.map((tier) => {
+            const formatted = formatLocalizedCurrency(tier.priceUsd, selectedCurrency);
+            return (
+              <div
+                key={tier.id}
+                className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 hover:border-blue-500/50 transition-all flex flex-col justify-between space-y-5"
+              >
+                <div className="space-y-3">
+                  <span className="text-xs font-mono text-emerald-400 font-bold block">
+                    {tier.badge}
+                  </span>
+                  <h3 className="text-xl font-extrabold text-white">{tier.name}</h3>
+                  <div className="flex items-baseline gap-2 font-mono">
+                    <strong className="text-3xl font-black text-white tabular-nums">
+                      {formatted}
+                    </strong>
+                    <span className="text-xs text-slate-400">
+                      {tier.interval === 'year'
+                        ? '/ year'
+                        : tier.interval === 'one_time'
+                        ? 'one-time'
+                        : '/ month'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">{tier.description}</p>
+                  <ul className="space-y-2 pt-2 border-t border-slate-800 text-xs text-slate-300">
+                    {tier.features.map((feat, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenStripeModal) {
+                      onOpenStripeModal(tier.name, tier.priceUsd, tier.interval, tier.id);
+                    }
+                  }}
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>Enter Plan · Pay {formatted}</span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       {/* Member Account & Session Bar */}
       <section className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -499,7 +644,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                 <span className="text-slate-400">·</span>
                 <span className="font-mono text-emerald-400 font-semibold">
                   {currentUser.subscriptionStatus === 'active'
-                    ? `Active Plan: ${currentUser.subscriptionPlan || 'LifeSpark Pro'}`
+                    ? `Active Plan: ${currentUser.subscriptionPlan || 'Lifestyle Spark Pro'}`
                     : 'Free Member Account'}
                 </span>
               </div>
@@ -512,7 +657,16 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               {currentUser.subscriptionStatus !== 'active' && (
                 <button
                   type="button"
-                  onClick={() => setActiveTab('plans')}
+                  onClick={() => {
+                    if (onOpenStripeModal) {
+                      onOpenStripeModal(
+                        'Lifestyle Spark Pro Monthly',
+                        29,
+                        'month',
+                        'lifestyle_spark_monthly'
+                      );
+                    }
+                  }}
                   className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs whitespace-nowrap"
                 >
                   Upgrade via Stripe Pro
@@ -532,7 +686,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
           <>
             <div>
               <strong className="text-white text-sm font-bold block">
-                Member Login &amp; Sync Across Web + LifeSpark App
+                Member Login &amp; Sync Across Web + Lifestyle Spark App
               </strong>
               <p className="text-xs text-slate-400">
                 Sign in or create an account to save custom meal plans, food recipes, workout logs, and Stripe subscriptions.
@@ -574,8 +728,8 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
           <div className="flex items-center justify-between border-b border-slate-800 pb-3">
             <h3 className="text-base font-bold text-white">
               {authMode === 'register'
-                ? 'Create Your LifeSpark Member Account'
-                : 'Sign In to Your LifeSpark Account'}
+                ? 'Create Your Lifestyle Spark Member Account'
+                : 'Sign In to Your Lifestyle Spark Account'}
             </h3>
             <button
               type="button"
@@ -866,7 +1020,14 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
               {onOpenStripeModal && (
                 <button
                   type="button"
-                  onClick={() => onOpenStripeModal('LifeSpark Pro Monthly', 29, 'month')}
+                  onClick={() =>
+                    onOpenStripeModal(
+                      'Lifestyle Spark Pro Monthly',
+                      29,
+                      'month',
+                      'lifestyle_spark_monthly'
+                    )
+                  }
                   className="py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                   <CreditCard className="w-4 h-4" />
@@ -1244,7 +1405,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                 <span>Worldwide Card Processing · Linked Radiant Spark Stripe Business Account</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white">
-                Choose Your Plan &amp; Pay in Any Major Global Currency
+                Choose Your Lifestyle Spark Plan &amp; Pay Globally
               </h2>
               <p className="text-xs text-slate-300">
                 Customers worldwide can enter their diet plan via Visa, Mastercard, Amex, Apple Pay, or Google Pay on Stripe&apos;s encrypted Checkout page. Proceeds route directly into your linked Stripe account.
@@ -1270,7 +1431,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {LIFESTYLE_PLAN_TIERS.map((tier) => {
+            {backendPlans.map((tier) => {
               const formatted = formatLocalizedCurrency(tier.priceUsd, selectedCurrency);
               return (
                 <div
@@ -1309,7 +1470,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                     type="button"
                     onClick={() => {
                       if (onOpenStripeModal) {
-                        onOpenStripeModal(tier.name, tier.priceUsd, tier.interval);
+                        onOpenStripeModal(tier.name, tier.priceUsd, tier.interval, tier.id);
                       }
                     }}
                     className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
