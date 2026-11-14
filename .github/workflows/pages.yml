@@ -1,14 +1,20 @@
-name: Build and deploy website
+name: Build, Refresh Deals, and Deploy Website
+
 on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: '*/15 * * * *'
   workflow_dispatch:
+
 permissions:
   contents: read
+
 concurrency:
   group: pages-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,11 +25,17 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Refresh real-time deals & Black Friday 2026 offers
+        env:
+          AMAZON_AFFILIATE_TAG: ${{ secrets.AMAZON_AFFILIATE_TAG }}
+          AMAZON_INDIA_TAG: ${{ secrets.AMAZON_INDIA_TAG }}
+        run: node scripts/refresh-deals.mjs || true
       - run: npm run lint
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build

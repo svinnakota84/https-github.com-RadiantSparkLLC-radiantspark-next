@@ -3,253 +3,331 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   CreditCard,
   Lock,
   ShieldCheck,
-  CheckCircle2,
   Globe,
-  Zap,
-  DollarSign,
   X,
   RefreshCw,
+  AlertTriangle,
+  ExternalLink,
+  CheckCircle2,
 } from 'lucide-react';
+import {
+  CurrencyConfig,
+  SUPPORTED_CURRENCIES,
+  formatLocalizedCurrency,
+} from '../data/lifesparkData';
 
 interface StripeSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
   planName?: string;
   priceUsd?: number;
+  billingInterval?: 'month' | 'year' | 'one_time';
+  defaultEmail?: string;
+  defaultName?: string;
+  returnPath?: string;
 }
 
 export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = ({
   isOpen,
   onClose,
-  planName = 'Pro Lifestyle & AI Diet Subscription',
+  planName = 'LifeSpark Pro Monthly',
   priceUsd = 29,
+  billingInterval = 'month',
+  defaultEmail = '',
+  defaultName = '',
+  returnPath = '/#lifestyle',
 }) => {
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
-  const [cardHolder, setCardHolder] = useState('');
-  const [currency, setCurrency] = useState<'USD' | 'INR' | 'EUR' | 'GBP' | 'AED'>('USD');
+  const [customerName, setCustomerName] = useState(defaultName);
+  const [customerEmail, setCustomerEmail] = useState(defaultEmail);
+  const [currency, setCurrency] = useState<CurrencyConfig['code']>('USD');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [stripeStatus, setStripeStatus] = useState<{
+    checked: boolean;
+    configured: boolean;
+    paymentLinkConfigured: boolean;
+    paymentLinkUrl: string | null;
+  }>({
+    checked: false,
+    configured: false,
+    paymentLinkConfigured: false,
+    paymentLinkUrl: null,
+  });
+
+  useEffect(() => {
+    if (defaultName && !customerName) setCustomerName(defaultName);
+    if (defaultEmail && !customerEmail) setCustomerEmail(defaultEmail);
+  }, [defaultName, defaultEmail]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setErrorMsg(null);
+    fetch('/api/stripe/config')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) {
+          setStripeStatus({
+            checked: true,
+            configured: Boolean(data.configured),
+            paymentLinkConfigured: Boolean(data.paymentLinkConfigured),
+            paymentLinkUrl: data.paymentLinkUrl || null,
+          });
+        } else {
+          setStripeStatus((s) => ({ ...s, checked: true }));
+        }
+      })
+      .catch(() => {
+        setStripeStatus((s) => ({ ...s, checked: true }));
+      });
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  // Currency conversion ratios for display preview
-  const conversionRates = {
-    USD: 1,
-    INR: 84.32,
-    EUR: 0.92,
-    GBP: 0.78,
-    AED: 3.67,
-  };
+  const selectedCurrencyCfg =
+    SUPPORTED_CURRENCIES.find((c) => c.code === currency) || SUPPORTED_CURRENCIES[0];
+  const formattedLocal = formatLocalizedCurrency(priceUsd, currency);
+  const intervalLabel =
+    billingInterval === 'year'
+      ? '/ year'
+      : billingInterval === 'one_time'
+      ? 'one-time'
+      : '/ month';
 
-  const localPrice = (priceUsd * conversionRates[currency]).toLocaleString('en-US', {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 2,
-  });
-
-  const currencySymbols = {
-    USD: '$',
-    INR: '₹',
-    EUR: '€',
-    GBP: '£',
-    AED: 'AED ',
-  };
-
-  const handlePay = (e: React.FormEvent) => {
+  const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!cardNumber || !expiry || !cvc || !cardHolder) {
-      alert('Please fill out all card fields to complete your Stripe subscription.');
+    setErrorMsg(null);
+
+    if (!customerEmail.trim() || !customerEmail.includes('@')) {
+      setErrorMsg('Please enter a valid email address for your Stripe payment receipt and LifeSpark account.');
       return;
     }
 
     setIsProcessing(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: `${planName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`,
+          planName,
+          priceUsd,
+          currency,
+          billingInterval,
+          email: customerEmail.trim(),
+          fullName: customerName.trim(),
+          returnPath,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.url) {
+        window.location.assign(data.url);
+        return;
+      }
+
+      const fallbackLink =
+        stripeStatus.paymentLinkUrl ||
+        (import.meta as any).env?.VITE_STRIPE_PAYMENT_LINK_URL ||
+        '';
+      if (fallbackLink) {
+        const u = new URL(fallbackLink);
+        if (customerEmail.trim()) u.searchParams.set('prefilled_email', customerEmail.trim());
+        window.location.assign(u.toString());
+        return;
+      }
+
+      setErrorMsg(
+        data.error ||
+          'Live Stripe server key (STRIPE_SECRET_KEY) is not configured in this environment yet.'
+      );
+    } catch {
+      setErrorMsg(
+        'Could not reach the payment server. Verify the backend server is running with STRIPE_SECRET_KEY configured.'
+      );
+    } finally {
       setIsProcessing(false);
-      setPaymentSuccess(true);
-    }, 1800);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
-      <div className="w-full max-w-lg bg-slate-950 border border-blue-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Global Multi-Currency Stripe Checkout"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in"
+    >
+      <div className="w-full max-w-lg bg-slate-950 border border-blue-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
         {/* Header */}
-        <div className="p-5 bg-gradient-to-r from-blue-950/80 via-slate-900 to-indigo-950/80 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 bg-gradient-to-r from-blue-950/80 via-slate-900 to-emerald-950/60 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-blue-600/30 border border-blue-400/50 flex items-center justify-center text-blue-300 shadow-md">
               <CreditCard className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-                <span>Stripe Active Business Gateway</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40">
-                  LIVE 256-BIT SSL
-                </span>
+              <h3 className="text-base font-extrabold text-white">
+                Stripe Global Hosted Checkout
               </h3>
-              <p className="text-xs text-slate-400">USD Settlement with Auto Currency Exchange</p>
+              <p className="text-xs text-slate-400">
+                PCI-compliant worldwide card &amp; wallet settlement
+              </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center"
+            aria-label="Close checkout modal"
+            className="w-9 h-9 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="p-6 space-y-5 text-xs text-slate-300">
-          {paymentSuccess ? (
-            <div className="p-6 rounded-2xl bg-emerald-950/60 border border-emerald-500/50 text-center space-y-3">
-              <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto animate-bounce" />
-              <h4 className="text-lg font-bold text-white">Subscription Active &amp; Verified!</h4>
-              <p className="text-xs text-slate-300">
-                Your payment of <strong>{currencySymbols[currency]}{localPrice}</strong> (settled at <strong>${priceUsd}.00 USD</strong> on Stripe) has been processed successfully.
-              </p>
-              <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 font-mono text-[11px] text-emerald-300">
-                Stripe TxID: tx_live_9941a88b2091c4
-              </div>
-              <button
-                onClick={onClose}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
-              >
-                Close &amp; Return to Platform
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handlePay} className="space-y-4">
-              {/* Order Summary Box */}
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                <div className="flex justify-between items-center text-slate-400">
-                  <span>Selected Subscription:</span>
-                  <strong className="text-white font-bold">{planName}</strong>
-                </div>
-
-                <div className="flex justify-between items-center pt-2 border-t border-slate-800">
-                  <div>
-                    <span className="text-slate-400 block text-[10px]">Card Billing Currency:</span>
-                    <select
-                      value={currency}
-                      onChange={(e: any) => setCurrency(e.target.value)}
-                      className="mt-0.5 px-2 py-1 rounded bg-slate-950 border border-slate-700 text-white font-mono text-xs focus:outline-none"
-                    >
-                      <option value="USD">USD ($ United States)</option>
-                      <option value="INR">INR (₹ India)</option>
-                      <option value="EUR">EUR (€ Europe)</option>
-                      <option value="GBP">GBP (£ United Kingdom)</option>
-                      <option value="AED">AED (UAE Dirham)</option>
-                    </select>
-                  </div>
-
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-400 block">Stripe USD Base:</span>
-                    <strong className="text-lg font-black text-emerald-400 font-mono">
-                      {currencySymbols[currency]}{localPrice}
-                    </strong>
-                    {currency !== 'USD' && (
-                      <span className="text-[9px] text-slate-500 block font-mono">
-                        (Equal to ${priceUsd}.00 USD)
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Inputs */}
+        <div className="p-6 overflow-y-auto space-y-4 text-xs text-slate-300">
+          {/* Server Connection Status */}
+          {stripeStatus.checked && (
+            <div
+              className={`p-3 rounded-2xl border flex items-start gap-2.5 text-[11px] ${
+                stripeStatus.configured || stripeStatus.paymentLinkConfigured
+                  ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-200'
+                  : 'bg-amber-950/40 border-amber-500/40 text-amber-200'
+              }`}
+            >
+              {stripeStatus.configured || stripeStatus.paymentLinkConfigured ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              ) : (
+                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              )}
               <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase mb-1">
-                  Cardholder Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Full name as printed on card..."
-                  value={cardHolder}
-                  onChange={(e) => setCardHolder(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-slate-300 uppercase mb-1">
-                  Card Number
-                </label>
-                <input
-                  type="text"
-                  placeholder="4000 1234 5678 9010"
-                  maxLength={19}
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-semibold focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 uppercase mb-1">
-                    Expiry (MM/YY)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="12/28"
-                    maxLength={5}
-                    value={expiry}
-                    onChange={(e) => setExpiry(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-semibold focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 uppercase mb-1">
-                    CVC Code
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="123"
-                    maxLength={4}
-                    value={cvc}
-                    onChange={(e) => setCvc(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white font-mono font-semibold focus:border-blue-500 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Security Shield Note */}
-              <div className="flex items-center gap-2 text-[10px] text-slate-400 bg-slate-900/60 p-2.5 rounded-xl border border-slate-800">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>
-                  Encrypted via Stripe 256-bit SSL gateway. Card tokens are processed in USD with zero foreign transaction markup.
-                </span>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={isProcessing}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black text-xs uppercase tracking-wider shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2 transition-all active:scale-98"
-              >
-                {isProcessing ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin text-amber-300" />
-                    <span>Processing Stripe Multi-Currency Charge...</span>
-                  </>
+                {stripeStatus.configured ? (
+                  <span>
+                    <strong>Stripe Live Checkout Ready:</strong> Continuing redirects to Stripe&apos;s encrypted Checkout Session where funds settle directly to your linked Radiant Spark Stripe business account.
+                  </span>
+                ) : stripeStatus.paymentLinkConfigured ? (
+                  <span>
+                    <strong>Stripe Payment Link Ready:</strong> Continuing redirects to your configured Stripe hosted payment link.
+                  </span>
                 ) : (
-                  <>
-                    <Lock className="w-4 h-4 text-amber-300" />
-                    <span>Pay {currencySymbols[currency]}{localPrice} via Stripe USD Gateway</span>
-                  </>
+                  <span>
+                    <strong>One-Time Server Key Needed:</strong> Set <code className="text-white font-mono">STRIPE_SECRET_KEY</code> in your server environment (or <code className="text-white font-mono">STRIPE_PAYMENT_LINK_URL</code> for static hosting) to collect real card payments worldwide. Card fields are intentionally hosted by Stripe—never stored locally.
+                  </span>
                 )}
-              </button>
-            </form>
+              </div>
+            </div>
           )}
+
+          <form onSubmit={handleCheckout} className="space-y-4">
+            {/* Order Summary & Currency Selector */}
+            <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+              <div className="flex justify-between items-center text-slate-400">
+                <span>Selected Plan</span>
+                <strong className="text-white font-bold">{planName}</strong>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-800">
+                <div>
+                  <label className="text-slate-400 block text-[11px] mb-1">
+                    Pay in Local Global Currency
+                  </label>
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value as CurrencyConfig['code'])}
+                    className="w-full sm:w-52 px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-xs focus:outline-none focus:border-blue-500"
+                  >
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="text-left sm:text-right">
+                  <span className="text-[11px] text-slate-400 block">Estimated Charge</span>
+                  <strong className="text-xl font-black text-emerald-400 font-mono tabular-nums">
+                    {formattedLocal}
+                  </strong>
+                  <span className="text-[10px] text-slate-400 block font-mono">
+                    {intervalLabel} · Base ${priceUsd} USD
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-slate-800/80 flex items-start gap-2 text-[11px] text-slate-400">
+                <Globe className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                <span>{selectedCurrencyCfg.localMethodsNote}</span>
+              </div>
+            </div>
+
+            {/* Member Email & Name */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Member full name..."
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 uppercase mb-1">
+                  Receipt &amp; Account Email *
+                </label>
+                <input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white font-semibold focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {errorMsg && (
+              <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs">
+                {errorMsg}
+              </div>
+            )}
+
+            {/* Security Notice */}
+            <div className="flex items-start gap-2 text-[11px] text-slate-400 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                You will enter card or Apple Pay / Google Pay details directly on Stripe&apos;s PCI-DSS Level 1 hosted page—never inside unverified browser inputs—and immediately return here with verified membership status.
+              </span>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isProcessing}
+              className="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black text-xs uppercase tracking-wider shadow-xl flex items-center justify-center gap-2 transition-all disabled:opacity-60"
+            >
+              {isProcessing ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin text-amber-300" />
+                  <span>Creating Secure Stripe Checkout Session...</span>
+                </>
+              ) : (
+                <>
+                  <Lock className="w-4 h-4 text-amber-300" />
+                  <span>Continue to Stripe Checkout ({formattedLocal})</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
+          </form>
         </div>
       </div>
     </div>

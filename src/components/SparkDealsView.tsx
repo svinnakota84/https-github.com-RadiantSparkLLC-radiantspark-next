@@ -269,6 +269,19 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
     });
   }, [dealsList, selectedFilter, selectedCategory, searchQuery, sortBy]);
 
+  const blackFridayElectronics = useMemo(() => {
+    return dealsList
+      .filter(
+        (d) =>
+          (d.category === 'electronics' || d.category === 'gaming') &&
+          (d.isBlackFriday ||
+            /tv|oled|laptop|apple|macbook|ipad|airpods|headphone|bose|sony|samsung|lg|ssd|monitor|ps5|xbox|nintendo|watch/i.test(
+              d.title
+            ))
+      )
+      .slice(0, 4);
+  }, [dealsList]);
+
   const handleCopyCoupon = (id: string, code: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(code);
@@ -360,11 +373,11 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
       )}
 
       {/* Hero Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-slate-900/80 border border-amber-500/30 shadow-xl relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-slate-900/85 border border-amber-500/35 shadow-xl relative overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-25 pointer-events-none">
           <img
-            src="/src/assets/images/hero_sparkdeals_shopping_1794361985564.jpg"
-            alt="SparkDeals Retail Electronics Showcase"
+            src="/assets/sparkdeals-tech.jpg"
+            alt="Black Friday Consumer Electronics Showcase"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />
@@ -372,20 +385,15 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
         </div>
 
         <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-xs font-mono font-bold text-amber-400">
             <Flame className="w-4 h-4 fill-amber-400" />
-            <span>SparkDeals Hub · Black Friday &amp; Live Verified Drops 2026</span>
+            <span>SparkDeals Hub · Black Friday Electronics &amp; Live Drops 2026</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            SparkDeals Live Hub. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-amber-200 font-serif italic">
-              {dealsList.length > 0
-                ? `${dealsList.length} Real-Time & Black Friday Offers Synced.`
-                : 'Verified Merchant Offers & Black Friday Price Drops.'}
-            </span>
+            Black Friday Electronics &amp; Verified Deals.
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Automatically aggregated from <strong>DealNews</strong>, <strong>Slickdeals Frontpage</strong>, and <strong>Black Friday 2026</strong> feeds every 15 minutes with expired offer suppression, deduplication, and direct merchant links. Reference list prices and discount percentages appear only when explicitly provided by the source.
+            Scheduled every 15 minutes across 6 live retail feeds (DealNews Electronics, Slickdeals Black Friday Tech, Amazon/Walmart/Best Buy trackers). Reference list prices and discount percentages appear only when confirmed by the feed.
           </p>
         </div>
 
@@ -398,6 +406,80 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
           <span>Intermediary &amp; Affiliate Disclosure ↗</span>
         </button>
       </div>
+
+      {/* Black Friday Electronics Spotlight */}
+      {!feedMeta.isStale && blackFridayElectronics.length > 0 && (
+        <section className="p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-rose-950/25 border border-rose-500/35 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-xs font-mono text-rose-400 font-bold">
+                Black Friday Electronics Spotlight · Verified Offers
+              </span>
+              <h2 className="text-lg sm:text-xl font-extrabold text-white">
+                Top TVs, Laptops, Audio &amp; Tech Price Drops
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedFilter('black_friday');
+                setSelectedCategory('electronics');
+              }}
+              className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs whitespace-nowrap"
+            >
+              Filter All Black Friday Electronics →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {blackFridayElectronics.map((deal) => {
+              const curr = deal.currency || 'USD';
+              const hasRef =
+                typeof deal.originalPrice === 'number' &&
+                deal.originalPrice > deal.currentPrice &&
+                typeof deal.discountPercent === 'number' &&
+                deal.discountPercent > 0;
+              return (
+                <article
+                  key={`bf-${deal.id}`}
+                  onClick={() => onSelectDealModal(deal)}
+                  className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 hover:border-rose-500/50 transition-all flex flex-col justify-between cursor-pointer space-y-2.5"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 text-[11px] font-mono mb-2">
+                      <span className="text-rose-300 font-bold truncate">{deal.merchant}</span>
+                      {hasRef && (
+                        <span className="text-rose-400 font-bold">{deal.discountPercent}% OFF</span>
+                      )}
+                    </div>
+                    <h3 className="text-xs font-bold text-white line-clamp-2 leading-snug min-h-[2rem]">
+                      {deal.title}
+                    </h3>
+                    <div className="mt-2 flex items-baseline gap-2 font-mono tabular-nums">
+                      <strong className="text-base font-black text-amber-400">
+                        {formatPrice(deal.currentPrice, curr)}
+                      </strong>
+                      {hasRef && (
+                        <span className="text-xs text-slate-500 line-through">
+                          {formatPrice(deal.originalPrice!, curr)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={(e) => trackAndOpenDeal(deal, deal.affiliateUrl, e)}
+                    className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1"
+                  >
+                    <span>View Deal ↗</span>
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Search, Category & Sorting Controls */}
       <div className="space-y-4 p-5 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl">
@@ -574,8 +656,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.onerror = null;
-                        target.src =
-                          'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+                        target.src = '/assets/sparkdeals-tech.jpg';
                       }}
                     />
                     <div className="absolute top-2 left-2 bg-slate-950/90 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[9px] px-2 py-0.5 rounded flex items-center gap-1 shadow-md">

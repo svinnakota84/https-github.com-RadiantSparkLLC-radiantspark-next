@@ -128,11 +128,11 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({ isOpen, onCl
                 <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
               </a>
               <a
-                href="/sparkdeals.html"
-                className="p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 hover:text-white hover:border-amber-500 flex items-center justify-between font-bold"
+                href="/lifespark.html"
+                className="p-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 hover:text-white hover:border-emerald-500 flex items-center justify-between font-bold"
               >
-                <span>🔥 SparkDeals Portal (sparkdeals.html)</span>
-                <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
+                <span>🥗 LifeSpark Mobile App (lifespark.html)</span>
+                <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
               </a>
             </div>
           </div>

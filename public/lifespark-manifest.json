@@ -1,0 +1,32 @@
+{
+  "id": "/lifespark.html",
+  "name": "LifeSpark Diet, Food Recipes & Fitness",
+  "short_name": "LifeSpark",
+  "description": "Personalized diet plans, step-by-step healthy food making, weight-loss exercises, member login, and worldwide Stripe checkout.",
+  "start_url": "/lifespark.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#060b16",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/radiant-sparkle-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/radiant-sparkle-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

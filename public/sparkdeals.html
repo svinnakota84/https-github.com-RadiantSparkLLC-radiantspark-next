@@ -95,9 +95,23 @@
         </div>
       </div>
 
-      <!-- Store & Event Filters -->
+    <!-- Store & Event Filters -->
       <div id="filter-buttons" class="flex flex-wrap items-center gap-2 pt-2 font-mono text-xs"></div>
     </div>
+
+    <!-- Black Friday Electronics Spotlight -->
+    <section id="bf-electronics-section" class="hidden p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-rose-950/25 border border-rose-500/35 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-mono font-bold text-rose-400">Black Friday Electronics Spotlight · Verified Tech</span>
+          <h3 class="text-lg sm:text-xl font-black text-white">Top TVs, Laptops, Audio &amp; Hardware Drops</h3>
+        </div>
+        <button onclick="filterBlackFridayElectronics()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs">
+          Filter All Black Friday Electronics →
+        </button>
+      </div>
+      <div id="bf-electronics-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+    </section>
 
     <!-- Live Deals Grid -->
     <main id="deals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -168,7 +182,46 @@
       }
 
       buildStoreButtons();
+      renderBlackFridaySpotlight();
       renderDeals();
+    }
+
+    function filterBlackFridayElectronics() {
+      currentStore = 'blackfriday';
+      const catSel = document.getElementById('category-select');
+      if (catSel) catSel.value = 'electronics';
+      buildStoreButtons();
+      renderDeals();
+    }
+
+    function renderBlackFridaySpotlight() {
+      const sec = document.getElementById('bf-electronics-section');
+      const bfGrid = document.getElementById('bf-electronics-grid');
+      if (!sec || !bfGrid) return;
+      if (feedIsStale) { sec.classList.add('hidden'); return; }
+      const featured = dealsData.filter(d => (d.category === 'electronics' || d.category === 'gaming') && (d.isBlackFriday || /tv|oled|laptop|apple|macbook|ipad|airpods|headphone|bose|sony|samsung|lg|ssd|monitor|ps5|xbox|watch/i.test(d.title || ''))).slice(0, 4);
+      if (featured.length === 0) { sec.classList.add('hidden'); return; }
+      sec.classList.remove('hidden');
+      bfGrid.innerHTML = featured.map(d => {
+        const curr = d.currency || 'USD';
+        const hasRef = typeof d.originalPrice === 'number' && d.originalPrice > d.currentPrice && d.discountPercent > 0;
+        return `
+          <article class="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 flex flex-col justify-between space-y-2.5">
+            <div>
+              <div class="flex items-center justify-between text-[11px] font-mono mb-1.5">
+                <span class="text-rose-300 font-bold truncate">${esc(d.merchant)}</span>
+                ${hasRef ? `<span class="text-rose-400 font-bold">${d.discountPercent}% OFF</span>` : ''}
+              </div>
+              <h4 class="text-xs font-bold text-white line-clamp-2 leading-snug">${esc(d.title)}</h4>
+              <div class="mt-2 flex items-baseline gap-2 font-mono">
+                <strong class="text-base font-black text-amber-400">${fmtPrice(d.currentPrice, curr)}</strong>
+                ${hasRef ? `<span class="text-xs text-slate-500 line-through">${fmtPrice(d.originalPrice, curr)}</span>` : ''}
+              </div>
+            </div>
+            <a href="${esc(d.affiliateUrl)}" target="_blank" rel="noopener noreferrer sponsored" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center">View Deal ↗</a>
+          </article>
+        `;
+      }).join('');
     }
 
     async function loadServerDeals() {

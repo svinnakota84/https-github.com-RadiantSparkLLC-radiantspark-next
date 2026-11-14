@@ -9,15 +9,15 @@ export const AFFILIATE_DISCLOSURE =
   'Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers. Verify final pricing, taxes, shipping, and stock directly on the merchant checkout page.';
 
 const DEFAULT_FALLBACK_IMAGES = {
-  electronics: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
-  home: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=800&q=80',
-  gaming: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
-  apparel: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80',
-  energy: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-  beverages: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
-  food: 'https://images.unsplash.com/photo-1509912760195-455b87131976?auto=format&fit=crop&w=800&q=80',
-  lifestyle: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
-  logistics: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80',
+  electronics: '/assets/sparkdeals-tech.jpg',
+  home: '/spark-it.jpg',
+  gaming: '/assets/sparkdeals-tech.jpg',
+  apparel: '/radiant-sparkle-logo.png',
+  energy: '/spark-ev.jpg',
+  beverages: '/sparkle-drinks.jpg',
+  food: '/spicy-sparkle-naturals.jpg',
+  lifestyle: '/assets/lifespark-meal-prep.jpg',
+  logistics: '/sparkle-distribution.jpg',
 };
 
 function decodeEntities(str = '') {
@@ -482,6 +482,24 @@ function deduplicateDeals(deals) {
 export async function refreshLiveDealsFeed({ writePublicJson = true } = {}) {
   const sources = [
     {
+      id: 'dealnews-electronics',
+      name: 'DealNews Electronics RSS',
+      url: 'https://www.dealnews.com/c142/Electronics/?rss=1',
+      parser: (xml) => parseDealNewsXml(xml, 'DealNews Electronics RSS'),
+    },
+    {
+      id: 'slickdeals-bf-electronics',
+      name: 'Slickdeals Black Friday Electronics',
+      url: 'https://slickdeals.net/newsearch.php?q=black+friday+tv+laptop+apple+headphones&searcharea=deals&searchin=first&rss=1',
+      parser: (xml) => parseSlickdealsXml(xml, 'Slickdeals Black Friday Electronics', true),
+    },
+    {
+      id: 'slickdeals-electronics',
+      name: 'Slickdeals Electronics Frontpage',
+      url: 'https://slickdeals.net/newsearch.php?category=electronics&mode=frontpage&searcharea=deals&searchin=first&rss=1',
+      parser: (xml) => parseSlickdealsXml(xml, 'Slickdeals Electronics Frontpage', false),
+    },
+    {
       id: 'dealnews-live',
       name: 'DealNews Verified RSS',
       url: 'https://www.dealnews.com/?rss=1',
@@ -533,8 +551,11 @@ export async function refreshLiveDealsFeed({ writePublicJson = true } = {}) {
     })
   );
 
-  // Deduplicate & sort newest/featured first
+  // Deduplicate & sort newest/Black Friday electronics offers prominently
   const deduped = deduplicateDeals(allFetched).sort((a, b) => {
+    const aBfElec = (a.isBlackFriday && (a.category === 'electronics' || a.category === 'gaming')) ? 1 : 0;
+    const bBfElec = (b.isBlackFriday && (b.category === 'electronics' || b.category === 'gaming')) ? 1 : 0;
+    if (bBfElec !== aBfElec) return bBfElec - aBfElec;
     const tA = a.publishedAt ? Date.parse(a.publishedAt) : 0;
     const tB = b.publishedAt ? Date.parse(b.publishedAt) : 0;
     return tB - tA || b.score - a.score;
@@ -564,7 +585,7 @@ export async function refreshLiveDealsFeed({ writePublicJson = true } = {}) {
 
   // Never serve stale prices if freshness limit exceeded
   const finalDeals = anyHealthy
-    ? deduped.slice(0, 72)
+    ? deduped.slice(0, 96)
     : !isStale && Array.isArray(previousPayload?.deals)
     ? previousPayload.deals
     : [];

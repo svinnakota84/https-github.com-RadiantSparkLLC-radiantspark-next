@@ -3,424 +3,1326 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Sparkles,
   Zap,
   CheckCircle2,
-  Volume2,
   Utensils,
   UserCheck,
   CreditCard,
-  Send,
-  Heart,
-  Flame,
   Globe,
+  ExternalLink,
+  Smartphone,
+  Dumbbell,
+  Play,
+  Pause,
+  RotateCcw,
+  LogIn,
+  LogOut,
+  Bookmark,
+  ChefHat,
+  Timer,
+  Flame,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
+import {
+  CurrencyConfig,
+  LIFESTYLE_PLAN_TIERS,
+  LIFESPARK_RECIPES,
+  LIFESPARK_WORKOUTS,
+  SUPPORTED_CURRENCIES,
+  estimateWorkoutCalories,
+  formatLocalizedCurrency,
+} from '../data/lifesparkData';
 
 interface LifestylePortalProps {
-  onOpenStripeModal?: (planName: string, priceUsd: number) => void;
+  onOpenStripeModal?: (
+    planName: string,
+    priceUsd: number,
+    billingInterval?: 'month' | 'year' | 'one_time'
+  ) => void;
 }
 
+type ActiveTab = 'diet' | 'recipes' | 'workouts' | 'plans';
+
 export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeModal }) => {
-  // BLANK Intake Form State (Direct Customer Entry)
+  const [activeTab, setActiveTab] = useState<ActiveTab>('diet');
+  const [showLiveSiteEmbed, setShowLiveSiteEmbed] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyConfig['code']>('USD');
+
+  // Customer Auth State
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authToken, setAuthToken] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('lifespark_token');
+    } catch {
+      return null;
+    }
+  });
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authBusy, setAuthBusy] = useState(false);
+  const [showAuthPanel, setShowAuthPanel] = useState(false);
+
+  // Stripe Verification Banner
+  const [checkoutNotice, setCheckoutNotice] = useState<{
+    type: 'success' | 'info' | 'error';
+    message: string;
+  } | null>(null);
+
+  // Real-time Diet Form State
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phoneWhatsApp: '',
-    age: '28',
+    age: '29',
     gender: 'female',
-    currentWeight: '',
-    targetWeight: '',
+    heightCm: '168',
+    currentWeightKg: '74',
+    targetWeightKg: '63',
     dietPreference: 'high_protein',
-    dailyCalorieGoal: '1800',
+    dailyCalorieGoal: '1650',
     lifestyleGoal: 'weight_loss',
-    preferredCurrency: 'USD',
   });
 
-  const [generatedPlan, setGeneratedPlan] = useState<any | null>({
-    subscriberName: 'Valued Customer',
-    dietName: 'Personalized 7-Day High Protein Botanical & Lean Plan (Weight Loss & Toning)',
-    dailyCalories: '1800 kcal',
-    waterIntake: '3.5 Liters Daily + RDNT Sparkle Electrolyte Tonic',
-    breakfast: 'Avocado Toast with Pumpkin Seeds & Botanical Berry Spritz (280 kcal)',
-    lunch: 'Quinoa & Herb Bowl with Grilled Tofu / Lean Protein & Lemon Grass Tea (450 kcal)',
-    snack: 'Spicy Sparkle Gourmet Almonds & Green Detox Juice (180 kcal)',
-    dinner: 'Steamed Asparagus, Herbal Lentil Soup & Chamomile Infusion (320 kcal)',
-    aiCoachNote: 'Welcome! Adjust your health goals and metrics on the left, then click "Generate Custom Diet Plan" to refresh your personalized meal breakdown in real-time.',
+  const [generatedPlan, setGeneratedPlan] = useState<any>({
+    subscriberName: 'Guest Preview',
+    dietName: 'High Protein Botanical & Lean Fat-Loss Plan',
+    dailyCalories: '1650 kcal',
+    macros: { proteinGrams: 132, carbsGrams: 145, fatGrams: 51 },
+    waterIntake: '3.0 to 3.5 Liters Daily + Morning Warm Lemon Water',
+    breakfast:
+      '2-Egg + 2 Egg-White Herb Omelet or 150g Spiced Paneer Scramble with 1 slice seeded sprouted toast (~360 kcal)',
+    lunch:
+      'Lemon Herb Seared Salmon (or Chicken/Tofu) + 1/2 cup Tri-Color Quinoa + Spinach Avocado Greens (~465 kcal)',
+    snack: 'Roasted Spiced Almonds (18 pcs) + Cucumber-Mint Lime Cooler (~180 kcal)',
+    dinner: 'Ginger-Turmeric Red Lentil & Asparagus Soup with Steamed Vegetables (~315 kcal)',
+    cookTip:
+      'Dry-sear proteins over medium-high heat with olive oil spray and citrus herbs instead of heavy butter sauces.',
+    exerciseFocus: 'Aim for 20-min Morning Metabolic HIIT 5x/week plus 8,000 daily steps.',
+    aiCoachNote:
+      'Coach Maya Chen: Enter your metrics and click Generate Live Diet Plan to calculate your Mifflin-St Jeor calorie deficit, macros, recipes, and daily workouts.',
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [voicePlaying, setVoicePlaying] = useState(false);
+  const [recipeFilter, setRecipeFilter] = useState<string>('all');
+  const [activeWorkoutId, setActiveWorkoutId] = useState<string>(LIFESPARK_WORKOUTS[0].id);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [timerSecondsLeft, setTimerSecondsLeft] = useState(45);
+  const [workoutStatusMsg, setWorkoutStatusMsg] = useState<string | null>(null);
   const [whatsappSent, setWhatsappSent] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  // Hydrate logged-in user + check Stripe return session
+  useEffect(() => {
+    const token = authToken;
+    fetch('/api/auth/me', {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data.user) {
+          setCurrentUser(data.user);
+          if (data.user.savedPlan) setGeneratedPlan(data.user.savedPlan);
+          setFormData((prev) => ({
+            ...prev,
+            fullName: data.user.fullName || prev.fullName,
+            email: data.user.email || prev.email,
+            phoneWhatsApp: data.user.phoneWhatsApp || prev.phoneWhatsApp,
+            currentWeightKg: String(data.user.profile?.currentWeightKg || prev.currentWeightKg),
+            targetWeightKg: String(data.user.profile?.targetWeightKg || prev.targetWeightKg),
+            dietPreference: data.user.profile?.dietPreference || prev.dietPreference,
+            lifestyleGoal: data.user.profile?.lifestyleGoal || prev.lifestyleGoal,
+            dailyCalorieGoal: String(data.user.profile?.dailyCalorieGoal || prev.dailyCalorieGoal),
+          }));
+        }
+      })
+      .catch(() => {});
+
+    const params = new URLSearchParams(window.location.search);
+    const checkoutState = params.get('checkout');
+    const sessionId = params.get('session_id');
+    if (checkoutState === 'success' && sessionId) {
+      fetch(`/api/stripe/verify-session?session_id=${encodeURIComponent(sessionId)}`)
+        .then((r) => r.json())
+        .then((v) => {
+          if (v?.verified) {
+            setCheckoutNotice({
+              type: 'success',
+              message: `Stripe payment confirmed (${v.planName} · ${v.currency}). Your membership is active!`,
+            });
+            setActiveTab('plans');
+          } else {
+            setCheckoutNotice({
+              type: 'info',
+              message: 'Checkout returned cleanly. If payment is still settling, refresh in a moment.',
+            });
+          }
+        })
+        .catch(() => {});
+    } else if (checkoutState === 'cancelled') {
+      setCheckoutNotice({
+        type: 'info',
+        message: 'Stripe checkout was cancelled. No card charge was placed.',
+      });
+    }
+  }, [authToken]);
+
+  // Workout Interval Timer
+  useEffect(() => {
+    if (!timerRunning) return;
+    const id = setInterval(() => {
+      setTimerSecondsLeft((prev) => {
+        if (prev <= 1) {
+          setTimerRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [timerRunning]);
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError(null);
+    setAuthBusy(true);
+    try {
+      const endpoint = authMode === 'register' ? '/api/auth/register' : '/api/auth/login';
+      const payload =
+        authMode === 'register'
+          ? {
+              fullName: authName,
+              email: authEmail,
+              password: authPassword,
+              dietPreference: formData.dietPreference,
+              lifestyleGoal: formData.lifestyleGoal,
+              currentWeightKg: Number(formData.currentWeightKg),
+              targetWeightKg: Number(formData.targetWeightKg),
+            }
+          : { email: authEmail, password: authPassword };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAuthError(data.error || 'Authentication failed.');
+      } else {
+        setAuthToken(data.token);
+        try {
+          localStorage.setItem('lifespark_token', data.token);
+        } catch {
+          // ignore
+        }
+        setCurrentUser(data.user);
+        if (data.user?.savedPlan) setGeneratedPlan(data.user.savedPlan);
+        setShowAuthPanel(false);
+      }
+    } catch {
+      setAuthError('Could not reach authentication server.');
+    } finally {
+      setAuthBusy(false);
+    }
   };
 
-  const handleGeneratePlan = (e: React.FormEvent) => {
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    setAuthToken(null);
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('lifespark_token');
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleGeneratePlan = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
-
-    setTimeout(() => {
-      setIsGenerating(false);
-
-      const nameStr = formData.fullName.trim() || 'Valued Customer';
-      const goalStr =
-        formData.lifestyleGoal === 'weight_loss'
-          ? 'Weight Loss & Toning'
-          : formData.lifestyleGoal === 'muscle_gain'
-          ? 'Lean Muscle & Performance'
-          : formData.lifestyleGoal === 'detox_glow'
-          ? 'Botanical Herbal Detox & Radiance'
-          : 'Low-GI Metabolic Balance';
-
-      const dietType =
-        formData.dietPreference === 'high_protein'
-          ? 'High Protein Botanical & Lean Plan'
-          : formData.dietPreference === 'vegetarian_sattvik'
-          ? 'Pure Sattvik Herbal Plan'
-          : formData.dietPreference === 'vegan_organic'
-          ? '100% Organic Vegan Plan'
-          : 'Keto & Healthy Fats Plan';
-
-      setGeneratedPlan({
-        subscriberName: nameStr,
-        dietName: `Personalized 7-Day ${dietType} (${goalStr})`,
-        dailyCalories: `${formData.dailyCalorieGoal || '1800'} kcal`,
-        waterIntake: '3.5 Liters Daily + RDNT Sparkle Electrolyte Tonic',
-        breakfast:
-          formData.dietPreference === 'vegan_organic'
-            ? 'Organic Açai & Coconut Chia Pudding with Fresh Berries (260 kcal)'
-            : formData.dietPreference === 'keto_lowcarb'
-            ? 'Avocado & Spinach Egg White Omelet with Walnut Salad (310 kcal)'
-            : 'Avocado Toast with Pumpkin Seeds & Botanical Berry Spritz (280 kcal)',
-        lunch:
-          formData.dietPreference === 'vegetarian_sattvik'
-            ? 'Moong Dal & Moringa Herbal Stew with Brown Rice & Cucumber Raitha (420 kcal)'
-            : 'Quinoa & Herb Bowl with Grilled Tofu / Lean Protein & Lemon Grass Tea (450 kcal)',
-        snack: 'Spicy Sparkle Gourmet Almonds & Green Detox Juice (180 kcal)',
-        dinner:
-          formData.lifestyleGoal === 'muscle_gain'
-            ? 'Herbal Spiced Quinoa, Grilled Mushrooms & Sparkle Electrolyte Water (480 kcal)'
-            : 'Steamed Asparagus, Herbal Lentil Soup & Chamomile Infusion (320 kcal)',
-        aiCoachNote: `Hello ${nameStr}! Coach Maya Chen & Dr. Ananya Iyer have calculated your customized daily macros for ${goalStr}. Enjoy your clean, zero-sugar, nutrient-dense diet plan!`,
+    try {
+      const res = await fetch('/api/lifespark/plan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName || currentUser?.fullName || 'Member',
+          age: Number(formData.age),
+          gender: formData.gender,
+          heightCm: Number(formData.heightCm),
+          currentWeightKg: Number(formData.currentWeightKg),
+          targetWeightKg: Number(formData.targetWeightKg),
+          dietPreference: formData.dietPreference,
+          lifestyleGoal: formData.lifestyleGoal,
+          dailyCalorieGoal: Number(formData.dailyCalorieGoal),
+        }),
       });
-    }, 600);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.plan) {
+          setGeneratedPlan(data.plan);
+          setIsGenerating(false);
+          return;
+        }
+      }
+    } catch {
+      // client fallback below
+    }
+
+    setGeneratedPlan((prev: any) => ({
+      ...prev,
+      subscriberName: formData.fullName || currentUser?.fullName || 'Member',
+      dailyCalories: `${formData.dailyCalorieGoal} kcal`,
+    }));
+    setIsGenerating(false);
   };
 
-  const toggleElevenLabsVoice = () => {
-    setVoicePlaying(true);
-    setTimeout(() => {
-      setVoicePlaying(false);
-    }, 4500);
+  const handleLogCompletedWorkout = async (title: string, durationMinutes: number, cal: number) => {
+    setWorkoutStatusMsg(null);
+    if (!authToken) {
+      setWorkoutStatusMsg(
+        `Session complete (~${cal} kcal). Sign in above to save workout history to your profile.`
+      );
+      return;
+    }
+    try {
+      const res = await fetch('/api/lifespark/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          workoutLog: { title, minutes: durationMinutes, estimatedCalories: cal },
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(data.user);
+        setWorkoutStatusMsg(`Saved "${title}" (~${cal} kcal burned) to your LifeSpark log.`);
+      }
+    } catch {
+      setWorkoutStatusMsg('Could not sync workout right now.');
+    }
+  };
+
+  const handleToggleFavoriteRecipe = async (recipeId: string) => {
+    if (!authToken) {
+      setShowAuthPanel(true);
+      return;
+    }
+    const res = await fetch('/api/lifespark/profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ toggleFavoriteRecipeId: recipeId }),
+    }).catch(() => null);
+    if (res && res.ok) {
+      const data = await res.json();
+      setCurrentUser(data.user);
+    }
   };
 
   const handleSendWhatsAppPlan = () => {
     const phone = formData.phoneWhatsApp.replace(/[^0-9]/g, '') || '919848022331';
     const msg = encodeURIComponent(
-      `🥦 *RDNT Lifestyle & Diet Plan for ${generatedPlan?.subscriberName}*\n\n` +
-      `📋 *Plan:* ${generatedPlan?.dietName}\n` +
-      `🔥 *Target Calories:* ${generatedPlan?.dailyCalories}\n` +
-      `💧 *Hydration:* ${generatedPlan?.waterIntake}\n\n` +
-      `🌅 *Breakfast:* ${generatedPlan?.breakfast}\n` +
-      `🥗 *Lunch:* ${generatedPlan?.lunch}\n` +
-      `🍏 *Snack:* ${generatedPlan?.snack}\n` +
-      `🍲 *Dinner:* ${generatedPlan?.dinner}\n\n` +
-      `🧘 *Coach Maya Note:* ${generatedPlan?.aiCoachNote}`
+      `LifeSpark Diet Plan for ${generatedPlan.subscriberName}\n` +
+        `Plan: ${generatedPlan.dietName}\n` +
+        `Target: ${generatedPlan.dailyCalories}\n` +
+        `Breakfast: ${generatedPlan.breakfast}\n` +
+        `Lunch: ${generatedPlan.lunch}\n` +
+        `Snack: ${generatedPlan.snack}\n` +
+        `Dinner: ${generatedPlan.dinner}`
     );
     window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
     setWhatsappSent(true);
-    setTimeout(() => setWhatsappSent(false), 4000);
+    setTimeout(() => setWhatsappSent(false), 3500);
   };
 
-  return (
-    <div className="space-y-8 py-4 animate-in fade-in duration-200">
-      
-      {/* Compact Top Header Navigation Bar */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-emerald-950/80 via-slate-900 to-teal-950/80 border border-emerald-500/40 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>AI LIFESTYLE &amp; NUTRITION HUB</span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Personalized AI Diet &amp; Daily Lifestyle Plan
-          </h1>
-          <p className="text-xs text-slate-300">
-            Powered by <strong className="text-emerald-400">Coach Maya Chen &amp; Dr. Ananya Iyer</strong>. Enter your preferences below to generate your custom meal plan instantly.
-          </p>
-        </div>
+  const filteredRecipes =
+    recipeFilter === 'all'
+      ? LIFESPARK_RECIPES
+      : LIFESPARK_RECIPES.filter((r) => r.dietStyle === recipeFilter);
 
-        <div className="flex items-center gap-3 shrink-0">
+  const selectedWorkout =
+    LIFESPARK_WORKOUTS.find((w) => w.id === activeWorkoutId) || LIFESPARK_WORKOUTS[0];
+  const userWeightKg = Number(formData.currentWeightKg) || 74;
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-in fade-in duration-200">
+      {/* Checkout Return Status Notice */}
+      {checkoutNotice && (
+        <div
+          className={`p-4 rounded-2xl border flex items-center justify-between gap-4 text-xs ${
+            checkoutNotice.type === 'success'
+              ? 'bg-emerald-950/60 border-emerald-500/50 text-emerald-200'
+              : 'bg-slate-900 border-slate-700 text-slate-200'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{checkoutNotice.message}</span>
+          </div>
           <button
             type="button"
-            onClick={toggleElevenLabsVoice}
-            className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg transition-transform active:scale-95"
+            onClick={() => setCheckoutNotice(null)}
+            className="text-xs underline text-slate-300 hover:text-white shrink-0"
           >
-            <Volume2 className={`w-4 h-4 ${voicePlaying ? 'animate-bounce text-amber-300' : ''}`} />
-            <span>{voicePlaying ? 'Playing Maya AI Voice...' : 'Listen to Voice Coach 🔊'}</span>
+            Dismiss
           </button>
         </div>
-      </div>
+      )}
 
-      {/* Main Intake & Plan Generation Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Left Column (7 cols): Customer Health Profile & Meal Preferences */}
-        <div className="lg:col-span-7 p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-emerald-500/40 shadow-xl space-y-6">
-          <div className="border-b border-slate-800 pb-4">
-            <div className="inline-flex items-center gap-2 text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest mb-1">
-              <UserCheck className="w-4 h-4" />
-              <span>Direct Customer Profile Entry</span>
+      {/* Hero Split Banner + Direct Link & Live Embed to lifestyle.radiantsparkllc.com */}
+      <section className="rounded-3xl bg-slate-900/90 border border-emerald-500/35 overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-12 items-stretch">
+        <div className="lg:col-span-7 p-6 sm:p-8 flex flex-col justify-between space-y-6">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-emerald-400 font-mono">
+              <span>lifestyle.radiantsparkllc.com</span>
+              <span aria-hidden="true">·</span>
+              <span>LifeSpark Fitness &amp; Nutrition</span>
+              <span aria-hidden="true">·</span>
+              <span>Global Stripe Checkout</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-white">
-              Enter Your Health Profile &amp; Preferences
-            </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Fill in your details below to generate and customize your AI diet plan in real-time.
+
+            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight text-balance">
+              Personalized Diet Plans, Food Making &amp; Weight-Loss Training
+            </h1>
+
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+              Sign in to save your real-time calorie targets, step-by-step home recipes, and fat-loss workouts—integrated directly with{' '}
+              <a
+                href="https://lifestyle.radiantsparkllc.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-300 underline font-semibold"
+              >
+                lifestyle.radiantsparkllc.com
+              </a>{' '}
+              and worldwide multi-currency Stripe payments.
             </p>
           </div>
 
-          <form onSubmit={handleGeneratePlan} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href="/lifespark.html"
+              className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg transition-all whitespace-nowrap shrink-0"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>Open LifeSpark Mobile App ↗</span>
+            </a>
+
+            <button
+              type="button"
+              onClick={() => setShowLiveSiteEmbed((v) => !v)}
+              className="px-4 py-3 rounded-xl bg-slate-950 hover:bg-slate-800 border border-emerald-500/40 text-emerald-300 font-bold text-xs flex items-center gap-2 transition-colors whitespace-nowrap shrink-0"
+            >
+              {showLiveSiteEmbed ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              <span>
+                {showLiveSiteEmbed
+                  ? 'Hide lifestyle.radiantsparkllc.com Frame'
+                  : 'Preview lifestyle.radiantsparkllc.com Live'}
+              </span>
+            </button>
+
+            <a
+              href="https://lifestyle.radiantsparkllc.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
+            >
+              <span>Visit Full Subdomain</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+
+        <div className="lg:col-span-5 relative min-h-[240px] bg-slate-950">
+          <img
+            src="/assets/lifespark-meal-prep.jpg"
+            alt="Fresh balanced high-protein healthy meal prep bowls"
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-slate-200 font-mono">
+            <span>Balanced Macros · Home Prep</span>
+            <span className="text-emerald-300 font-bold">USD · INR · EUR · GBP · AED</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Live Iframe Bridge to https://lifestyle.radiantsparkllc.com/ */}
+      {showLiveSiteEmbed && (
+        <section className="rounded-3xl bg-slate-950 border border-emerald-500/40 overflow-hidden shadow-2xl">
+          <div className="px-5 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs">
+            <span className="font-mono text-emerald-300 font-bold">
+              Live Embed: https://lifestyle.radiantsparkllc.com/
+            </span>
+            <a
+              href="https://lifestyle.radiantsparkllc.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 hover:text-white underline flex items-center gap-1"
+            >
+              Open in New Tab <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+          <iframe
+            src="https://lifestyle.radiantsparkllc.com/"
+            title="LifestyleHub - lifestyle.radiantsparkllc.com"
+            className="w-full h-[560px] bg-[#FAF7F2]"
+            loading="lazy"
+          />
+        </section>
+      )}
+
+      {/* Member Account & Session Bar */}
+      <section className="p-4 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {currentUser ? (
+          <>
+            <div className="space-y-0.5">
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <strong className="text-white font-bold text-sm">
+                  Welcome back, {currentUser.fullName}
+                </strong>
+                <span className="text-slate-400">·</span>
+                <span className="font-mono text-emerald-400 font-semibold">
+                  {currentUser.subscriptionStatus === 'active'
+                    ? `Active Plan: ${currentUser.subscriptionPlan || 'LifeSpark Pro'}`
+                    : 'Free Member Account'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 font-mono">
+                {currentUser.email} · {currentUser.workoutLogs?.length || 0} workouts logged ·{' '}
+                {currentUser.favoriteRecipes?.length || 0} saved recipes
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {currentUser.subscriptionStatus !== 'active' && (
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('plans')}
+                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs whitespace-nowrap"
+                >
+                  Upgrade via Stripe Pro
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <strong className="text-white text-sm font-bold block">
+                Member Login &amp; Sync Across Web + LifeSpark App
+              </strong>
+              <p className="text-xs text-slate-400">
+                Sign in or create an account to save custom meal plans, food recipes, workout logs, and Stripe subscriptions.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('login');
+                  setShowAuthPanel((v) => !v);
+                }}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <LogIn className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Member Sign In</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('register');
+                  setShowAuthPanel(true);
+                }}
+                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs whitespace-nowrap"
+              >
+                Create Free Account
+              </button>
+            </div>
+          </>
+        )}
+      </section>
+
+      {/* Expandable Login / Sign Up Panel */}
+      {showAuthPanel && !currentUser && (
+        <form
+          onSubmit={handleAuthSubmit}
+          className="p-6 rounded-3xl bg-slate-950 border border-emerald-500/40 space-y-4 shadow-xl"
+        >
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 className="text-base font-bold text-white">
+              {authMode === 'register'
+                ? 'Create Your LifeSpark Member Account'
+                : 'Sign In to Your LifeSpark Account'}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setAuthMode(authMode === 'register' ? 'login' : 'register')}
+              className="text-xs text-emerald-400 underline font-semibold"
+            >
+              {authMode === 'register'
+                ? 'Already have an account? Sign In'
+                : 'New here? Create Account'}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {authMode === 'register' && (
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Full Name
-                </label>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Full Name</label>
                 <input
                   type="text"
-                  name="fullName"
-                  placeholder="Enter your full name..."
-                  value={formData.fullName}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
+                  required
+                  value={authName}
+                  onChange={(e) => setAuthName(e.target.value)}
+                  placeholder="Your name"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-emerald-500 focus:outline-none"
                 />
               </div>
+            )}
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">Email</label>
+              <input
+                type="email"
+                required
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-300 mb-1">
+                Password (min 6 chars)
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-emerald-500 focus:outline-none"
+              />
+            </div>
+          </div>
 
+          {authError && (
+            <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-xs text-rose-200">
+              {authError}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={authBusy}
+              className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs"
+            >
+              {authBusy
+                ? 'Please wait...'
+                : authMode === 'register'
+                ? 'Create Account & Save Plan'
+                : 'Sign In'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAuthPanel(false)}
+              className="px-4 py-2.5 rounded-xl bg-slate-900 text-slate-300 text-xs font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Workspace Segmented Tabs */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-900 border border-slate-800 overflow-x-auto">
+        <button
+          type="button"
+          onClick={() => setActiveTab('diet')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0 transition-colors ${
+            activeTab === 'diet'
+              ? 'bg-emerald-500 text-slate-950'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <UserCheck className="w-4 h-4" />
+          <span>Real-Time Diet &amp; Macros</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('recipes')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0 transition-colors ${
+            activeTab === 'recipes'
+              ? 'bg-emerald-500 text-slate-950'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <ChefHat className="w-4 h-4" />
+          <span>Food Making &amp; Recipes ({LIFESPARK_RECIPES.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('workouts')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0 transition-colors ${
+            activeTab === 'workouts'
+              ? 'bg-emerald-500 text-slate-950'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <Dumbbell className="w-4 h-4" />
+          <span>Weight-Loss Workouts ({LIFESPARK_WORKOUTS.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('plans')}
+          className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 whitespace-nowrap shrink-0 transition-colors ${
+            activeTab === 'plans'
+              ? 'bg-blue-600 text-white'
+              : 'text-slate-300 hover:text-white hover:bg-slate-800'
+          }`}
+        >
+          <CreditCard className="w-4 h-4" />
+          <span>Enter Diet Plan · Global Card Payment</span>
+        </button>
+      </div>
+
+      {/* TAB 1: REAL-TIME DIET PLAN BUILDER */}
+      {activeTab === 'diet' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <form
+            onSubmit={handleGeneratePlan}
+            className="lg:col-span-6 p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4"
+          >
+            <div>
+              <h2 className="text-lg font-extrabold text-white">
+                Body Metrics &amp; Diet Preferences
+              </h2>
+              <p className="text-xs text-slate-400">
+                Calculates personalized BMR, macro split, meal swaps, and cooking approach immediately.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  WhatsApp Mobile Number
+                <label className="block text-xs font-bold text-slate-300 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  placeholder="Your name"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:border-emerald-500 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  WhatsApp (for plan export)
                 </label>
                 <input
                   type="tel"
-                  name="phoneWhatsApp"
-                  placeholder="+1 (555) 000-0000 or +91 9876543210..."
                   value={formData.phoneWhatsApp}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
+                  onChange={(e) => setFormData({ ...formData, phoneWhatsApp: e.target.value })}
+                  placeholder="+1 or +91 number"
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono focus:border-emerald-500 focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Primary Health &amp; Lifestyle Goal
-                </label>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Age</label>
+                <input
+                  type="number"
+                  min={16}
+                  max={90}
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Height (cm)</label>
+                <input
+                  type="number"
+                  min={120}
+                  max={220}
+                  value={formData.heightCm}
+                  onChange={(e) => setFormData({ ...formData, heightCm: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Current (kg)</label>
+                <input
+                  type="number"
+                  min={35}
+                  max={220}
+                  value={formData.currentWeightKg}
+                  onChange={(e) => setFormData({ ...formData, currentWeightKg: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Goal (kg)</label>
+                <input
+                  type="number"
+                  min={35}
+                  max={200}
+                  value={formData.targetWeightKg}
+                  onChange={(e) => setFormData({ ...formData, targetWeightKg: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Goal</label>
                 <select
-                  name="lifestyleGoal"
                   value={formData.lifestyleGoal}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-emerald-500 focus:outline-none"
+                  onChange={(e) => setFormData({ ...formData, lifestyleGoal: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs"
                 >
-                  <option value="weight_loss">Weight Loss &amp; Fat Toning (7-Day Program)</option>
-                  <option value="muscle_gain">Lean Muscle &amp; Athletic Performance</option>
-                  <option value="detox_glow">Botanical Herbal Detox &amp; Skin Radiance</option>
-                  <option value="diabetic_keto">Low-GI Keto &amp; Metabolic Balance</option>
+                  <option value="weight_loss">Weight Loss &amp; Toning</option>
+                  <option value="muscle_gain">Lean Muscle Gain</option>
+                  <option value="detox_glow">Botanical Detox</option>
+                  <option value="diabetic_keto">Low-GI Balance</option>
                 </select>
               </div>
-
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Dietary Preference
-                </label>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Diet Style</label>
                 <select
-                  name="dietPreference"
                   value={formData.dietPreference}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-semibold focus:border-emerald-500 focus:outline-none"
+                  onChange={(e) => setFormData({ ...formData, dietPreference: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs"
                 >
-                  <option value="high_protein">High Protein &amp; Lean Botanical</option>
-                  <option value="vegetarian_sattvik">Pure Vegetarian &amp; Sattvik Herbal</option>
+                  <option value="high_protein">High Protein Lean</option>
+                  <option value="vegetarian_sattvik">Vegetarian / Sattvik</option>
                   <option value="vegan_organic">100% Organic Vegan</option>
-                  <option value="keto_lowcarb">Keto &amp; Healthy Fats</option>
+                  <option value="keto_lowcarb">Keto Low-Carb</option>
                 </select>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Current Weight (kg/lbs)
-                </label>
-                <input
-                  type="text"
-                  name="currentWeight"
-                  placeholder="e.g. 72 kg"
-                  value={formData.currentWeight}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Target Weight (kg/lbs)
-                </label>
-                <input
-                  type="text"
-                  name="targetWeight"
-                  placeholder="e.g. 62 kg"
-                  value={formData.targetWeight}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs font-mono font-semibold focus:border-emerald-500 focus:outline-none placeholder:text-slate-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">
-                  Daily Calorie Target
-                </label>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Calories</label>
                 <select
-                  name="dailyCalorieGoal"
                   value={formData.dailyCalorieGoal}
-                  onChange={handleInputChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 text-xs font-mono font-bold focus:border-emerald-500 focus:outline-none"
+                  onChange={(e) => setFormData({ ...formData, dailyCalorieGoal: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 font-mono font-bold text-xs"
                 >
-                  <option value="1400">1400 kcal (Deficit)</option>
-                  <option value="1600">1600 kcal (Moderate)</option>
-                  <option value="1800">1800 kcal (Balanced)</option>
-                  <option value="2200">2200 kcal (Active)</option>
-                  <option value="2500">2500 kcal (Muscle Gain)</option>
+                  <option value="1400">1,400 kcal</option>
+                  <option value="1650">1,650 kcal</option>
+                  <option value="1850">1,850 kcal</option>
+                  <option value="2100">2,100 kcal</option>
+                  <option value="2400">2,400 kcal</option>
                 </select>
               </div>
             </div>
 
-            {/* Instant Action Button */}
-            <button
-              type="submit"
-              disabled={isGenerating}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-sm uppercase tracking-wider shadow-xl shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
-            >
-              {isGenerating ? (
-                <>
-                  <Sparkles className="w-5 h-5 animate-spin text-amber-300" />
-                  <span>Calculating Macros &amp; Generating Meal Matrix...</span>
-                </>
-              ) : (
-                <>
-                  <Zap className="w-5 h-5 text-amber-300 fill-amber-300" />
-                  <span>⚡ GENERATE INSTANT CUSTOM AI DIET PLAN</span>
-                </>
-              )}
-            </button>
-          </form>
-        </div>
+            <div className="pt-2 flex flex-col sm:flex-row gap-3">
+              <button
+                type="submit"
+                disabled={isGenerating}
+                className="flex-1 py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2 transition-all"
+              >
+                {isGenerating ? (
+                  <>
+                    <Sparkles className="w-4 h-4 animate-spin" />
+                    <span>Calculating Live Plan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    <span>Generate Live Diet Plan</span>
+                  </>
+                )}
+              </button>
 
-        {/* Right Column (5 cols): AI Coach Assistant & Live Plan Matrix */}
-        <div className="lg:col-span-5 space-y-6">
-          
-          {/* AI Coach Card */}
-          <div className="p-6 rounded-3xl bg-slate-900 border border-emerald-500/40 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-lg shadow-md">
-                  🧘‍♀️
-                </div>
-                <div>
-                  <h3 className="text-sm font-extrabold text-white">Coach Maya Chen</h3>
-                  <span className="text-[10px] font-mono text-emerald-400 block font-semibold">
-                    Lead AI Health &amp; Nutrition Specialist
-                  </span>
-                </div>
-              </div>
-
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>Active 24/7</span>
-              </span>
-            </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              "{generatedPlan?.aiCoachNote || 'Welcome! Adjust your health goals and metrics on the left to refresh your personalized meal breakdown in real-time.'}"
-            </p>
-          </div>
-
-          {/* Generated Plan Display Panel */}
-          {generatedPlan && (
-            <div className="p-6 rounded-3xl bg-slate-950 border-2 border-emerald-500/60 shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest">
-                  Live Custom Diet Matrix
-                </div>
-                <span className="text-[10px] font-mono text-slate-400">User: {generatedPlan.subscriberName}</span>
-              </div>
-
-              <h4 className="text-base font-extrabold text-white">{generatedPlan.dietName}</h4>
-
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono text-center">
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Daily Calorie Target</span>
-                  <strong className="text-amber-300 text-xs block">{generatedPlan.dailyCalories}</strong>
-                </div>
-                <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Hydration Goal</span>
-                  <strong className="text-cyan-300 text-xs block">3.5 Liters/Day</strong>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">🌅 Breakfast:</strong>
-                  <span className="text-slate-200">{generatedPlan.breakfast}</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">🥗 Lunch:</strong>
-                  <span className="text-slate-200">{generatedPlan.lunch}</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">🍏 Evening Snack:</strong>
-                  <span className="text-slate-200">{generatedPlan.snack}</span>
-                </div>
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                  <strong className="text-emerald-400 text-[11px] block">🍲 Dinner:</strong>
-                  <span className="text-slate-200">{generatedPlan.dinner}</span>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row gap-2">
+              {onOpenStripeModal && (
                 <button
                   type="button"
-                  onClick={handleSendWhatsAppPlan}
-                  className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
+                  onClick={() => onOpenStripeModal('LifeSpark Pro Monthly', 29, 'month')}
+                  className="py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 whitespace-nowrap"
                 >
-                  <span>📱 Send Plan to WhatsApp</span>
+                  <CreditCard className="w-4 h-4" />
+                  <span>Join Pro ($29/mo Card)</span>
                 </button>
-
-                {onOpenStripeModal && (
-                  <button
-                    type="button"
-                    onClick={() => onOpenStripeModal('Pro Daily WhatsApp Diet Subscription', 29)}
-                    className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white font-bold text-xs flex items-center justify-center gap-1.5"
-                  >
-                    <CreditCard className="w-3.5 h-3.5 text-amber-300" />
-                    <span>Optional Daily Push ($29/mo)</span>
-                  </button>
-                )}
-              </div>
-
-              {whatsappSent && (
-                <div className="p-2 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-300 text-[11px] text-center font-mono">
-                  ✅ Diet Plan dispatch opened in WhatsApp!
-                </div>
               )}
             </div>
-          )}
+          </form>
+
+          {/* Live Plan Output Card */}
+          <div className="lg:col-span-6 p-6 rounded-3xl bg-slate-950 border border-emerald-500/40 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span className="text-xs font-mono text-emerald-400">
+                  Custom Nutrition Matrix · {generatedPlan.subscriberName}
+                </span>
+                <h3 className="text-lg font-extrabold text-white">{generatedPlan.dietName}</h3>
+              </div>
+              <strong className="text-lg font-black text-amber-300 font-mono tabular-nums">
+                {generatedPlan.dailyCalories}
+              </strong>
+            </div>
+
+            {generatedPlan.macros && (
+              <div className="grid grid-cols-3 gap-3 text-center font-mono">
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-[11px] text-slate-400 block">Protein</span>
+                  <strong className="text-base font-bold text-emerald-300 tabular-nums">
+                    {generatedPlan.macros.proteinGrams}g
+                  </strong>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-[11px] text-slate-400 block">Carbs</span>
+                  <strong className="text-base font-bold text-cyan-300 tabular-nums">
+                    {generatedPlan.macros.carbsGrams}g
+                  </strong>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
+                  <span className="text-[11px] text-slate-400 block">Healthy Fats</span>
+                  <strong className="text-base font-bold text-amber-300 tabular-nums">
+                    {generatedPlan.macros.fatGrams}g
+                  </strong>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2 text-xs">
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-emerald-400 block mb-0.5">Breakfast</strong>
+                <span className="text-slate-200">{generatedPlan.breakfast}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-emerald-400 block mb-0.5">Lunch</strong>
+                <span className="text-slate-200">{generatedPlan.lunch}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-emerald-400 block mb-0.5">Evening Snack</strong>
+                <span className="text-slate-200">{generatedPlan.snack}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <strong className="text-emerald-400 block mb-0.5">Light Dinner</strong>
+                <span className="text-slate-200">{generatedPlan.dinner}</span>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-xs text-slate-200 space-y-1">
+              <strong className="text-emerald-300 block">Coach Maya Chen Guidance:</strong>
+              <p>{generatedPlan.aiCoachNote}</p>
+              {generatedPlan.cookTip && (
+                <p className="text-slate-300">
+                  <strong>Cooking Tip:</strong> {generatedPlan.cookTip}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button
+                type="button"
+                onClick={handleSendWhatsAppPlan}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
+              >
+                {whatsappSent ? 'Opened WhatsApp Export' : 'Send Meal Plan to WhatsApp'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('recipes')}
+                className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs"
+              >
+                See Step-by-Step Recipes →
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* TAB 2: FOOD MAKING & RECIPES */}
+      {activeTab === 'recipes' && (
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-extrabold text-white">
+                Step-by-Step Food Making &amp; Weight-Loss Recipes
+              </h2>
+              <p className="text-xs text-slate-400">
+                Measured ingredients, fast prep steps, and macro breakdown tailored to fat loss.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5">
+              {[
+                { id: 'all', label: 'All Recipes' },
+                { id: 'high_protein', label: 'High Protein' },
+                { id: 'vegetarian_sattvik', label: 'Vegetarian' },
+                { id: 'vegan_organic', label: 'Vegan' },
+                { id: 'keto_lowcarb', label: 'Keto Low-Carb' },
+              ].map((btn) => (
+                <button
+                  key={btn.id}
+                  type="button"
+                  onClick={() => setRecipeFilter(btn.id)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    recipeFilter === btn.id
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'bg-slate-900 text-slate-300 border border-slate-800 hover:text-white'
+                  }`}
+                >
+                  {btn.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRecipes.map((rec) => {
+              const isSaved = currentUser?.favoriteRecipes?.includes(rec.id);
+              return (
+                <article
+                  key={rec.id}
+                  className="p-5 rounded-3xl bg-slate-900/90 border border-slate-800 flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
+                      <span>
+                        {rec.mealSlot} · Prep {rec.prepMinutes}m · Cook {rec.cookMinutes}m
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleFavoriteRecipe(rec.id)}
+                        aria-label="Save recipe"
+                        className={`p-1.5 rounded-lg border ${
+                          isSaved
+                            ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <Bookmark className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <h3 className="text-base font-extrabold text-white leading-snug">
+                      {rec.title}
+                    </h3>
+
+                    <div className="flex items-center gap-3 text-xs font-mono tabular-nums text-emerald-300 border-y border-slate-800 py-2">
+                      <span>{rec.calories} kcal</span>
+                      <span className="text-slate-600">·</span>
+                      <span>P {rec.proteinGrams}g</span>
+                      <span className="text-slate-600">·</span>
+                      <span>C {rec.carbsGrams}g</span>
+                      <span className="text-slate-600">·</span>
+                      <span>F {rec.fatGrams}g</span>
+                    </div>
+
+                    <div>
+                      <strong className="text-xs text-white block mb-1">Ingredients</strong>
+                      <ul className="space-y-1 text-xs text-slate-300 list-disc pl-4">
+                        {rec.ingredients.map((ing, i) => (
+                          <li key={i}>{ing}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <strong className="text-xs text-white block mb-1">How to Make</strong>
+                      <ol className="space-y-1.5 text-xs text-slate-300 list-decimal pl-4">
+                        {rec.steps.map((st, i) => (
+                          <li key={i}>{st}</li>
+                        ))}
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-amber-200">
+                    <strong>Prep Tip:</strong> {rec.chefTip}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* TAB 3: WEIGHT-LOSS EXERCISES & WORKOUT TIMER */}
+      {activeTab === 'workouts' && (
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-5 space-y-4">
+            <div className="rounded-3xl overflow-hidden border border-slate-800 bg-slate-900">
+              <img
+                src="/assets/lifespark-workout.jpg"
+                alt="Weight-loss fitness training mat and kettlebell"
+                className="w-full h-48 object-cover"
+                referrerPolicy="no-referrer"
+              />
+              <div className="p-5 space-y-2">
+                <h2 className="text-lg font-extrabold text-white">
+                  Guided Weight-Loss Exercise Programs
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Calorie burn estimates adjust dynamically to your current weight ({userWeightKg} kg).
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {LIFESPARK_WORKOUTS.map((wo) => {
+                const estCal = estimateWorkoutCalories(wo.metValue, userWeightKg, wo.durationMinutes);
+                const active = wo.id === selectedWorkout.id;
+                return (
+                  <button
+                    key={wo.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveWorkoutId(wo.id);
+                      setTimerRunning(false);
+                      setTimerSecondsLeft(wo.exercises[0]?.durationSec || 45);
+                    }}
+                    className={`w-full text-left p-4 rounded-2xl border transition-all ${
+                      active
+                        ? 'bg-emerald-950/40 border-emerald-500/60 text-white'
+                        : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between text-xs font-mono text-emerald-400 mb-1">
+                      <span>
+                        {wo.level} · {wo.durationMinutes} min
+                      </span>
+                      <span className="tabular-nums">~{estCal} kcal est.</span>
+                    </div>
+                    <strong className="text-sm font-bold block">{wo.title}</strong>
+                    <span className="text-xs text-slate-400 block mt-0.5">{wo.focusArea}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-xs font-mono text-emerald-400">
+                  {selectedWorkout.level} · {selectedWorkout.durationMinutes} Minutes
+                </span>
+                <h3 className="text-xl font-extrabold text-white">{selectedWorkout.title}</h3>
+              </div>
+
+              {/* Interactive Interval Timer */}
+              <div className="flex items-center gap-2 p-2.5 rounded-2xl bg-slate-950 border border-slate-800">
+                <Timer className="w-4 h-4 text-emerald-400" />
+                <span className="font-mono font-black text-lg text-white tabular-nums w-14 text-center">
+                  {String(Math.floor(timerSecondsLeft / 60)).padStart(2, '0')}:
+                  {String(timerSecondsLeft % 60).padStart(2, '0')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTimerRunning((r) => !r)}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-1"
+                >
+                  {timerRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  <span>{timerRunning ? 'Pause' : 'Start'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTimerRunning(false);
+                    setTimerSecondsLeft(selectedWorkout.exercises[0]?.durationSec || 45);
+                  }}
+                  aria-label="Reset timer"
+                  className="p-1.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              {selectedWorkout.exercises.map((ex, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="font-mono text-emerald-400 font-bold">0{idx + 1}.</span>
+                      <strong className="text-sm text-white">{ex.name}</strong>
+                    </div>
+                    <p className="text-xs text-slate-400">{ex.formCue}</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTimerSecondsLeft(ex.durationSec);
+                      setTimerRunning(true);
+                    }}
+                    className="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-emerald-300 whitespace-nowrap shrink-0"
+                  >
+                    Set {ex.repsOrRest}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-800">
+              <div className="text-xs text-slate-400 flex items-center gap-2">
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>
+                  Estimated burn for {userWeightKg} kg:{' '}
+                  <strong className="text-white tabular-nums">
+                    ~
+                    {estimateWorkoutCalories(
+                      selectedWorkout.metValue,
+                      userWeightKg,
+                      selectedWorkout.durationMinutes
+                    )}{' '}
+                    kcal
+                  </strong>
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  handleLogCompletedWorkout(
+                    selectedWorkout.title,
+                    selectedWorkout.durationMinutes,
+                    estimateWorkoutCalories(
+                      selectedWorkout.metValue,
+                      userWeightKg,
+                      selectedWorkout.durationMinutes
+                    )
+                  )
+                }
+                className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs whitespace-nowrap"
+              >
+                Complete &amp; Log Workout
+              </button>
+            </div>
+
+            {workoutStatusMsg && (
+              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-xs text-emerald-200">
+                {workoutStatusMsg}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* TAB 4: ENTER DIET PLAN WITH GLOBAL MULTI-CURRENCY STRIPE CHECKOUT */}
+      {activeTab === 'plans' && (
+        <section className="space-y-6">
+          <div className="p-6 rounded-3xl bg-slate-900/90 border border-blue-500/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1 max-w-2xl">
+              <div className="flex items-center gap-2 text-xs font-mono text-blue-400">
+                <Globe className="w-4 h-4" />
+                <span>Worldwide Card Processing · Linked Radiant Spark Stripe Business Account</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-white">
+                Choose Your Plan &amp; Pay in Any Major Global Currency
+              </h2>
+              <p className="text-xs text-slate-300">
+                Customers worldwide can enter their diet plan via Visa, Mastercard, Amex, Apple Pay, or Google Pay on Stripe&apos;s encrypted Checkout page. Proceeds route directly into your linked Stripe account.
+              </p>
+            </div>
+
+            <div className="shrink-0">
+              <label className="block text-[11px] font-mono text-slate-400 mb-1">
+                Display &amp; Billing Currency
+              </label>
+              <select
+                value={selectedCurrency}
+                onChange={(e) => setSelectedCurrency(e.target.value as CurrencyConfig['code'])}
+                className="w-full sm:w-56 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-xs font-bold focus:border-blue-500 focus:outline-none"
+              >
+                {SUPPORTED_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {LIFESTYLE_PLAN_TIERS.map((tier) => {
+              const formatted = formatLocalizedCurrency(tier.priceUsd, selectedCurrency);
+              return (
+                <div
+                  key={tier.id}
+                  className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-blue-500/50 transition-all flex flex-col justify-between space-y-6"
+                >
+                  <div className="space-y-3">
+                    <span className="text-xs font-mono text-emerald-400 font-bold block">
+                      {tier.badge}
+                    </span>
+                    <h3 className="text-xl font-extrabold text-white">{tier.name}</h3>
+                    <div className="flex items-baseline gap-2 font-mono">
+                      <strong className="text-3xl font-black text-white tabular-nums">
+                        {formatted}
+                      </strong>
+                      <span className="text-xs text-slate-400">
+                        {tier.interval === 'year'
+                          ? '/ year'
+                          : tier.interval === 'one_time'
+                          ? 'one-time'
+                          : '/ month'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">{tier.description}</p>
+                    <ul className="space-y-2 pt-2 border-t border-slate-800 text-xs text-slate-300">
+                      {tier.features.map((feat, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onOpenStripeModal) {
+                        onOpenStripeModal(tier.name, tier.priceUsd, tier.interval);
+                      }
+                    }}
+                    className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>Enter Plan · Pay {formatted}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

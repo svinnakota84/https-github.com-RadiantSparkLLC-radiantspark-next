@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LifeSpark — Real-Time Diet, Food Making &amp; Weight-Loss App</title>
+  <meta name="description" content="LifeSpark Mobile App by Radiant Spark Global: personalized diet plans, step-by-step healthy recipes, weight-loss exercises, member login, and worldwide multi-currency Stripe payments.">
+  <meta name="theme-color" content="#060b16">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="LifeSpark">
+  <link rel="manifest" href="/lifespark-manifest.json">
+  <link rel="apple-touch-icon" href="/radiant-sparkle-logo.png">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #060b16; color: #f8fafc; padding-bottom: 5.5rem; }
+    h1, h2, h3 { font-family: 'Outfit', system-ui, sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- Compact Mobile Top Bar (<= 56px) -->
+  <header class="sticky top-0 z-30 h-14 bg-[#060b16]/90 backdrop-blur-md border-b border-slate-800 px-4">
+    <div class="max-w-5xl mx-auto h-full flex items-center justify-between gap-3">
+      <a href="/index.html#lifestyle" class="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 min-h-[44px] whitespace-nowrap shrink-0">
+        <span>← Portal</span>
+      </a>
+
+      <div class="text-center min-w-0">
+        <span class="font-extrabold text-sm sm:text-base text-white tracking-tight truncate block">LifeSpark Mobile</span>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="pwa-install-btn" type="button" class="hidden px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs min-h-[36px] whitespace-nowrap">
+          Install App
+        </button>
+        <button onclick="switchMobileTab('account')" id="top-user-btn" type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-emerald-300 font-bold text-xs min-h-[36px] whitespace-nowrap">
+          Sign In
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-5xl mx-auto px-4 pt-5 space-y-6">
+
+    <!-- Checkout Verification Notice -->
+    <div id="checkout-banner" class="hidden p-4 rounded-2xl border text-xs flex items-center justify-between gap-3"></div>
+
+    <!-- Offline Mode Indicator -->
+    <div id="offline-banner" class="hidden p-3 rounded-xl bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs font-mono">
+      Offline Mode · Using cached meal recipes and workout timers.
+    </div>
+
+    <!-- iOS Safari Install Guide Modal -->
+    <div id="ios-guide-modal" class="hidden fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+      <div class="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-700 p-6 space-y-3 text-xs text-slate-300">
+        <h3 class="text-base font-bold text-white">Install LifeSpark on iPhone / iPad</h3>
+        <p>1. Tap the <strong>Share</strong> icon in Safari toolbar.</p>
+        <p>2. Scroll down and tap <strong>Add to Home Screen</strong>.</p>
+        <button onclick="document.getElementById('ios-guide-modal').classList.add('hidden')" class="w-full min-h-[44px] rounded-xl bg-emerald-500 text-slate-950 font-extrabold">
+          Done
+        </button>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- TAB 1: REAL-TIME DIET PLAN -->
+    <!-- ================================================================ -->
+    <section id="tab-plan" class="space-y-6">
+      <div class="rounded-3xl bg-slate-900/90 border border-emerald-500/30 overflow-hidden grid grid-cols-1 md:grid-cols-12 items-stretch">
+        <div class="md:col-span-7 p-5 sm:p-6 space-y-3 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="text-xs font-mono text-emerald-400">
+              lifestyle.radiantsparkllc.com · Personalized Fat-Loss Nutrition
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+              Daily Diet Matrix, Home Cooking &amp; Fat-Loss Exercises
+            </h1>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Enter your current weight and goal below for instant calorie &amp; macro calculations, explore step-by-step healthy recipes, or upgrade via Stripe worldwide card checkout.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <button onclick="switchMobileTab('pro')" type="button" class="px-4 py-2.5 min-h-[44px] rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs">
+              Enter Pro Plan (Global Cards)
+            </button>
+            <a href="https://lifestyle.radiantsparkllc.com/" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 min-h-[44px] rounded-xl bg-slate-950 border border-slate-700 text-slate-200 font-bold text-xs flex items-center">
+              Lifestyle Web Hub ↗
+            </a>
+          </div>
+        </div>
+        <div class="md:col-span-5 min-h-[180px] bg-slate-950 relative">
+          <img src="/assets/lifespark-meal-prep.jpg" alt="Healthy high-protein bowls" class="w-full h-full object-cover" referrerPolicy="no-referrer">
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <!-- Metrics Input -->
+        <form id="plan-form" onsubmit="generateMobilePlan(event)" class="md:col-span-5 p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+          <h2 class="text-base font-bold text-white">Your Profile &amp; Targets</h2>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Age</label>
+              <input id="p-age" type="number" value="29" min="16" max="90" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Height (cm)</label>
+              <input id="p-height" type="number" value="168" min="120" max="220" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Current (kg)</label>
+              <input id="p-weight" type="number" value="74" min="35" max="220" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Target (kg)</label>
+              <input id="p-target" type="number" value="64" min="35" max="200" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono">
+            </div>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Diet Style</label>
+              <select id="p-diet" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                <option value="high_protein">High Protein Lean</option>
+                <option value="vegetarian_sattvik">Vegetarian / Sattvik</option>
+                <option value="vegan_organic">100% Organic Vegan</option>
+                <option value="keto_lowcarb">Keto Low-Carb</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Primary Goal</label>
+              <select id="p-goal" class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white">
+                <option value="weight_loss">Weight Loss &amp; Fat Toning</option>
+                <option value="muscle_gain">Lean Muscle &amp; Strength</option>
+                <option value="detox_glow">Botanical Detox &amp; Balance</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full min-h-[48px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs">
+            Calculate &amp; Refresh Live Diet Plan
+          </button>
+        </form>
+
+        <!-- Plan Display -->
+        <div id="plan-output" class="md:col-span-7 p-5 rounded-3xl bg-slate-950 border border-emerald-500/40 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="text-xs font-mono text-emerald-400" id="out-title">High Protein Lean Plan</span>
+              <h2 class="text-lg font-extrabold text-white">Today's Nutrition Blueprint</h2>
+            </div>
+            <strong class="text-lg font-black text-amber-300 font-mono tabular-nums" id="out-kcal">1650 kcal</strong>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5 text-center font-mono text-xs tabular-nums">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Protein</span>
+              <strong id="out-prot" class="text-emerald-300 text-sm">132g</strong>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Carbs</span>
+              <strong id="out-carb" class="text-cyan-300 text-sm">145g</strong>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span class="text-slate-400 block text-[11px]">Healthy Fats</span>
+              <strong id="out-fat" class="text-amber-300 text-sm">51g</strong>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800"><strong class="text-emerald-400 block">Breakfast</strong><span id="out-b">2-Egg + 2 Egg-White Herb Omelet or Spiced Paneer Scramble (360 kcal)</span></div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800"><strong class="text-emerald-400 block">Lunch</strong><span id="out-l">Lemon Herb Seared Salmon / Tofu + Tri-Color Quinoa Bowl (465 kcal)</span></div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800"><strong class="text-emerald-400 block">Snack</strong><span id="out-s">Roasted Almonds (18 pcs) + Cucumber-Mint Lime Cooler (180 kcal)</span></div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800"><strong class="text-emerald-400 block">Dinner</strong><span id="out-d">Ginger-Turmeric Red Lentil &amp; Asparagus Soup (315 kcal)</span></div>
+          </div>
+
+          <p id="out-coach" class="text-xs text-slate-300 p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30">
+            Coach Maya Chen: Tap Recipes below for full cooking steps and ingredients, or Workouts for guided calorie burning.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 2: STEP-BY-STEP FOOD MAKING & RECIPES -->
+    <!-- ================================================================ -->
+    <section id="tab-recipes" class="hidden space-y-5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-extrabold text-white">Food Making &amp; Weight-Loss Recipes</h2>
+          <p class="text-xs text-slate-400">Tap any filter to match your meal preference and follow measured prep steps.</p>
+        </div>
+        <select id="recipe-filter" onchange="renderRecipes()" class="px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white font-semibold">
+          <option value="all">All Diet Styles</option>
+          <option value="high_protein">High Protein</option>
+          <option value="vegetarian_sattvik">Vegetarian / Sattvik</option>
+          <option value="vegan_organic">Vegan Organic</option>
+          <option value="keto_lowcarb">Keto Low-Carb</option>
+        </select>
+      </div>
+      <div id="recipes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 3: WEIGHT-LOSS WORKOUTS & INTERVAL TIMER -->
+    <!-- ================================================================ -->
+    <section id="tab-workouts" class="hidden space-y-5">
+      <div class="rounded-3xl overflow-hidden border border-slate-800 bg-slate-900 grid grid-cols-1 md:grid-cols-12">
+        <div class="md:col-span-5 min-h-[160px] bg-slate-950">
+          <img src="/assets/lifespark-workout.jpg" alt="Fitness studio equipment" class="w-full h-full object-cover" referrerPolicy="no-referrer">
+        </div>
+        <div class="md:col-span-7 p-5 flex flex-col justify-between space-y-3">
+          <div>
+            <h2 class="text-xl font-extrabold text-white">Weight-Loss Exercise Timer</h2>
+            <p class="text-xs text-slate-300 mt-1">Dynamic MET-adjusted calorie burn estimate synced to your weight (<span id="wo-weight-lbl" class="font-mono text-emerald-300">74 kg</span>).</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-800">
+            <span id="timer-display" class="text-2xl font-black font-mono tabular-nums text-white w-20">00:45</span>
+            <button id="timer-toggle-btn" onclick="toggleTimer()" type="button" class="px-4 min-h-[44px] rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs">
+              Start Interval
+            </button>
+            <button onclick="resetTimer(45)" type="button" class="px-3 min-h-[44px] rounded-xl bg-slate-800 text-slate-200 font-bold text-xs">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="workouts-list" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+      <div id="workout-steps" class="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-3"></div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 4: MEMBER LOGIN & PROFILE SYNC -->
+    <!-- ================================================================ -->
+    <section id="tab-account" class="hidden space-y-5">
+      <div id="account-logged-out" class="p-6 rounded-3xl bg-slate-900 border border-slate-800 max-w-xl mx-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 id="auth-heading" class="text-lg font-extrabold text-white">Sign In to LifeSpark</h2>
+          <button onclick="toggleAuthMode()" id="auth-switch-btn" type="button" class="text-xs text-emerald-400 underline font-semibold min-h-[40px]">
+            Create New Account
+          </button>
+        </div>
+
+        <form onsubmit="submitMobileAuth(event)" class="space-y-3 text-xs">
+          <div id="auth-name-wrap" class="hidden">
+            <label class="block text-slate-300 font-bold mb-1">Full Name</label>
+            <input id="auth-name" type="text" placeholder="Your full name" class="w-full px-3 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Email</label>
+            <input id="auth-email" type="email" required placeholder="you@example.com" class="w-full px-3 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Password (min 6 chars)</label>
+            <input id="auth-pass" type="password" required minlength="6" placeholder="••••••••" class="w-full px-3 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white">
+          </div>
+          <div id="auth-error-box" class="hidden p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200"></div>
+          <button id="auth-submit-btn" type="submit" class="w-full min-h-[48px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs">
+            Sign In &amp; Load Saved Progress
+          </button>
+        </form>
+      </div>
+
+      <div id="account-logged-in" class="hidden p-6 rounded-3xl bg-slate-900 border border-emerald-500/40 max-w-2xl mx-auto space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div>
+            <h2 id="member-name" class="text-lg font-extrabold text-white">Member</h2>
+            <p id="member-email" class="text-xs text-slate-400 font-mono"></p>
+          </div>
+          <span id="member-sub-badge" class="text-xs font-mono text-emerald-300 font-bold">Free Plan</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400 block">Logged Workouts</span>
+            <strong id="member-wo-count" class="text-lg text-white tabular-nums">0</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-slate-400 block">Saved Recipes</span>
+            <strong id="member-rec-count" class="text-lg text-white tabular-nums">0</strong>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button onclick="switchMobileTab('pro')" type="button" class="flex-1 min-h-[44px] rounded-xl bg-blue-600 text-white font-bold text-xs">
+            Manage Subscription (Stripe)
+          </button>
+          <button onclick="logoutMobile()" type="button" class="px-5 min-h-[44px] rounded-xl bg-slate-800 text-slate-200 font-bold text-xs">
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- TAB 5: GLOBAL MULTI-CURRENCY STRIPE CHECKOUT -->
+    <!-- ================================================================ -->
+    <section id="tab-pro" class="hidden space-y-5">
+      <div class="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-blue-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-mono text-blue-400">PCI-Compliant Stripe Hosted Checkout</span>
+          <h2 class="text-xl font-extrabold text-white">Pay Globally in Local Currency</h2>
+          <p id="stripe-server-status" class="text-xs text-slate-300 mt-1">Checking Stripe server readiness...</p>
+        </div>
+        <select id="pro-currency" onchange="renderStripePlans()" class="px-3 py-2.5 min-h-[44px] rounded-xl bg-slate-950 border border-slate-700 text-white font-mono text-xs font-bold">
+          <option value="USD">USD ($ United States)</option>
+          <option value="INR">INR (₹ India)</option>
+          <option value="EUR">EUR (€ Europe)</option>
+          <option value="GBP">GBP (£ UK)</option>
+          <option value="AED">AED (UAE Dirham)</option>
+          <option value="CAD">CAD ($ Canada)</option>
+          <option value="AUD">AUD ($ Australia)</option>
+          <option value="SGD">SGD ($ Singapore)</option>
+          <option value="JPY">JPY (¥ Japan)</option>
+        </select>
+      </div>
+
+      <div class="max-w-xl">
+        <label class="block text-xs font-bold text-slate-300 mb-1">Email for Stripe Receipt &amp; Plan Activation *</label>
+        <input id="stripe-email" type="email" placeholder="you@example.com" class="w-full px-3.5 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+      </div>
+
+      <div id="pro-error-box" class="hidden p-4 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-xs text-rose-200"></div>
+      <div id="stripe-plans-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5"></div>
+    </section>
+
+  </main>
+
+  <!-- Fixed Bottom Thumb Navigation Bar (5 Tabs, >=44px targets) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#060b16]/95 backdrop-blur-md border-t border-slate-800 pb-safe">
+    <div class="max-w-5xl mx-auto grid grid-cols-5 h-16 items-center text-[11px] font-bold">
+      <button onclick="switchMobileTab('plan')" id="nav-plan" type="button" class="flex flex-col items-center justify-center min-h-[48px] text-emerald-400">
+        <span>🥗</span><span>My Plan</span>
+      </button>
+      <button onclick="switchMobileTab('recipes')" id="nav-recipes" type="button" class="flex flex-col items-center justify-center min-h-[48px] text-slate-400">
+        <span>🍳</span><span>Recipes</span>
+      </button>
+      <button onclick="switchMobileTab('workouts')" id="nav-workouts" type="button" class="flex flex-col items-center justify-center min-h-[48px] text-slate-400">
+        <span>🏋️</span><span>Workouts</span>
+      </button>
+      <button onclick="switchMobileTab('account')" id="nav-account" type="button" class="flex flex-col items-center justify-center min-h-[48px] text-slate-400">
+        <span>👤</span><span>Login</span>
+      </button>
+      <button onclick="switchMobileTab('pro')" id="nav-pro" type="button" class="flex flex-col items-center justify-center min-h-[48px] text-blue-400">
+        <span>💳</span><span>Stripe Pro</span>
+      </button>
+    </div>
+  </nav>
+
+  <script>
+    const CURRENCIES = {
+      USD: { symbol: '$', rate: 1, zero: false },
+      INR: { symbol: '₹', rate: 84.5, zero: false },
+      EUR: { symbol: '€', rate: 0.92, zero: false },
+      GBP: { symbol: '£', rate: 0.78, zero: false },
+      AED: { symbol: 'AED ', rate: 3.67, zero: false },
+      CAD: { symbol: 'CA$', rate: 1.39, zero: false },
+      AUD: { symbol: 'A$', rate: 1.52, zero: false },
+      SGD: { symbol: 'S$', rate: 1.33, zero: false },
+      JPY: { symbol: '¥', rate: 154, zero: true }
+    };
+
+    const PLANS = [
+      { id: 'lifespark_monthly', name: 'LifeSpark Pro Monthly', usd: 29, interval: 'month', desc: 'Continuous personalized diet updates, recipes, workouts & cloud progress sync.' },
+      { id: 'lifespark_annual', name: 'LifeSpark Pro Annual', usd: 249, interval: 'year', desc: 'Full 12-month membership saving 28% with multi-cuisine plans.' },
+      { id: 'lifespark_90day', name: '90-Day Transformation Pass', usd: 69, interval: 'one_time', desc: 'Single one-time payment for a structured 12-week fat-loss blueprint.' }
+    ];
+
+    const RECIPES = [
+      {
+        id: 'rec-herb-salmon-quinoa', title: 'Lemon Herb Seared Salmon & Quinoa Bowl', style: 'high_protein',
+        meta: 'Lunch · Prep 8m · Cook 14m · 465 kcal · P 39g',
+        ingredients: ['150g salmon fillet (or chicken/tofu)', '1/2 cup cooked quinoa', '1 cup spinach & cherry tomatoes', '1/4 avocado, olive oil, lemon & dill'],
+        steps: ['Rub salmon with olive oil, garlic, and lemon zest.', 'Sear 4 min skin-side down, flip 3 min.', 'Fluff warm quinoa and top with greens, avocado & seared fillet.']
+      },
+      {
+        id: 'rec-moong-chilla-paneer', title: 'Moong Dal Chilla with Spiced Paneer', style: 'vegetarian_sattvik',
+        meta: 'Breakfast · Prep 10m · Cook 10m · 340 kcal · P 24g',
+        ingredients: ['1/2 cup soaked yellow moong dal', '60g grated fresh paneer', 'Grated ginger, cumin, coriander, turmeric', '1 tsp cold-pressed ghee'],
+        steps: ['Blend soaked dal with ginger and turmeric into crepe batter.', 'Spread batter on medium cast-iron tawa.', 'Fill with spiced paneer and fold crisp. Serve with mint chutney.']
+      },
+      {
+        id: 'rec-chickpea-tahini-bowl', title: 'Roasted Cumin Chickpea & Greens Bowl', style: 'vegan_organic',
+        meta: 'Lunch · Prep 7m · Cook 18m · 410 kcal · P 19g',
+        ingredients: ['1 cup drained chickpeas', '1.5 cups kale + cucumber', '1 tbsp tahini + lemon juice', 'Cumin, smoked paprika & garlic powder'],
+        steps: ['Roast spiced chickpeas at 200C for 18 minutes.', 'Whisk tahini, lemon, and warm water into dressing.', 'Assemble over kale & cucumber and drizzle dressing.']
+      },
+      {
+        id: 'rec-avocado-egg-skillet', title: 'Spinach, Walnut & Herb Omelet Skillet', style: 'keto_lowcarb',
+        meta: 'Breakfast · Prep 5m · Cook 6m · 325 kcal · P 22g',
+        ingredients: ['2 whole eggs + 2 egg whites', '1 cup baby spinach', '1/4 diced avocado + 4 walnut halves', '1 tsp olive oil & pepper'],
+        steps: ['Wilt spinach in skillet for 45 seconds.', 'Pour whisked eggs and fold gently.', 'Finish with diced avocado and crushed walnuts.']
+      }
+    ];
+
+    const WORKOUTS = [
+      { id: 'w1', title: '20-Min Morning Metabolic HIIT', level: 'Intermediate', mins: 20, met: 8.0,
+        steps: [
+          { name: 'Warmup March & Arm Circles', sec: 120, cue: 'Lift chest and gradually elevate heart rate.' },
+          { name: 'Bodyweight Squat to Reach', sec: 45, cue: '45s work / 15s rest · sit hips back cleanly.' },
+          { name: 'Mountain Climbers', sec: 45, cue: '45s work / 15s rest · brace core tight.' },
+          { name: 'Reverse Alternating Lunges', sec: 45, cue: '45s work / 15s rest · drive through front heel.' }
+        ]
+      },
+      { id: 'w2', title: '25-Min Joint-Friendly Walk & Core', level: 'Low Impact', mins: 25, met: 4.8,
+        steps: [
+          { name: 'Brisk Pace March', sec: 180, cue: 'Pump arms at 90 degrees with zero joint impact.' },
+          { name: 'Standing Knee-to-Elbow Twist', sec: 60, cue: 'Contract obliques smoothly on exhale.' },
+          { name: 'Wall Push-Ups + Glute Bridges', sec: 90, cue: 'Squeeze glutes at top for 2 seconds.' }
+        ]
+      },
+      { id: 'w3', title: '15-Min Evening Recovery Flow', level: 'Beginner', mins: 15, met: 3.5,
+        steps: [
+          { name: 'Sun Salutation Half-Flows', sec: 180, cue: 'Slow nasal breathing across 5 rounds.' },
+          { name: 'Forearm Plank Hold', sec: 45, cue: 'Hold rigid line without dropping lower back.' },
+          { name: 'Supine Hip & Spine Stretch', sec: 120, cue: '60s per side to lower evening stress.' }
+        ]
+      }
+    ];
+
+    let activeTab = 'plan';
+    let authMode = 'login';
+    let currentUser = null;
+    let selectedWorkoutId = 'w1';
+    let timerSec = 45;
+    let timerId = null;
+    let deferredInstallPrompt = null;
+    let paymentLinkUrl = null;
+
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function switchMobileTab(tab) {
+      activeTab = tab;
+      ['plan','recipes','workouts','account','pro'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('nav-' + t);
+        if (btn) {
+          btn.classList.toggle('text-emerald-400', t === tab && t !== 'pro');
+          btn.classList.toggle('text-blue-400', t === 'pro');
+          btn.classList.toggle('text-slate-400', t !== tab && t !== 'pro');
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function fmtMoney(usd, code) {
+      const c = CURRENCIES[code] || CURRENCIES.USD;
+      const v = usd * c.rate;
+      return c.zero ? c.symbol + Math.round(v).toLocaleString('en-US') : c.symbol + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    async function generateMobilePlan(e) {
+      e.preventDefault();
+      const age = Number(document.getElementById('p-age').value) || 29;
+      const heightCm = Number(document.getElementById('p-height').value) || 168;
+      const currentWeightKg = Number(document.getElementById('p-weight').value) || 74;
+      const targetWeightKg = Number(document.getElementById('p-target').value) || 64;
+      const dietPreference = document.getElementById('p-diet').value;
+      const lifestyleGoal = document.getElementById('p-goal').value;
+
+      document.getElementById('wo-weight-lbl').textContent = currentWeightKg + ' kg';
+      renderWorkouts();
+
+      try {
+        const token = localStorage.getItem('lifespark_token');
+        const res = await fetch('/api/lifespark/plan', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Bearer ' + token } : {}),
+          body: JSON.stringify({ age, heightCm, currentWeightKg, targetWeightKg, dietPreference, lifestyleGoal })
+        });
+        if (res.ok) {
+          const d = await res.json();
+          if (d.plan) {
+            applyPlanToUI(d.plan);
+            return;
+          }
+        }
+      } catch (err) {}
+
+      // Client Mifflin-St Jeor offline fallback
+      const bmr = 10 * currentWeightKg + 6.25 * heightCm - 5 * age - 161;
+      const maint = Math.round(bmr * 1.375);
+      const targetKcal = lifestyleGoal === 'weight_loss' ? Math.max(1350, maint - 450) : lifestyleGoal === 'muscle_gain' ? maint + 250 : maint;
+      applyPlanToUI({
+        dietName: dietPreference.replace('_', ' '),
+        dailyCalories: targetKcal + ' kcal',
+        macros: {
+          proteinGrams: Math.round((targetKcal * 0.30) / 4),
+          fatGrams: Math.round((targetKcal * 0.28) / 9),
+          carbsGrams: Math.round((targetKcal * 0.42) / 4)
+        },
+        breakfast: 'Spinach & Herb Omelet / Moong Dal Chilla (~350 kcal)',
+        lunch: 'Seared Salmon / Spiced Chickpea & Quinoa Greens Bowl (~450 kcal)',
+        snack: 'Roasted Makhana or Almonds + Mint Lime Cooler (~180 kcal)',
+        dinner: 'Light Ginger-Turmeric Lentil & Asparagus Soup (~315 kcal)',
+        aiCoachNote: 'Plan updated locally for ' + targetKcal + ' kcal/day.'
+      });
+    }
+
+    function applyPlanToUI(p) {
+      document.getElementById('out-title').textContent = p.dietName || 'Personalized Plan';
+      document.getElementById('out-kcal').textContent = p.dailyCalories || '1650 kcal';
+      if (p.macros) {
+        document.getElementById('out-prot').textContent = p.macros.proteinGrams + 'g';
+        document.getElementById('out-carb').textContent = p.macros.carbsGrams + 'g';
+        document.getElementById('out-fat').textContent = p.macros.fatGrams + 'g';
+      }
+      document.getElementById('out-b').textContent = p.breakfast || '';
+      document.getElementById('out-l').textContent = p.lunch || '';
+      document.getElementById('out-s').textContent = p.snack || '';
+      document.getElementById('out-d').textContent = p.dinner || '';
+      document.getElementById('out-coach').textContent = p.aiCoachNote || '';
+    }
+
+    function renderRecipes() {
+      const f = document.getElementById('recipe-filter').value;
+      const list = f === 'all' ? RECIPES : RECIPES.filter(r => r.style === f);
+      document.getElementById('recipes-grid').innerHTML = list.map(r => `
+        <article class="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+          <div class="text-xs font-mono text-emerald-400">${esc(r.meta)}</div>
+          <h3 class="text-base font-bold text-white">${esc(r.title)}</h3>
+          <div class="text-xs text-slate-300"><strong class="text-white block mb-1">Ingredients</strong><ul class="list-disc pl-4 space-y-0.5">${r.ingredients.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>
+          <div class="text-xs text-slate-300"><strong class="text-white block mb-1">Steps</strong><ol class="list-decimal pl-4 space-y-1">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol></div>
+        </article>
+      `).join('');
+    }
+
+    function renderWorkouts() {
+      const wKg = Number(document.getElementById('p-weight')?.value) || 74;
+      document.getElementById('workouts-list').innerHTML = WORKOUTS.map(w => {
+        const kcal = Math.round(((w.met * 3.5 * wKg) / 200) * w.mins);
+        const active = w.id === selectedWorkoutId;
+        return `
+          <button onclick="selectWorkout('${w.id}')" type="button" class="text-left p-4 rounded-2xl border ${active ? 'bg-emerald-950/40 border-emerald-500 text-white' : 'bg-slate-900 border-slate-800 text-slate-300'}">
+            <div class="text-xs font-mono text-emerald-400">${esc(w.level)} · ${w.mins}m · ~${kcal} kcal</div>
+            <strong class="text-sm font-bold block mt-1">${esc(w.title)}</strong>
+          </button>`;
+      }).join('');
+
+      const cur = WORKOUTS.find(w => w.id === selectedWorkoutId) || WORKOUTS[0];
+      const kcalBurn = Math.round(((cur.met * 3.5 * wKg) / 200) * cur.mins);
+      document.getElementById('workout-steps').innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h3 class="text-base font-bold text-white">${esc(cur.title)}</h3>
+          <button onclick="logWorkout('${esc(cur.title)}', ${cur.mins}, ${kcalBurn})" type="button" class="px-4 py-2 min-h-[40px] rounded-xl bg-emerald-500 text-slate-950 font-extrabold text-xs">
+            Log Complete (~${kcalBurn} kcal)
+          </button>
+        </div>
+        ${cur.steps.map((s, idx) => `
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-3 text-xs">
+            <div><strong class="text-white">0${idx+1}. ${esc(s.name)}</strong><p class="text-slate-400 mt-0.5">${esc(s.cue)}</p></div>
+            <button onclick="resetTimer(${s.sec}); startTimer();" type="button" class="px-3 py-2 min-h-[40px] rounded-xl bg-slate-900 border border-slate-700 text-emerald-300 font-mono shrink-0">${s.sec}s</button>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function selectWorkout(id) {
+      selectedWorkoutId = id;
+      const cur = WORKOUTS.find(w => w.id === id);
+      if (cur && cur.steps[0]) resetTimer(cur.steps[0].sec);
+      renderWorkouts();
+    }
+
+    function updateTimerDisplay() {
+      const m = String(Math.floor(timerSec / 60)).padStart(2, '0');
+      const s = String(timerSec % 60).padStart(2, '0');
+      document.getElementById('timer-display').textContent = m + ':' + s;
+    }
+
+    function startTimer() {
+      if (timerId) return;
+      document.getElementById('timer-toggle-btn').textContent = 'Pause Timer';
+      timerId = setInterval(() => {
+        if (timerSec <= 1) {
+          clearInterval(timerId); timerId = null; timerSec = 0;
+          document.getElementById('timer-toggle-btn').textContent = 'Start Interval';
+        } else { timerSec -= 1; }
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function toggleTimer() {
+      if (timerId) {
+        clearInterval(timerId); timerId = null;
+        document.getElementById('timer-toggle-btn').textContent = 'Resume Timer';
+      } else { startTimer(); }
+    }
+
+    function resetTimer(sec) {
+      if (timerId) { clearInterval(timerId); timerId = null; }
+      timerSec = sec || 45;
+      document.getElementById('timer-toggle-btn').textContent = 'Start Interval';
+      updateTimerDisplay();
+    }
+
+    async function logWorkout(title, minutes, estimatedCalories) {
+      const token = localStorage.getItem('lifespark_token');
+      if (!token) {
+        switchMobileTab('account');
+        return;
+      }
+      const res = await fetch('/api/lifespark/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ workoutLog: { title, minutes, estimatedCalories } })
+      }).catch(() => null);
+      if (res && res.ok) {
+        const d = await res.json();
+        setMemberUI(d.user);
+        alert('Workout saved to your LifeSpark history.');
+      }
+    }
+
+    function toggleAuthMode() {
+      authMode = authMode === 'login' ? 'register' : 'login';
+      document.getElementById('auth-heading').textContent = authMode === 'register' ? 'Create LifeSpark Account' : 'Sign In to LifeSpark';
+      document.getElementById('auth-switch-btn').textContent = authMode === 'register' ? 'Already have an account? Sign In' : 'Create New Account';
+      document.getElementById('auth-name-wrap').classList.toggle('hidden', authMode !== 'register');
+      document.getElementById('auth-submit-btn').textContent = authMode === 'register' ? 'Create Account & Save Plan' : 'Sign In & Load Saved Progress';
+    }
+
+    async function submitMobileAuth(e) {
+      e.preventDefault();
+      const errBox = document.getElementById('auth-error-box');
+      errBox.classList.add('hidden');
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-pass').value;
+      const fullName = document.getElementById('auth-name').value.trim();
+      const endpoint = authMode === 'register' ? '/api/auth/register' : '/api/auth/login';
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(authMode === 'register' ? { fullName, email, password } : { email, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          errBox.textContent = data.error || 'Authentication failed.';
+          errBox.classList.remove('hidden');
+          return;
+        }
+        localStorage.setItem('lifespark_token', data.token);
+        setMemberUI(data.user);
+      } catch {
+        errBox.textContent = 'Could not reach backend auth service.';
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    function setMemberUI(user) {
+      currentUser = user;
+      if (!user) {
+        document.getElementById('account-logged-out').classList.remove('hidden');
+        document.getElementById('account-logged-in').classList.add('hidden');
+        document.getElementById('top-user-btn').textContent = 'Sign In';
+        return;
+      }
+      document.getElementById('account-logged-out').classList.add('hidden');
+      document.getElementById('account-logged-in').classList.remove('hidden');
+      document.getElementById('top-user-btn').textContent = user.fullName.split(' ')[0] || 'Account';
+      document.getElementById('member-name').textContent = user.fullName;
+      document.getElementById('member-email').textContent = user.email;
+      document.getElementById('member-sub-badge').textContent = user.subscriptionStatus === 'active' ? ('Pro Active: ' + (user.subscriptionPlan || '')) : 'Free Member';
+      document.getElementById('member-wo-count').textContent = (user.workoutLogs || []).length;
+      document.getElementById('member-rec-count').textContent = (user.favoriteRecipes || []).length;
+      if (document.getElementById('stripe-email') && !document.getElementById('stripe-email').value) {
+        document.getElementById('stripe-email').value = user.email;
+      }
+      if (user.savedPlan) applyPlanToUI(user.savedPlan);
+    }
+
+    async function logoutMobile() {
+      await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+      localStorage.removeItem('lifespark_token');
+      setMemberUI(null);
+    }
+
+    function renderStripePlans() {
+      const code = document.getElementById('pro-currency').value || 'USD';
+      document.getElementById('stripe-plans-grid').innerHTML = PLANS.map(p => {
+        const formatted = fmtMoney(p.usd, code);
+        const unit = p.interval === 'year' ? '/yr' : p.interval === 'one_time' ? 'one-time' : '/mo';
+        return `
+          <div class="p-5 rounded-3xl bg-slate-900 border border-slate-800 flex flex-col justify-between space-y-4">
+            <div class="space-y-2">
+              <span class="text-xs font-mono text-emerald-400">${esc(p.interval === 'one_time' ? 'One-Time Payment' : 'Recurring Plan')}</span>
+              <h3 class="text-lg font-extrabold text-white">${esc(p.name)}</h3>
+              <div class="font-mono"><strong class="text-2xl text-white tabular-nums">${esc(formatted)}</strong> <span class="text-xs text-slate-400">${unit}</span></div>
+              <p class="text-xs text-slate-300 leading-relaxed">${esc(p.desc)}</p>
+            </div>
+            <button onclick="startStripeCheckout('${p.id}','${esc(p.name)}',${p.usd},'${p.interval}')" type="button" class="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-blue-600 to-emerald-600 text-white font-extrabold text-xs">
+              Pay ${esc(formatted)} via Stripe Checkout →
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function startStripeCheckout(planId, planName, priceUsd, billingInterval) {
+      const errBox = document.getElementById('pro-error-box');
+      errBox.classList.add('hidden');
+      const currency = document.getElementById('pro-currency').value || 'USD';
+      const email = (document.getElementById('stripe-email').value || '').trim();
+      if (!email || !email.includes('@')) {
+        errBox.textContent = 'Please enter a valid email address above for your Stripe receipt.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('lifespark_token');
+        const res = await fetch('/api/stripe/create-checkout-session', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Bearer ' + token } : {}),
+          body: JSON.stringify({ planId, planName, priceUsd, currency, billingInterval, email, returnPath: '/lifespark.html' })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.url) {
+          window.location.assign(data.url);
+          return;
+        }
+        if (paymentLinkUrl) {
+          window.location.assign(paymentLinkUrl);
+          return;
+        }
+        errBox.textContent = data.error || 'STRIPE_SECRET_KEY is not configured on this server yet.';
+        errBox.classList.remove('hidden');
+      } catch {
+        errBox.textContent = 'Cannot reach Stripe server endpoint.';
+        errBox.classList.remove('hidden');
+      }
+    }
+
+    // Boot & PWA install wiring
+    (function init() {
+      renderRecipes();
+      renderWorkouts();
+      renderStripePlans();
+
+      const token = localStorage.getItem('lifespark_token');
+      fetch('/api/auth/me', { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d && d.authenticated && d.user) setMemberUI(d.user); })
+        .catch(() => {});
+
+      fetch('/api/stripe/config')
+        .then(r => r.ok ? r.json() : null)
+        .then(cfg => {
+          const el = document.getElementById('stripe-server-status');
+          if (!cfg || !el) return;
+          paymentLinkUrl = cfg.paymentLinkUrl || null;
+          el.textContent = cfg.configured
+            ? 'Stripe Live Server Ready · Worldwide Cards, Apple Pay & Google Pay settle directly to your Stripe account.'
+            : cfg.paymentLinkConfigured
+            ? 'Stripe Payment Link Ready · Worldwide checkout active.'
+            : 'Setup Notice: Add STRIPE_SECRET_KEY in server environment secrets to activate live card charges.';
+        }).catch(() => {});
+
+      const params = new URLSearchParams(window.location.search);
+      const cs = params.get('checkout');
+      const sid = params.get('session_id');
+      const banner = document.getElementById('checkout-banner');
+      if (cs === 'success' && sid && banner) {
+        fetch('/api/stripe/verify-session?session_id=' + encodeURIComponent(sid))
+          .then(r => r.json())
+          .then(v => {
+            banner.className = 'p-4 rounded-2xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 text-xs flex items-center justify-between gap-3';
+            banner.textContent = v && v.verified ? `Stripe payment verified (${v.planName} · ${v.currency}). Membership activated.` : 'Checkout returned cleanly.';
+          }).catch(() => {});
+      }
+
+      // PWA Install Button logic
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (!isStandalone && installBtn) {
+        if (isIOS) {
+          installBtn.classList.remove('hidden');
+          installBtn.textContent = 'Install iOS';
+          installBtn.onclick = () => document.getElementById('ios-guide-modal').classList.remove('hidden');
+        }
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          installBtn.classList.remove('hidden');
+          installBtn.textContent = 'Install App';
+          installBtn.onclick = async () => {
+            if (!deferredInstallPrompt) return;
+            await deferredInstallPrompt.prompt();
+            deferredInstallPrompt = null;
+            installBtn.classList.add('hidden');
+          };
+        });
+      }
+
+      const updateNet = () => document.getElementById('offline-banner').classList.toggle('hidden', navigator.onLine);
+      window.addEventListener('online', updateNet);
+      window.addEventListener('offline', updateNet);
+      updateNet();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }
+    })();
+  </script>
+</body>
+</html>

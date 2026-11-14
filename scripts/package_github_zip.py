@@ -2,7 +2,7 @@ import os
 import shutil
 import zipfile
 
-# Directory to package
+# Temporary staging directory for static dist deploy
 target_dir = '/tmp/github_upload'
 if os.path.exists(target_dir):
     shutil.rmtree(target_dir)
@@ -19,82 +19,58 @@ for item in os.listdir('dist'):
     else:
         shutil.copy2(s, d)
 
-# Ensure CNAME file configured for radiantsparkllc.com for GitHub Pages
 with open(os.path.join(target_dir, 'CNAME'), 'w') as f:
     f.write('radiantsparkllc.com\n')
 
-# Ensure .nojekyll file to prevent GitHub Pages from dropping assets/
 with open(os.path.join(target_dir, '.nojekyll'), 'w') as f:
     f.write('')
 
-# Add a clear README.md inside the zip
-readme_content = """# Radiant Spark LLC — Official Web & Mobile Apps Production Package
+readme_content = """# Radiant Spark Global — Production Build & Live SparkDeals Package
 
-This repository contains the complete production-ready build for Radiant Spark LLC, SparkSync OS, and SparkDeals Hub.
+## Option A: Deploy Full Repository with Automated 15-Minute Deal Refresh (Recommended)
+Use `radiant-spark-full-codebase.zip`:
+1. Unzip and push all files (including `.github/workflows/pages.yml`) to the `main` branch of `RadiantSparkLLC/radiantspark-site`.
+2. In GitHub **Settings -> Pages**, set **Source** to **GitHub Actions**.
+3. The site builds and automatically refreshes `deals-feed.json` every 15 minutes with verified live & Black Friday deals.
 
-## GitHub Pages Deployment in 3 Simple Steps
-
-1. Unzip this package (`radiantspark-final.zip`).
-2. Upload all files and folders (including `assets/`, `app.html`, `index.html`, `CNAME`, `.nojekyll`) into your GitHub repository root (`main` branch).
-   - *Tip:* If using Git CLI:
-     ```bash
-     git add .
-     git commit -m "Deploy Radiant Spark & SparkSync Mobile OS"
-     git push origin main
-     ```
-3. In GitHub, go to **Settings** ➔ **Pages**:
-   - **Source:** Deploy from a branch
-   - **Branch:** `main` ➔ `/ (root)`
-   - Click **Save**.
-4. Your site will be live immediately at **https://radiantsparkllc.com**!
-
-## Can I Make My GitHub Repository Private?
-- **GitHub Free Account:** GitHub Pages is ONLY available on **Public** repositories. If you change a free repository to Private, GitHub Pages turns off and `radiantsparkllc.com` will stop working.
-- **GitHub Pro ($4/mo) or GitHub Enterprise:** YES! GitHub Pages supports **Private** repositories. Your code remains private to you, while your website and mobile apps stay publicly live at `radiantsparkllc.com`.
-- **Free Private Alternative:** You can also deploy this exact repository to **Cloudflare Pages**, **Vercel**, or **Netlify** (all have free tiers with 100% private GitHub repositories and custom domain support).
-
-## Key Pages Included
-- `index.html`: Corporate Global Portal with instant pre-rendered layout & Mobile App Download Center
-- `app.html`: Standalone 1,221-Line SparkSync Mobile Super-App (Dynamic Island, 3D Biometric Plexus, Apple Watch ECG telemetry, Smart Photo Cleaner, Market Pulse, 8 tabs, Deals)
-- `sparkdeals.html`: Standalone Dedicated SparkDeals Live Hub
-- `spardeals.html`: Instant redirect for typo safety
-- `manifest.json` & `sw.js`: PWA Mobile app install capabilities
-- `CNAME`: Configured for `radiantsparkllc.com`
-- `.nojekyll`: Disables Jekyll so all folders and scripts are served correctly
+## Option B: Static Branch Upload
+Use `radiantspark-final.zip`:
+1. Unzip all compiled files (`index.html`, `sparkdeals.html`, `deals-feed.json`, `assets/`, `CNAME`, `.nojekyll`) to the `main` branch root.
+2. In GitHub **Settings -> Pages**, set **Source** to **Deploy from a branch -> main / (root)**.
 """
 
 with open(os.path.join(target_dir, 'README.md'), 'w') as f:
     f.write(readme_content)
 
-# Zip everything cleanly into public/radiantspark-final.zip
+# 1. Production Static Dist ZIP
 final_zip_base = 'public/radiantspark-final'
 final_zip_name = 'public/radiantspark-final.zip'
 if os.path.exists(final_zip_name):
     os.remove(final_zip_name)
-
 shutil.make_archive(final_zip_base, 'zip', target_dir)
-
-# Also copy into dist so it is directly downloadable from server
-shutil.copy2(final_zip_name, 'dist/radiantspark-final.zip')
-
-# Production dist zip
 shutil.copy2(final_zip_name, 'public/radiant-spark-production-dist.zip')
-shutil.copy2(final_zip_name, 'dist/radiant-spark-production-dist.zip')
 
-# Full codebase zip
-exclude_dirs = {'node_modules', '.git', 'dist'}
+# 2. Clean Full Source Repository ZIP (includes .github/workflows, src, server.ts, scripts, public without screenshots/zips)
+exclude_dirs = {'node_modules', '.git', 'dist', 'data', '.aistudio', 'aistudio'}
 full_codebase_zip = 'public/radiant-spark-full-codebase.zip'
+if os.path.exists(full_codebase_zip):
+    os.remove(full_codebase_zip)
+
 with zipfile.ZipFile(full_codebase_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
     for root, dirs, files in os.walk('.'):
-        dirs[:] = [d for d in dirs if d not in exclude_dirs]
+        rel_root = os.path.relpath(root, '.')
+        dirs[:] = [
+            d for d in dirs
+            if d not in exclude_dirs
+            and not (rel_root == 'public/assets' and d == 'aistudio')
+        ]
         for f in files:
-            if f.endswith('.zip'):
+            if f.endswith('.zip') or f.startswith('.env') and f != '.env.example':
                 continue
             filepath = os.path.join(root, f)
             arcname = os.path.relpath(filepath, '.')
             zipf.write(filepath, arcname)
 
-shutil.copy2(full_codebase_zip, 'dist/radiant-spark-full-codebase.zip')
-
-print('All zips packaged successfully!')
-print('radiantspark-final.zip size:', os.path.getsize(final_zip_name), 'bytes')
+print('Packaged successfully:')
+print(' -', final_zip_name, os.path.getsize(final_zip_name), 'bytes')
+print(' -', full_codebase_zip, os.path.getsize(full_codebase_zip), 'bytes')

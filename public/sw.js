@@ -1,14 +1,16 @@
 /**
  * Radiant Spark Global Mobile PWA Service Worker
  */
-const CACHE_NAME = 'radiant-spark-v2';
+const CACHE_NAME = 'radiant-spark-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/lifespark-manifest.json',
   '/icon.svg',
   '/radiant-sparkle-logo.png',
-  '/sparkdeals.html'
+  '/sparkdeals.html',
+  '/lifespark.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -33,6 +35,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (event.request.url.includes('/api/')) return;
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return (

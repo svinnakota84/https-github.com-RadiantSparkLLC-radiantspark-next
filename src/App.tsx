@@ -31,6 +31,10 @@ import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<CountryView>(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success' || params.get('checkout') === 'cancelled') {
+      return 'lifestyle';
+    }
     const hash = window.location.hash.replace('#', '');
     if (hash === 'india' || hash === 'usa' || hash === 'sparkdeals' || hash === 'brain' || hash === 'lifestyle') return hash as CountryView;
     return 'global';
@@ -55,8 +59,9 @@ export default function App() {
   const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [isTakedownOpen, setIsTakedownOpen] = useState(false);
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
-  const [stripePlanName, setStripePlanName] = useState('Pro Lifestyle Subscription');
+  const [stripePlanName, setStripePlanName] = useState('LifeSpark Pro Monthly');
   const [stripePriceUsd, setStripePriceUsd] = useState(29);
+  const [stripeBillingInterval, setStripeBillingInterval] = useState<'month' | 'year' | 'one_time'>('month');
 
   // Business Inquiry, Supplier Intake & Owner Dashboard Modal state
   const [isBusinessInquiryOpen, setIsBusinessInquiryOpen] = useState(false);
@@ -295,9 +300,10 @@ export default function App() {
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             >
               <LifestylePortal
-                onOpenStripeModal={(planName, priceUsd) => {
+                onOpenStripeModal={(planName, priceUsd, interval) => {
                   setStripePlanName(planName);
                   setStripePriceUsd(priceUsd);
+                  setStripeBillingInterval(interval || 'month');
                   setIsStripeModalOpen(true);
                 }}
               />
@@ -419,6 +425,8 @@ export default function App() {
         onClose={() => setIsStripeModalOpen(false)}
         planName={stripePlanName}
         priceUsd={stripePriceUsd}
+        billingInterval={stripeBillingInterval}
+        returnPath="/#lifestyle"
       />
 
       <BusinessInquiryModal
