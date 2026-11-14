@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SparkDeals Hub · Thanksgiving &amp; Black Friday Live Deals 2026</title>
+  <title>SparkDeals Hub · Verified Live &amp; Black Friday 2026 Deals</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
@@ -13,57 +13,81 @@
 </head>
 <body class="bg-[#030712] text-slate-100 min-h-screen p-4 sm:p-8 selection:bg-amber-500 selection:text-slate-950">
   <div class="max-w-7xl mx-auto space-y-6">
-    
+
     <!-- Header Navigation Bar -->
-    <header class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md">
       <div class="flex items-center gap-3">
-        <a href="./index.html#sparkdeals" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs transition-colors">
+        <a href="./index.html#sparkdeals" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs transition-colors shrink-0">
           ← Back to Platform
         </a>
         <div>
-          <h1 class="text-lg font-black text-white flex items-center gap-2">
-            <span>🔥 SparkDeals Live Hub</span>
+          <h1 class="text-lg font-black text-white flex flex-wrap items-center gap-2">
+            <span>SparkDeals Live Hub</span>
             <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] font-mono font-bold border border-rose-500/30">
-              THANKSGIVING &amp; BLACK FRIDAY 2026
+              BLACK FRIDAY &amp; VERIFIED DROPS 2026
             </span>
           </h1>
-          <p class="text-xs text-slate-400">Direct product deep-links for Amazon US, Amazon India, Walmart, Best Buy &amp; Flipkart</p>
+          <p class="text-xs text-slate-400">Auto-refreshed every 15 minutes from live retail deal feeds · Direct View Deal links</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 text-xs font-mono font-bold">
-        <span id="api-status-badge" class="px-3 py-1 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-500/40 flex items-center gap-1.5">
+      <div class="flex flex-wrap items-center gap-2 text-xs font-mono font-bold">
+        <span id="api-status-badge" class="px-3 py-1.5 rounded-xl bg-emerald-950 text-emerald-300 border border-emerald-500/40 flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="api-status-text">Server Sync Active (Auto-Refreshed 15m)</span>
+          <span id="api-status-text">Checking live deal feeds...</span>
         </span>
+        <button id="refresh-now-btn" onclick="triggerManualSync()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-all">
+          Sync Now
+        </button>
       </div>
     </header>
 
-    <!-- Search & Store Filter Controls -->
+    <!-- Freshness / Outage Notice -->
+    <div id="stale-banner" class="hidden p-4 rounded-2xl bg-rose-950/60 border border-rose-500/50 text-xs text-rose-200"></div>
+
+    <!-- Search, Category & Store Filter Controls -->
     <div class="p-6 rounded-3xl bg-slate-900/60 border border-amber-500/30 space-y-4">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-widest block mb-1">
-            🦃 HOLIDAY &amp; BLACK FRIDAY DEAL DISCOVERY 2026
+            REAL-TIME SCHEDULED DEAL DISCOVERY (15M SYNC)
           </span>
           <h2 class="text-2xl sm:text-3xl font-black text-white">
-            Verified Thanksgiving &amp; Black Friday Price Drops
+            Verified Black Friday &amp; Live Price Drops
           </h2>
+          <p class="text-xs text-slate-400 mt-1" id="last-checked-detail">Loading source telemetry...</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+        <div class="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
           <input
             id="search-input"
             type="search"
-            placeholder="Search iPad, AirPods, Sony, Samsung TV, Solar, Tumbler..."
-            class="w-full sm:w-72 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-400 font-mono"
+            placeholder="Search TV, laptop, tools, headphones, retailer..."
+            class="w-full sm:w-64 px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-amber-400 font-mono"
           >
+
+          <select
+            id="category-select"
+            onchange="renderDeals()"
+            class="w-full sm:w-44 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 font-mono text-xs font-bold focus:outline-none"
+          >
+            <option value="all">All Categories</option>
+            <option value="electronics">Tech &amp; Electronics</option>
+            <option value="home">Home &amp; Tools</option>
+            <option value="gaming">Gaming</option>
+            <option value="apparel">Apparel &amp; Gear</option>
+            <option value="energy">Solar &amp; Energy</option>
+            <option value="beverages">Beverages</option>
+            <option value="food">Kitchen &amp; Foods</option>
+            <option value="lifestyle">Lifestyle</option>
+          </select>
 
           <select
             id="sort-select"
             onchange="renderDeals()"
-            class="w-full sm:w-44 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs font-bold focus:outline-none"
+            class="w-full sm:w-48 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs font-bold focus:outline-none"
           >
+            <option value="newest">Newest Live Drops</option>
             <option value="discount">Highest Discount %</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
@@ -72,239 +96,234 @@
       </div>
 
       <!-- Store & Event Filters -->
-      <div id="filter-buttons" class="flex flex-wrap items-center gap-2 pt-2 font-mono text-xs">
-        <button onclick="filterStore('all')" id="btn-all" class="store-btn px-3.5 py-1.5 rounded-full font-bold bg-amber-500 text-slate-950">🔥 All Deals</button>
-        <button onclick="filterStore('blackfriday')" id="btn-blackfriday" class="store-btn px-3.5 py-1.5 rounded-full font-bold bg-slate-950 border border-rose-500/40 text-rose-300 hover:bg-rose-950/40">🛍️ Black Friday 2026</button>
-        <button onclick="filterStore('Amazon USA')" id="btn-usa" class="store-btn px-3.5 py-1.5 rounded-full font-bold bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">🇺🇸 Amazon US</button>
-        <button onclick="filterStore('Amazon India')" id="btn-india" class="store-btn px-3.5 py-1.5 rounded-full font-bold bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">🇮🇳 Amazon India</button>
-        <button onclick="filterStore('Walmart')" id="btn-walmart" class="store-btn px-3.5 py-1.5 rounded-full font-bold bg-slate-950 border border-slate-800 text-slate-300 hover:text-white">🏬 Walmart</button>
-      </div>
+      <div id="filter-buttons" class="flex flex-wrap items-center gap-2 pt-2 font-mono text-xs"></div>
     </div>
 
     <!-- Live Deals Grid -->
     <main id="deals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <!-- Dynamically Rendered by JS -->
+      <div class="col-span-full py-12 text-center text-slate-400 font-mono text-xs">Loading verified deals...</div>
     </main>
 
     <!-- Footer Disclosure -->
-    <footer class="p-4 rounded-2xl bg-slate-950 border border-slate-900 text-center text-[11px] text-slate-500 font-mono">
-      <span>🛡️ SparkDeals is supported by readers. We earn qualifying affiliate commissions when you purchase through links on our site with zero price markup.</span>
+    <footer class="p-4 rounded-2xl bg-slate-950 border border-slate-900 text-center text-[11px] text-slate-400 font-mono">
+      <span id="affiliate-disclosure">Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers.</span>
     </footer>
 
   </div>
 
   <script>
-    let dealsData = [
-      {
-        id: '1',
-        title: 'Apple iPad (10th Gen) 10.9-inch Liquid Retina Display (Wi-Fi, 64GB, Silver)',
-        priceUsd: 279,
-        originalUsd: 349,
-        discountPct: 20,
-        store: 'Amazon USA',
-        badge: '🦃 Thanksgiving Special',
-        isBlackFriday: true,
-        image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=800&q=80',
-        amazonUsa: 'https://www.amazon.com/s?k=Apple+iPad+10th+Gen+64GB+Silver&tag=sparkdeal-20',
-        amazonIn: 'https://www.amazon.in/s?k=Apple+iPad+10th+Gen+64GB+Silver&tag=sparkdeal-21',
-        walmart: 'https://www.walmart.com/search?q=Apple+iPad+10th+Gen+64GB'
-      },
-      {
-        id: '2',
-        title: 'Apple AirPods Pro (2nd Generation) with MagSafe Case (USB-C)',
-        priceUsd: 169,
-        originalUsd: 249,
-        discountPct: 32,
-        store: 'Walmart',
-        badge: '🛍️ Walmart Rollback',
-        isBlackFriday: true,
-        image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=800&q=80',
-        amazonUsa: 'https://www.amazon.com/s?k=Apple+AirPods+Pro+2nd+Gen+USB-C&tag=sparkdeal-20',
-        amazonIn: 'https://www.amazon.in/s?k=Apple+AirPods+Pro+2nd+Gen+USB-C&tag=sparkdeal-21',
-        walmart: 'https://www.walmart.com/search?q=Apple+AirPods+Pro+2nd+Gen+USB-C'
-      },
-      {
-        id: '3',
-        title: 'Sony WH-1000XM5 Wireless Noise Canceling Headphones',
-        priceUsd: 298,
-        originalUsd: 399,
-        discountPct: 25,
-        store: 'Amazon USA',
-        badge: '🔥 Black Friday Early Drop',
-        isBlackFriday: true,
-        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-        amazonUsa: 'https://www.amazon.com/s?k=Sony+WH-1000XM5+Wireless+Headphones&tag=sparkdeal-20',
-        amazonIn: 'https://www.amazon.in/s?k=Sony+WH-1000XM5+Wireless+Headphones&tag=sparkdeal-21',
-        walmart: 'https://www.walmart.com/search?q=Sony+WH-1000XM5'
-      },
-      {
-        id: '4',
-        title: 'Samsung 65-Inch Class OLED 4K S90D Smart TV (2026 Model)',
-        priceUsd: 1399,
-        originalUsd: 2199,
-        discountPct: 36,
-        store: 'Amazon USA',
-        badge: '📺 Holiday Doorbuster',
-        isBlackFriday: true,
-        image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80',
-        amazonUsa: 'https://www.amazon.com/s?k=Samsung+65+Inch+OLED+4K+Smart+TV&tag=sparkdeal-20',
-        amazonIn: 'https://www.amazon.in/s?k=Samsung+65+Inch+OLED+4K+TV&tag=sparkdeal-21',
-        walmart: 'https://www.walmart.com/search?q=Samsung+65+Inch+OLED+4K'
-      },
-      {
-        id: '5',
-        title: 'Stanley Quencher H2.0 FlowState Vacuum Tumbler (40oz)',
-        priceUsd: 35,
-        originalUsd: 45,
-        discountPct: 22,
-        store: 'Amazon USA',
-        badge: '🥤 Viral Top Pick',
-        isBlackFriday: false,
-        image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
-        amazonUsa: 'https://www.amazon.com/s?k=Stanley+Quencher+H2.0+40oz&tag=sparkdeal-20',
-        amazonIn: 'https://www.amazon.in/s?k=Stanley+Quencher+H2.0+40oz&tag=sparkdeal-21',
-        walmart: 'https://www.walmart.com/search?q=Stanley+Quencher+H2.0+40oz'
-      },
-      {
-        id: '6',
-        title: 'Spark EV 3.5kVA Rooftop Solar Home Starter Kit (LiFePO4 Ready)',
-        priceInr: 34999,
-        originalInr: 49999,
-        discountPct: 30,
-        store: 'Amazon India',
-        badge: '☀️ PM Surya Ghar Scheme',
-        isBlackFriday: false,
-        image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-        amazonIn: 'https://www.amazon.in/s?k=Rooftop+Solar+Kit+3.5kVA+LiFePO4&tag=sparkdeal-21',
-        amazonUsa: 'https://www.amazon.com/s?k=Solar+Kit+Off-Grid+LiFePO4+Solar+Panels&tag=sparkdeal-20'
-      }
-    ];
-
+    let dealsData = [];
     let currentStore = 'all';
+    let feedIsStale = false;
 
-    // Fetch live API deals from server endpoint
-    async function loadServerDeals() {
-      try {
-        const res = await fetch('/api/deals');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.deals && data.deals.length > 0) {
-            dealsData = data.deals.map(d => ({
-              id: d.id,
-              title: d.title,
-              priceUsd: d.merchant.includes('India') || d.category === 'energy' ? null : d.currentPrice,
-              originalUsd: d.merchant.includes('India') || d.category === 'energy' ? null : d.originalPrice,
-              priceInr: d.merchant.includes('India') || d.category === 'energy' ? d.currentPrice : null,
-              originalInr: d.merchant.includes('India') || d.category === 'energy' ? d.originalPrice : null,
-              discountPct: d.discountPercent || Math.round(((d.originalPrice - d.currentPrice) / d.originalPrice) * 100),
-              store: d.primaryStore || d.merchant.split('/')[0].trim(),
-              badge: d.badges ? d.badges[0] : 'Verified Deal',
-              isBlackFriday: d.badges?.some(b => b.toLowerCase().includes('black friday') || b.toLowerCase().includes('thanksgiving')),
-              image: d.imageUrl,
-              amazonUsa: d.amazonUsaUrl,
-              amazonIn: d.amazonIndiaUrl,
-              walmart: d.walmartUrl
-            }));
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
-            const statusText = document.getElementById('api-status-text');
-            if (statusText) {
-              statusText.textContent = `Server API Active · Refreshed ${data.lastCheckedLabel} (${data.refreshIntervalMinutes}m Auto-Sync)`;
-            }
-          }
-        }
-      } catch (e) {
-        console.log('Using initial client deals cache');
+    function fmtPrice(val, curr) {
+      if (curr === 'INR') return '₹' + Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+      const hasCents = Math.round(Number(val) * 100) % 100 !== 0;
+      return '$' + Number(val).toLocaleString('en-US', {
+        minimumFractionDigits: hasCents ? 2 : 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function applyPayload(data, sourceMode) {
+      feedIsStale = Boolean(data.isStale);
+      dealsData = feedIsStale ? [] : (Array.isArray(data.deals) ? data.deals : []);
+
+      const statusText = document.getElementById('api-status-text');
+      const checkedDetail = document.getElementById('last-checked-detail');
+      const staleBanner = document.getElementById('stale-banner');
+      const disclosureEl = document.getElementById('affiliate-disclosure');
+
+      if (disclosureEl && data.affiliateDisclosure) {
+        disclosureEl.textContent = data.affiliateDisclosure;
       }
+
+      const ts = data.lastRefreshedAt ? new Date(data.lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+      if (statusText) {
+        statusText.textContent = feedIsStale
+          ? 'Feed Stale (>6h) · Prices Paused'
+          : `${sourceMode} · Last checked ${ts} (${dealsData.length} deals)`;
+      }
+
+      if (checkedDetail && Array.isArray(data.sourcesStatus)) {
+        const srcSummary = data.sourcesStatus.map(s => `${s.name}: ${s.status === 'ok' ? s.itemCount + ' items' : 'offline'}`).join(' · ');
+        checkedDetail.textContent = `Last checked: ${data.lastCheckedLabel || ts} (15-min scheduled refresh) · ${srcSummary}`;
+      }
+
+      if (staleBanner) {
+        if (feedIsStale) {
+          staleBanner.classList.remove('hidden');
+          staleBanner.textContent = 'Upstream feeds exceeded the 6-hour freshness limit. Prices are hidden until live feeds recover.';
+        } else {
+          staleBanner.classList.add('hidden');
+        }
+      }
+
+      buildStoreButtons();
       renderDeals();
     }
 
-    function renderDeals() {
-      const search = document.getElementById('search-input').value.toLowerCase();
-      const sort = document.getElementById('sort-select').value;
-      const grid = document.getElementById('deals-grid');
-
-      let filtered = dealsData.filter(d => {
-        const matchesSearch = d.title.toLowerCase().includes(search);
-        let matchesStore = true;
-
-        if (currentStore === 'blackfriday') {
-          matchesStore = d.isBlackFriday;
-        } else if (currentStore !== 'all') {
-          matchesStore = d.store === currentStore || (currentStore === 'Amazon USA' && d.amazonUsa) || (currentStore === 'Amazon India' && d.amazonIn);
+    async function loadServerDeals() {
+      try {
+        const res = await fetch('/api/deals', { cache: 'no-store' });
+        if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+          const data = await res.json();
+          applyPayload(data, 'Server 15m Sync Active');
+          return;
         }
-        return matchesSearch && matchesStore;
-      });
+      } catch (e) { /* fallback below */ }
 
-      // Sorting
-      if (sort === 'discount') {
-        filtered.sort((a, b) => b.discountPct - a.discountPct);
-      } else if (sort === 'price-low') {
-        filtered.sort((a, b) => (a.priceUsd || a.priceInr) - (b.priceUsd || b.priceInr));
-      } else if (sort === 'price-high') {
-        filtered.sort((a, b) => (b.priceUsd || b.priceInr) - (a.priceUsd || a.priceInr));
+      try {
+        const staticRes = await fetch('./deals-feed.json?t=' + Date.now(), { cache: 'no-store' });
+        if (staticRes.ok) {
+          const staticData = await staticRes.json();
+          applyPayload(staticData, 'Automated Static Sync');
+          return;
+        }
+      } catch (e) { /* failed both */ }
+
+      const grid = document.getElementById('deals-grid');
+      if (grid) {
+        grid.innerHTML = '<div class="col-span-full p-8 rounded-2xl bg-slate-900 border border-rose-500/40 text-center text-rose-300 text-xs font-mono">Unable to connect to live deal sources right now. Click Sync Now to retry.</div>';
+      }
+    }
+
+    async function triggerManualSync() {
+      const btn = document.getElementById('refresh-now-btn');
+      if (btn) btn.textContent = 'Syncing...';
+      try {
+        await fetch('/api/deals/refresh', { method: 'POST' });
+      } catch (e) { /* ignore on static */ }
+      await loadServerDeals();
+      if (btn) btn.textContent = 'Sync Now';
+    }
+
+    function buildStoreButtons() {
+      const container = document.getElementById('filter-buttons');
+      if (!container) return;
+
+      const counts = new Map();
+      let bfCount = 0;
+      for (const d of dealsData) {
+        const st = d.primaryStore || d.merchant || 'Retailer';
+        counts.set(st, (counts.get(st) || 0) + 1);
+        if (d.isBlackFriday) bfCount += 1;
       }
 
-      grid.innerHTML = filtered.map(d => `
+      const topStores = Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 7);
+
+      const buttons = [
+        { id: 'all', label: `All Deals (${dealsData.length})` },
+        { id: 'blackfriday', label: `Black Friday 2026 (${bfCount})` },
+        ...topStores.map(([name, cnt]) => ({ id: name, label: `${name} (${cnt})` }))
+      ];
+
+      container.innerHTML = buttons.map(b => {
+        const active = currentStore === b.id;
+        const cls = active
+          ? (b.id === 'blackfriday' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950')
+          : (b.id === 'blackfriday' ? 'bg-slate-950 border border-rose-500/40 text-rose-300 hover:bg-rose-950/40' : 'bg-slate-950 border border-slate-800 text-slate-300 hover:text-white');
+        return `<button onclick="filterStore('${esc(b.id)}')" class="px-3.5 py-1.5 rounded-full font-bold ${cls}">${esc(b.label)}</button>`;
+      }).join('');
+    }
+
+    function renderDeals() {
+      const search = (document.getElementById('search-input')?.value || '').toLowerCase();
+      const cat = document.getElementById('category-select')?.value || 'all';
+      const sort = document.getElementById('sort-select')?.value || 'newest';
+      const grid = document.getElementById('deals-grid');
+      if (!grid) return;
+
+      let filtered = dealsData.filter(d => {
+        const matchesSearch = !search ||
+          (d.title || '').toLowerCase().includes(search) ||
+          (d.merchant || '').toLowerCase().includes(search) ||
+          (d.description || '').toLowerCase().includes(search);
+        const matchesCat = cat === 'all' || d.category === cat;
+        let matchesStore = true;
+        if (currentStore === 'blackfriday') matchesStore = Boolean(d.isBlackFriday);
+        else if (currentStore !== 'all') matchesStore = (d.primaryStore || d.merchant) === currentStore;
+        return matchesSearch && matchesCat && matchesStore;
+      });
+
+      if (sort === 'discount') {
+        filtered.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+      } else if (sort === 'price-low') {
+        filtered.sort((a, b) => a.currentPrice - b.currentPrice);
+      } else if (sort === 'price-high') {
+        filtered.sort((a, b) => b.currentPrice - a.currentPrice);
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="col-span-full p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-400 text-xs font-mono">No deals match your current filter. Try All Deals or clear search.</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(d => {
+        const curr = d.currency || 'USD';
+        const hasRef = typeof d.originalPrice === 'number' && d.originalPrice > d.currentPrice && d.discountPercent > 0;
+        const expiryBadge = d.expiresAt ? `<span class="text-[10px] text-amber-300 font-mono">Ends ${new Date(d.expiresAt).toLocaleDateString()}</span>` : '';
+        const couponBadge = d.couponCode ? `<div class="mt-2 px-2 py-1 rounded bg-slate-950 border border-amber-500/30 text-[10px] font-mono text-amber-300">Code: <strong>${esc(d.couponCode)}</strong></div>` : '';
+        return `
         <article class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-amber-500/40 transition-all shadow-lg">
           <div>
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
-                ${d.badge}
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border truncate max-w-[65%] ${d.isBlackFriday ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}">
+                ${esc(d.isBlackFriday ? 'Black Friday 2026' : (d.primaryStore || d.merchant))}
               </span>
-              <span class="text-[10px] font-mono font-bold text-rose-400 bg-rose-500/20 px-2 py-0.5 rounded border border-rose-500/30">
-                ${d.discountPct}% OFF
-              </span>
+              ${hasRef
+                ? `<span class="text-[10px] font-mono font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded border border-rose-500/30">${d.discountPercent}% OFF</span>`
+                : `<span class="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-500/15 px-2 py-0.5 rounded border border-cyan-500/30">${curr} DROP</span>`
+              }
             </div>
 
-            <div class="h-36 rounded-xl overflow-hidden bg-slate-950 mb-3 border border-slate-800">
-              <img src="${d.image}" alt="${d.title}" class="w-full h-full object-cover" />
+            <div class="relative h-36 rounded-xl overflow-hidden bg-slate-950 mb-3 border border-slate-800">
+              <img src="${esc(d.imageUrl)}" alt="${esc(d.title)}" loading="lazy" referrerPolicy="no-referrer" class="w-full h-full object-contain p-1 bg-slate-950" />
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/90 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[9px]">${esc(d.merchant)}</span>
             </div>
 
-            <h3 class="font-bold text-xs text-white line-clamp-2 leading-snug">${d.title}</h3>
+            <h3 class="font-bold text-xs text-white line-clamp-2 leading-snug">${esc(d.title)}</h3>
 
             <div class="mt-2.5 flex items-baseline gap-2 font-mono">
-              <span class="text-lg font-black text-amber-400">
-                ${d.priceUsd ? '$' + d.priceUsd.toLocaleString('en-US') : '₹' + d.priceInr.toLocaleString('en-IN')}
-              </span>
-              <span class="text-xs text-slate-500 line-through">
-                ${d.originalUsd ? '$' + d.originalUsd.toLocaleString('en-US') : '₹' + d.originalInr.toLocaleString('en-IN')}
-              </span>
+              <span class="text-lg font-black text-amber-400">${fmtPrice(d.currentPrice, curr)}</span>
+              ${hasRef ? `<span class="text-xs text-slate-500 line-through">${fmtPrice(d.originalPrice, curr)}</span>` : ''}
             </div>
+
+            <div class="mt-1 flex items-center justify-between text-[10px] text-emerald-400 font-mono">
+              <span>${esc(d.availability || 'Active at check')}</span>
+              ${expiryBadge}
+            </div>
+            ${couponBadge}
           </div>
 
           <div class="mt-4 pt-3 border-t border-slate-800 space-y-1.5">
-            <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono font-bold">
-              ${d.amazonUsa ? `<a href="${d.amazonUsa}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-center">🇺🇸 Amazon US ↗</a>` : ''}
-              ${d.amazonIn ? `<a href="${d.amazonIn}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-center">🇮🇳 Amazon IN ↗</a>` : ''}
-              ${d.walmart && !d.amazonIn ? `<a href="${d.walmart}" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-center">🏬 Walmart ↗</a>` : ''}
-            </div>
+            <a href="${esc(d.affiliateUrl)}" target="_blank" rel="noopener noreferrer sponsored" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center transition-all">
+              View Deal at ${esc(d.merchant)} ↗
+            </a>
           </div>
-        </article>
-      `).join('');
+        </article>`;
+      }).join('');
     }
 
     function filterStore(store) {
       currentStore = store;
-
-      document.querySelectorAll('.store-btn').forEach(btn => {
-        btn.classList.remove('bg-amber-500', 'text-slate-950');
-        btn.classList.add('bg-slate-950', 'text-slate-300');
-      });
-
-      const activeBtn = document.getElementById(
-        store === 'all' ? 'btn-all' : store === 'blackfriday' ? 'btn-blackfriday' : store === 'Amazon USA' ? 'btn-usa' : store === 'Amazon India' ? 'btn-india' : 'btn-walmart'
-      );
-      if (activeBtn) {
-        activeBtn.classList.remove('bg-slate-950', 'text-slate-300');
-        activeBtn.classList.add('bg-amber-500', 'text-slate-950');
-      }
-
+      buildStoreButtons();
       renderDeals();
     }
 
     document.getElementById('search-input').addEventListener('input', renderDeals);
     loadServerDeals();
-    setInterval(loadServerDeals, 15000); // 15-second real-time polling
+    setInterval(loadServerDeals, 30000);
   </script>
 </body>
 </html>

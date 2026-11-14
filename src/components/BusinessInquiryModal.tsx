@@ -69,12 +69,41 @@ export const BusinessInquiryModal: React.FC<BusinessInquiryModalProps> = ({
   const estimatedSavings = Math.round((volumeUsd * discountPct) / 100);
   const finalEstimate = volumeUsd - estimatedSavings;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !company) return;
 
+    let serverTicketId = `RFQ-${Math.floor(10000 + Math.random() * 90000)}`;
+    try {
+      const res = await fetch('/api/inquiries/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          company,
+          email,
+          phone,
+          country,
+          category,
+          volumeUsd,
+          message: message || 'Standard B2B Business Quote & Partnership Request',
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.ticketId) serverTicketId = data.ticketId;
+      }
+      fetch('/api/analytics/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'inquiry_submit', label: category }),
+      }).catch(() => {});
+    } catch {
+      // fallback keeps local history on static host
+    }
+
     const newInquiry: SavedInquiry = {
-      id: `RFQ-${Math.floor(10000 + Math.random() * 90000)}`,
+      id: serverTicketId,
       timestamp: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
       name,
       company,

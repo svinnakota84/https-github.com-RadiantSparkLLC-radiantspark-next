@@ -4,47 +4,67 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { X, ShieldCheck, Database, RefreshCw, BarChart3, Users, Building2, Truck, FileText, CheckCircle2, AlertCircle, ExternalLink } from 'lucide-react';
+import { X, RefreshCw } from 'lucide-react';
 
 interface OwnerDashboardModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+interface HealthSummary {
+  status: string;
+  uptimeSeconds: number;
+  dealsCount: number;
+  lastRefresh: string;
+  refreshIntervalMinutes: number;
+  isStale?: boolean;
+}
+
+interface OwnerOverview {
+  inquiries: any[];
+  suppliers: any[];
+  analytics: {
+    dealClicks: number;
+    inquirySubmissions: number;
+    supplierSubmissions: number;
+  };
+  smtpConfigured: boolean;
+  affiliateTagsConfigured: boolean;
+}
+
 export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<'leads' | 'suppliers' | 'sparkdeals' | 'analytics' | 'setup'>('leads');
-  const [healthData, setHealthData] = useState<{
-    status: string;
-    uptimeSeconds: number;
-    dealsCount: number;
-    lastRefresh: string;
-    refreshIntervalMinutes: number;
-  } | null>(null);
+  const [healthData, setHealthData] = useState<HealthSummary | null>(null);
+  const [overview, setOverview] = useState<OwnerOverview | null>(null);
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
-  const [isLoadingHealth, setIsLoadingHealth] = useState(false);
+  const loadDashboardData = async () => {
+    try {
+      const [hRes, oRes] = await Promise.all([
+        fetch('/api/health', { cache: 'no-store' }),
+        fetch('/api/owner/overview', { cache: 'no-store' }),
+      ]);
+      if (hRes.ok && (hRes.headers.get('content-type') || '').includes('application/json')) {
+        setHealthData(await hRes.json());
+      }
+      if (oRes.ok && (oRes.headers.get('content-type') || '').includes('application/json')) {
+        setOverview(await oRes.json());
+      }
+    } catch {
+      // Fallback on static deploy
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
-      setIsLoadingHealth(true);
-      fetch('/api/health')
-        .then((res) => res.json())
-        .then((data) => {
-          setHealthData(data);
-        })
-        .catch(() => {
-          setHealthData({
-            status: 'online',
-            uptimeSeconds: 3600,
-            dealsCount: 6,
-            lastRefresh: new Date().toISOString(),
-            refreshIntervalMinutes: 15,
-          });
-        })
-        .finally(() => setIsLoadingHealth(false));
+      void loadDashboardData();
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const inquiries = overview?.inquiries || [];
+  const suppliers = overview?.suppliers || [];
 
   return (
     <div
@@ -54,24 +74,21 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
       className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
     >
       <div className="w-full max-w-4xl bg-slate-950 border border-blue-500/50 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-slate-100 font-sans">
-        
         {/* Header */}
         <div className="p-6 bg-gradient-to-r from-slate-950 via-blue-950/80 to-slate-950 border-b border-slate-800 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-400/50 flex items-center justify-center text-blue-300 font-bold shadow-md">
-              👑
+              OPS
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-extrabold text-white">
-                  Executive Owner Control Console
-                </h3>
+                <h3 className="text-lg font-extrabold text-white">Executive Owner Control Console</h3>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold border border-emerald-500/30">
-                  ZERO MANUAL UPKEEP ACTIVE
+                  LIVE SERVER RECORDS
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Single secure owner dashboard for Radiant Spark LLC &amp; RDNT Sparkle Industries LLP
+                Single operations console for Radiant Spark LLC &amp; RDNT Sparkle Industries LLP
               </p>
             </div>
           </div>
@@ -79,6 +96,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center transition-colors"
+            aria-label="Close console"
           >
             <X className="w-4 h-4" />
           </button>
@@ -94,7 +112,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            💼 Client Inquiries &amp; RFQs
+            Client Inquiries ({inquiries.length})
           </button>
           <button
             onClick={() => setActiveTab('suppliers')}
@@ -104,7 +122,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            🤝 Supplier Intake Records
+            Supplier Intakes ({suppliers.length})
           </button>
           <button
             onClick={() => setActiveTab('sparkdeals')}
@@ -114,7 +132,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            ⚡ SparkDeals Automation
+            SparkDeals Automation
           </button>
           <button
             onClick={() => setActiveTab('analytics')}
@@ -124,7 +142,7 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            📊 Conversion &amp; Revenue Analytics
+            Event Counters
           </button>
           <button
             onClick={() => setActiveTab('setup')}
@@ -134,240 +152,206 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            ⚙️ One-Time Setup Guide
+            Integration Setup
           </button>
         </div>
 
         {/* Tab Content Body */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6 text-xs text-slate-300">
-          
-          {/* TAB 1: CLIENT INQUIRIES & RFQS */}
           {activeTab === 'leads' && (
             <div className="space-y-4">
               <div className="p-4 rounded-2xl bg-blue-950/30 border border-blue-500/30 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">Client &amp; Consulting Intake Feed</h4>
+                  <h4 className="text-sm font-extrabold text-white">Persisted Client Inquiries &amp; RFQs</h4>
                   <p className="text-[11px] text-slate-400">
-                    Validated RFQs submitted via Oracle Consulting (USA) or Regional Distributorship (India)
+                    Real submissions stored via POST /api/inquiries/submit
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-xl bg-blue-500/20 text-blue-300 font-mono text-xs font-bold border border-blue-500/40">
-                  SERVER PERSISTED
+                  {inquiries.length} RECORDED
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 font-mono text-[11px]">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-slate-400 font-bold">
-                  <span>TICKET ID / DATE</span>
-                  <span>CLIENT NAME &amp; CATEGORY</span>
-                  <span>CONTACT / REGION</span>
-                  <span>STATUS</span>
+              {inquiries.length === 0 ? (
+                <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-400 font-mono text-xs">
+                  No client inquiries recorded yet on this server. Submit an RFQ to see it logged here in real time.
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-slate-800/60">
-                  <span className="text-blue-400 font-bold">INQ-2026-9812</span>
-                  <span className="text-white">Enterprise Cloud Advisory (Oracle OIC)</span>
-                  <span className="text-slate-300">USA (Georgia)</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">NEW INQUIRY</span>
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 font-mono text-[11px]">
+                  {inquiries.map((inq) => (
+                    <div key={inq.id} className="flex flex-wrap items-center justify-between gap-2 py-2 border-b border-slate-800/60">
+                      <span className="text-blue-400 font-bold">{inq.id}</span>
+                      <span className="text-white">{inq.company} · {inq.category}</span>
+                      <span className="text-slate-300">{inq.country} (${Number(inq.volumeUsd || 0).toLocaleString()})</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px]">{inq.status}</span>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-slate-800/60">
-                  <span className="text-blue-400 font-bold">INQ-2026-8841</span>
-                  <span className="text-white">B2B EV Fleet &amp; Solar Distribution</span>
-                  <span className="text-slate-300">India (Andhra Pradesh)</span>
-                  <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px]">IN REVIEW</span>
-                </div>
-              </div>
+              )}
 
               <p className="text-[11px] text-slate-400 italic">
-                Note: Inquiries are automatically saved in the database under <code className="text-cyan-300 font-mono">/api/inquiries/submit</code>. Email notifications can be activated once outbound SMTP credentials are configured.
+                Email delivery status: {overview?.smtpConfigured ? 'SMTP Configured' : 'SMTP credentials not configured — saving locally to server disk only.'}
               </p>
             </div>
           )}
 
-          {/* TAB 2: SUPPLIER INTAKE RECORDS */}
           {activeTab === 'suppliers' && (
             <div className="space-y-4">
               <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/30 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">Supplier &amp; Vendor Qualification Intake</h4>
+                  <h4 className="text-sm font-extrabold text-white">Supplier Qualification Applications</h4>
                   <p className="text-[11px] text-slate-400">
-                    Vendor proposals for Solar Hardware, Botanical Extracts, Aluminum Cans, and Cold-Chain Logistics
+                    Stored via POST /api/suppliers/submit without automatic binding purchase orders
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-mono text-xs font-bold border border-amber-500/40">
-                  PROCUREMENT ENGINE
+                  {suppliers.length} RECORDED
                 </span>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 font-mono text-[11px]">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-slate-400 font-bold">
-                  <span>SUPPLIER TICKET</span>
-                  <span>COMPANY &amp; CATEGORY</span>
-                  <span>CAPACITY / MOQ</span>
-                  <span>DISCLAIMER</span>
+              {suppliers.length === 0 ? (
+                <div className="p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-400 font-mono text-xs">
+                  No supplier applications recorded yet on this server.
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-slate-800/60">
-                  <span className="text-amber-400 font-bold">SUP-778219</span>
-                  <span className="text-white">Clean Energy &amp; Solar Hardware Supplier</span>
-                  <span className="text-slate-300">10,000 units / mo</span>
-                  <span className="text-emerald-400">DRAFT GUIDELINES ACKNOWLEDGED</span>
+              ) : (
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2 font-mono text-[11px]">
+                  {suppliers.map((sup) => (
+                    <div key={sup.id} className="flex flex-wrap items-center justify-between gap-2 py-2 border-b border-slate-800/60">
+                      <span className="text-amber-400 font-bold">{sup.id}</span>
+                      <span className="text-white">{sup.companyName} ({sup.category})</span>
+                      <span className="text-slate-300">{sup.capacityMoq}</span>
+                      <span className="text-emerald-400">{sup.status}</span>
+                    </div>
+                  ))}
                 </div>
-
-                <div className="flex items-center justify-between py-2 border-b border-slate-800/60">
-                  <span className="text-amber-400 font-bold">SUP-662910</span>
-                  <span className="text-white">Beverage Botanical Extracts &amp; Cans</span>
-                  <span className="text-slate-300">50,000 cans / mo</span>
-                  <span className="text-emerald-400">DRAFT GUIDELINES ACKNOWLEDGED</span>
-                </div>
-              </div>
-
-              <p className="text-[11px] text-slate-400 italic">
-                Note: Submissions do not create binding purchase commitments until formal human executive execution.
-              </p>
+              )}
             </div>
           )}
 
-          {/* TAB 3: SPARKDEALS AUTOMATION */}
           {activeTab === 'sparkdeals' && (
             <div className="space-y-4">
               <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">SparkDeals Server Automation Status</h4>
+                  <h4 className="text-sm font-extrabold text-white">SparkDeals Live Feed Scheduler</h4>
                   <p className="text-[11px] text-slate-400">
-                    Scheduled background worker running every 15 minutes with link validation and price freshness limits
+                    Runs automatically every 15 minutes with deduplication, expired item suppression, and 6-hour freshness enforcement
                   </p>
                 </div>
                 <button
-                  onClick={() => {
-                    fetch('/api/deals/refresh', { method: 'POST' })
-                      .then((r) => r.json())
-                      .then(() => alert('SparkDeals background refresh triggered successfully!'));
+                  onClick={async () => {
+                    setSyncNotice('Triggering sync...');
+                    try {
+                      const r = await fetch('/api/deals/refresh', { method: 'POST' });
+                      const d = await r.json();
+                      setSyncNotice(`Synced ${d.totalDeals} verified deals (${d.status}).`);
+                      await loadDashboardData();
+                    } catch {
+                      setSyncNotice('Manual server sync unavailable on static host.');
+                    }
                   }}
                   className="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
-                  <span>Trigger Manual Sync</span>
+                  <span>Trigger Live Sync</span>
                 </button>
               </div>
 
+              {syncNotice && (
+                <div className="p-3 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-300 font-mono text-xs">
+                  {syncNotice}
+                </div>
+              )}
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-[11px]">
                 <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px] block">SERVER WORKER HEALTH</span>
-                  <strong className="text-emerald-400 text-sm block">ONLINE (Active)</strong>
-                  <span className="text-slate-500 text-[9px]">15-Min Timer Loop Running</span>
+                  <span className="text-slate-400 text-[10px] block">SCHEDULER STATUS</span>
+                  <strong className="text-emerald-400 text-sm block uppercase">
+                    {healthData?.status || 'Unknown'}
+                  </strong>
+                  <span className="text-slate-500 text-[9px]">
+                    Every {healthData?.refreshIntervalMinutes || 15} mins
+                  </span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
                   <span className="text-slate-400 text-[10px] block">ACTIVE DEALS COUNT</span>
-                  <strong className="text-white text-sm block">{healthData?.dealsCount || 6} Verified Offers</strong>
-                  <span className="text-slate-500 text-[9px]">Deduplicated &amp; Filtered</span>
+                  <strong className="text-white text-sm block">{healthData?.dealsCount ?? 0} Live Offers</strong>
+                  <span className="text-slate-500 text-[9px]">Deduplicated &amp; Non-Expired</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
                   <span className="text-slate-400 text-[10px] block">LAST CHECKED TIMESTAMP</span>
                   <strong className="text-amber-300 text-xs block truncate">
-                    {healthData?.lastRefresh ? new Date(healthData.lastRefresh).toLocaleTimeString() : 'Real-time'}
+                    {healthData?.lastRefresh ? new Date(healthData.lastRefresh).toLocaleTimeString() : 'Pending'}
                   </strong>
-                  <span className="text-slate-500 text-[9px]">Zero manual maintenance</span>
+                  <span className="text-slate-500 text-[9px]">Automated refresh</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* TAB 4: CONVERSION & REVENUE ANALYTICS */}
           {activeTab === 'analytics' && (
             <div className="space-y-4">
               <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">Privacy-Compliant Revenue &amp; Lead Tracking</h4>
+                  <h4 className="text-sm font-extrabold text-white">Recorded Conversion &amp; Outbound Counters</h4>
                   <p className="text-[11px] text-slate-400">
-                    Event analytics distinguishing outbound deal clicks, consultation requests, and supplier inquiries
+                    Actual server event counters only — outbound clicks do not represent earned affiliate commission revenue
                   </p>
                 </div>
                 <span className="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/40">
-                  REAL METRICS ONLY
+                  ZERO ESTIMATED METRICS
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-center text-[11px]">
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Oracle Consulting RFQs</span>
-                  <strong className="text-blue-400 text-xl block mt-1">12</strong>
-                  <span className="text-slate-500 text-[9px]">High-Value US Leads</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-center text-[11px]">
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400 text-[10px] block">Logged Inquiries</span>
+                  <strong className="text-blue-400 text-2xl block mt-1">
+                    {overview?.analytics?.inquirySubmissions ?? inquiries.length}
+                  </strong>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">India Distributorships</span>
-                  <strong className="text-amber-400 text-xl block mt-1">28</strong>
-                  <span className="text-slate-500 text-[9px]">Regional Partners</span>
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                  <span className="text-slate-400 text-[10px] block">Outbound Deal Clicks</span>
+                  <strong className="text-cyan-300 text-2xl block mt-1">
+                    {overview?.analytics?.dealClicks ?? 0}
+                  </strong>
                 </div>
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Outbound Affiliate Clicks</span>
-                  <strong className="text-cyan-300 text-xl block mt-1">342</strong>
-                  <span className="text-slate-500 text-[9px]">Merchant Deep-Links</span>
-                </div>
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800">
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
                   <span className="text-slate-400 text-[10px] block">Supplier Applications</span>
-                  <strong className="text-purple-300 text-xl block mt-1">9</strong>
-                  <span className="text-slate-500 text-[9px]">Vendor Proposals</span>
+                  <strong className="text-purple-300 text-2xl block mt-1">
+                    {overview?.analytics?.supplierSubmissions ?? suppliers.length}
+                  </strong>
                 </div>
               </div>
-
-              <p className="text-[11px] text-slate-400 italic">
-                Notice: Outbound clicks do not represent earned revenue until merchant affiliate attribution settles. Never count raw clicks as guaranteed cash income.
-              </p>
             </div>
           )}
 
-          {/* TAB 5: ONE-TIME SETUP GUIDE */}
           {activeTab === 'setup' && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-purple-950/30 border border-purple-500/30 space-y-2">
-                <h4 className="text-sm font-extrabold text-white">Owner Integration Checklist &amp; Human Responsibilities</h4>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  The website, server scheduler, forms, and legal disclaimers are 100% built and operational with zero routine manual maintenance required. To activate live outbound email notifications or direct affiliate API credentials, complete these optional one-time setups:
+            <div className="space-y-3 font-mono text-[11px]">
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                <strong className="text-purple-300 block">1. Official Affiliate Tags &amp; Retailer API Keys</strong>
+                <p className="text-slate-300 font-sans">
+                  Configure <code className="text-cyan-300">AMAZON_AFFILIATE_TAG</code> and <code className="text-cyan-300">AMAZON_INDIA_TAG</code> in environment variables (or GitHub Actions secrets for static sync) to attach official affiliate attribution server-side.
                 </p>
               </div>
-
-              <div className="space-y-3 font-mono text-[11px]">
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                  <strong className="text-purple-300 block">1. Outbound SMTP Credentials (Optional)</strong>
-                  <p className="text-slate-300 font-sans">
-                    Add <code className="text-cyan-300">SMTP_HOST</code>, <code className="text-cyan-300">SMTP_USER</code>, and <code className="text-cyan-300">SMTP_PASS</code> in server environment variables to send instant automated email notifications to leadership upon new form submission.
-                  </p>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                  <strong className="text-purple-300 block">2. Amazon Associates &amp; Retailer Affiliate API Keys (Optional)</strong>
-                  <p className="text-slate-300 font-sans">
-                    Add your official Amazon Associate Tag (<code className="text-cyan-300">AMAZON_AFFILIATE_TAG</code>) in environment variables to append custom tracking IDs to all outbound deal buttons.
-                  </p>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                  <strong className="text-purple-300 block">3. Independent Legal Counsel Final Sign-Off</strong>
-                  <p className="text-slate-300 font-sans">
-                    Share the Draft Master Consulting SOW and Draft Vendor Terms of Supply with your legal counsel for final custom jurisdiction tweaks before signing commercial contracts.
-                  </p>
-                </div>
+              <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
+                <strong className="text-purple-300 block">2. Outbound SMTP Credentials (Optional)</strong>
+                <p className="text-slate-300 font-sans">
+                  Set <code className="text-cyan-300">SMTP_HOST</code>, <code className="text-cyan-300">SMTP_USER</code>, and <code className="text-cyan-300">SMTP_PASS</code> in server environment variables to send email alerts on new leads.
+                </p>
               </div>
             </div>
           )}
-
         </div>
 
         {/* Footer */}
         <div className="p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs font-mono text-slate-400">
-          <span>Logged in as: <strong className="text-white">Owner / Executive Admin</strong></span>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs"
-          >
+          <span>Console Status: <strong className="text-white">Server Synced</strong></span>
+          <button onClick={onClose} className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs">
             Close Console
           </button>
         </div>
-
       </div>
     </div>
   );

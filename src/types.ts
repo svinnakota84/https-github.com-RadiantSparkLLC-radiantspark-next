@@ -109,25 +109,48 @@ export interface ShipmentDispatch {
 export interface DealItem {
   id: string;
   title: string;
-  category: 'energy' | 'electronics' | 'beverages' | 'food' | 'logistics';
+  category:
+    | 'energy'
+    | 'electronics'
+    | 'beverages'
+    | 'food'
+    | 'logistics'
+    | 'home'
+    | 'apparel'
+    | 'gaming'
+    | 'lifestyle';
   currentPrice: number;
-  originalPrice: number;
-  discountPercent: number;
+  originalPrice?: number | null;
+  discountPercent?: number | null;
+  currency?: 'USD' | 'INR';
   merchant: string;
   merchantVerified: boolean;
   score: number;
   upvoted?: boolean;
-  couponCode?: string;
+  couponCode?: string | null;
   affiliateUrl: string;
   amazonUsaUrl?: string;
   amazonIndiaUrl?: string;
   walmartUrl?: string;
   flipkartUrl?: string;
-  primaryStore?: 'Amazon USA' | 'Amazon India' | 'Walmart' | 'Flipkart' | 'Sparkle Direct' | 'Tata Neu';
+  primaryStore?:
+    | 'Amazon USA'
+    | 'Amazon India'
+    | 'Walmart'
+    | 'Flipkart'
+    | 'Sparkle Direct'
+    | 'Tata Neu'
+    | string;
   imageUrl: string;
   description: string;
   badges: string[];
-  expiresInHours: number;
+  expiresInHours?: number | null;
+  expiresAt?: string | null;
+  publishedAt?: string;
+  availability?: string;
+  sourceFeed?: string;
+  isBlackFriday?: boolean;
+  lastChecked?: string;
   specifications: string[];
   highlight: string;
 }

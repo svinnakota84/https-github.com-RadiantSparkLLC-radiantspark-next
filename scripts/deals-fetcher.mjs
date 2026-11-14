@@ -1,0 +1,592 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import crypto from 'node:crypto';
+
+export const FRESHNESS_LIMIT_MINUTES = 360; // 6 hours max price trustworthiness window
+export const REFRESH_INTERVAL_MINUTES = 15;
+
+export const AFFILIATE_DISCLOSURE =
+  'Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers. Verify final pricing, taxes, shipping, and stock directly on the merchant checkout page.';
+
+const DEFAULT_FALLBACK_IMAGES = {
+  electronics: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+  home: 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=800&q=80',
+  gaming: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80',
+  apparel: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80',
+  energy: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+  beverages: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
+  food: 'https://images.unsplash.com/photo-1509912760195-455b87131976?auto=format&fit=crop&w=800&q=80',
+  lifestyle: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
+  logistics: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80',
+};
+
+function decodeEntities(str = '') {
+  return String(str)
+    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(parseInt(dec, 10)))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
+function stripHtml(str = '') {
+  return decodeEntities(str)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getTagValue(xml, tagName) {
+  const escaped = tagName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = xml.match(new RegExp(`<${escaped}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${escaped}>`, 'i'));
+  return match ? decodeEntities(match[1]).trim() : '';
+}
+
+function getTagAttribute(xml, tagName, attrName) {
+  const escapedTag = tagName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedAttr = attrName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = xml.match(new RegExp(`<${escapedTag}[^>]*\\s${escapedAttr}=["']([^"']+)["']`, 'i'));
+  return match ? decodeEntities(match[1]).trim() : '';
+}
+
+function normalizePriceNumber(raw) {
+  if (raw === undefined || raw === null || raw === '') return null;
+  const num = Number(String(raw).replace(/[^0-9.]/g, ''));
+  if (!Number.isFinite(num) || num <= 0) return null;
+  return Math.round(num * 100) / 100;
+}
+
+function extractPricesFromText(title, description, explicitPriceStr = '') {
+  const explicitPrice = normalizePriceNumber(explicitPriceStr);
+
+  // Look for current price in title if explicit tag wasn't provided
+  let currentPrice = explicitPrice;
+  if (!currentPrice) {
+    const titlePriceMatch = title.match(/\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|\d+(?:\.\d{1,2})?)/);
+    if (titlePriceMatch) {
+      currentPrice = normalizePriceNumber(titlePriceMatch[1]);
+    }
+  }
+  if (!currentPrice) {
+    const descPriceMatch = description.match(/(?:for|on sale for|price(?: is)?|now)\s*\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|\d+(?:\.\d{1,2})?)/i);
+    if (descPriceMatch) {
+      currentPrice = normalizePriceNumber(descPriceMatch[1]);
+    }
+  }
+
+  // Only extract an original / reference price when explicitly stated
+  let originalPrice = null;
+  const combined = `${title} ${description}`;
+  const refPatterns = [
+    /off\s+(?:the\s+|its\s+)?\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?)\s*(?:list|reg|regular|original|msrp)?/i,
+    /(?:list price|reg\.?|regular(?:ly)?|was|msrp|usually|compare at|retail price)[:\s]*(?:of\s*)?\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?)/i,
+    /\(\s*(?:reg\.?|was|list)\s*\$([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?)\s*\)/i,
+  ];
+
+  for (const pat of refPatterns) {
+    const m = combined.match(pat);
+    if (m && m[1]) {
+      const candidate = normalizePriceNumber(m[1]);
+      if (candidate && currentPrice && candidate > currentPrice && candidate < currentPrice * 15) {
+        originalPrice = candidate;
+        break;
+      }
+    }
+  }
+
+  let discountPercent = null;
+  if (currentPrice && originalPrice && originalPrice > currentPrice) {
+    discountPercent = Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
+    if (discountPercent <= 0 || discountPercent >= 95) {
+      originalPrice = null;
+      discountPercent = null;
+    }
+  }
+
+  return { currentPrice, originalPrice, discountPercent };
+}
+
+function extractCouponCode(text) {
+  const m = text.match(/(?:apply\s+)?(?:coupon|promo)\s+code\s*[:\-]?\s*["']?([A-Z0-9]{4,20})["']?/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+function mapCategory(rawCategory = '', title = '') {
+  const hay = `${rawCategory} ${title}`.toLowerCase();
+  if (/\b(tv|oled|qled|laptop|macbook|ipad|tablet|headphone|headphones|earbud|earbuds|airpod|airpods|ssd|nvme|monitor|usb|charger|router|camera|speaker|smartwatch|watch|iphone|pixel|gpu|cpu|pc|keyboard|mouse|tech|electronic|electronics|computer|audio|roku|fire stick|kindle)\b/.test(hay)) {
+    return 'electronics';
+  }
+  if (/\b(playstation|ps5|xbox|nintendo|switch|gaming|game|controller|steam|rtx)\b/.test(hay)) {
+    return 'gaming';
+  }
+  if (/\b(solar|ev|battery|batteries|power station|inverter|generator|panel|ups|ecoflow|jackery)\b/.test(hay)) {
+    return 'energy';
+  }
+  if (/\b(shirt|jacket|shoe|shoes|sneaker|sneakers|jeans|pant|pants|hoodie|apparel|clothing|boot|boots|backpack|travel pack|pack|luggage|bag|sunglass|sunglasses|coat|sweater|socks)\b/.test(hay)) {
+    return 'apparel';
+  }
+  if (/\b(drink|coffee|tea|tumbler|bottle|beverage|espresso|water|yeti|stanley)\b/.test(hay)) {
+    return 'beverages';
+  }
+  if (/\b(food|snack|snacks|almond|almonds|cashew|grocery|protein|chocolate|kitchen|air fryer|blender|cookware|skillet|pan|knife|coffee maker|instant pot)\b/.test(hay)) {
+    return 'food';
+  }
+  if (/\b(tool|tools|drill|dewalt|milwaukee|ryobi|spotlight|light|bulb|vacuum|mattress|chair|desk|patio|home|garden|furniture|heater|fan|storage|shelf)\b/.test(hay)) {
+    return 'home';
+  }
+  return 'lifestyle';
+}
+
+function extractDirectMerchantLinks(htmlOrText = '', affiliateUrl = '', merchant = '') {
+  const urls = htmlOrText.match(/https?:\/\/[^\s"'<>]+/g) || [];
+  let amazonUsaUrl;
+  let amazonIndiaUrl;
+  let walmartUrl;
+
+  for (const raw of urls) {
+    try {
+      const u = new URL(raw);
+      if (u.hostname.includes('amazon.com') && !amazonUsaUrl) {
+        if (process.env.AMAZON_AFFILIATE_TAG && !u.searchParams.has('tag')) {
+          u.searchParams.set('tag', process.env.AMAZON_AFFILIATE_TAG);
+        }
+        amazonUsaUrl = u.toString();
+      } else if (u.hostname.includes('amazon.in') && !amazonIndiaUrl) {
+        if (process.env.AMAZON_INDIA_TAG && !u.searchParams.has('tag')) {
+          u.searchParams.set('tag', process.env.AMAZON_INDIA_TAG);
+        }
+        amazonIndiaUrl = u.toString();
+      } else if (u.hostname.includes('walmart.com') && !walmartUrl) {
+        walmartUrl = u.toString();
+      }
+    } catch {
+      // ignore invalid URL fragment
+    }
+  }
+
+  return { amazonUsaUrl, amazonIndiaUrl, walmartUrl };
+}
+
+function normalizeMerchantName(raw = '', link = '') {
+  const s = String(raw || '').trim();
+  const lower = s.toLowerCase();
+  if (lower.includes('amazon.in')) return 'Amazon India';
+  if (lower.includes('amazon')) return 'Amazon USA';
+  if (lower.includes('walmart')) return 'Walmart';
+  if (lower.includes('homedepot') || lower.includes('home depot')) return 'Home Depot';
+  if (lower.includes('bestbuy') || lower.includes('best buy')) return 'Best Buy';
+  if (lower.includes('target')) return 'Target';
+  if (lower.includes('lowes') || lower.includes("lowe's")) return "Lowe's";
+  if (lower.includes('costco')) return 'Costco';
+  if (lower.includes('newegg')) return 'Newegg';
+  if (lower.includes('ebay')) return 'eBay';
+  if (lower.includes('woot')) return 'Woot';
+  if (lower.includes('lenovo')) return 'Lenovo';
+  if (lower.includes('samsung')) return 'Samsung';
+  if (lower.includes('flipkart')) return 'Flipkart';
+  if (lower.includes('bhphotovideo') || lower.includes('b&h')) return 'B&H Photo';
+  if (lower.includes('adorama')) return 'Adorama';
+  if (s) {
+    return s
+      .replace(/^www\./i, '')
+      .replace(/\.com$/i, '')
+      .replace(/^\w/, (c) => c.toUpperCase());
+  }
+  if (link.includes('amazon.in')) return 'Amazon India';
+  if (link.includes('amazon.com')) return 'Amazon USA';
+  return 'Verified Merchant';
+}
+
+function buildDirectDealUrl(rawUrl, merchant) {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+    const amazonUsTag = process.env.AMAZON_AFFILIATE_TAG;
+    const amazonInTag = process.env.AMAZON_INDIA_TAG;
+    if (parsed.hostname.includes('amazon.com') && amazonUsTag && !parsed.searchParams.has('tag')) {
+      parsed.searchParams.set('tag', amazonUsTag);
+    }
+    if (parsed.hostname.includes('amazon.in') && amazonInTag && !parsed.searchParams.has('tag')) {
+      parsed.searchParams.set('tag', amazonInTag);
+    }
+    return parsed.toString();
+  } catch {
+    return '';
+  }
+}
+
+function isDealExpiredOrUnavailable(title, description, expiresIso) {
+  const hay = `${title} ${description}`.toLowerCase();
+  if (/\b(expired|out of stock|sold out|no longer available|deal ended|ood)\b/.test(hay)) {
+    return true;
+  }
+  if (expiresIso) {
+    const expMs = Date.parse(expiresIso);
+    if (!Number.isNaN(expMs) && expMs <= Date.now()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+async function fetchWithRetry(url, retries = 2) {
+  let lastError = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const started = Date.now();
+    try {
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'RadiantSparkDealsSync/2.0 (+https://radiantsparkllc.com)',
+          Accept: 'application/rss+xml, application/xml, text/xml, */*',
+        },
+        signal: AbortSignal.timeout(9000),
+      });
+
+      if (res.status === 429 || res.status >= 500) {
+        const retryAfter = Number(res.headers.get('retry-after')) || (attempt + 1) * 1.5;
+        if (attempt < retries) {
+          await new Promise((r) => setTimeout(r, Math.min(retryAfter * 1000, 4000)));
+          continue;
+        }
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
+      const text = await res.text();
+      return { text, durationMs: Date.now() - started };
+    } catch (err) {
+      lastError = err;
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, (attempt + 1) * 800));
+      }
+    }
+  }
+  throw lastError || new Error('Feed fetch failed');
+}
+
+function parseDealNewsXml(xmlText, sourceName) {
+  const items = xmlText.match(/<item>[\s\S]*?<\/item>/gi) || [];
+  const parsed = [];
+
+  for (const itemXml of items) {
+    const rawTitle = stripHtml(getTagValue(itemXml, 'title'));
+    const link = buildDirectDealUrl(getTagValue(itemXml, 'link'));
+    const rawDescHtml = getTagValue(itemXml, 'description');
+    const summaryAttrMatch = rawDescHtml.match(/title="([^"]+)"/i);
+    const description = stripHtml(summaryAttrMatch ? decodeEntities(summaryAttrMatch[1]) : rawDescHtml)
+      .replace(/Buy Now at .*$/i, '')
+      .trim();
+
+    const retailerRaw = getTagValue(itemXml, 'dealnews:retailer');
+    const merchant = normalizeMerchantName(retailerRaw, link);
+    const expiresRaw = getTagValue(itemXml, 'dealnews:expires');
+    const priceAttrCurrency = getTagAttribute(itemXml, 'dealnews:price', 'currency') || 'USD';
+    const priceRaw = getTagValue(itemXml, 'dealnews:price');
+    const rawCat = getTagValue(itemXml, 'dealnews:category');
+    const pubDate = getTagValue(itemXml, 'pubDate');
+    const imageAttr = getTagAttribute(itemXml, 'media:content', 'url');
+    const imgFallbackMatch = rawDescHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+    const rawImage = imageAttr || (imgFallbackMatch ? decodeEntities(imgFallbackMatch[1]) : '');
+
+    if (!rawTitle || !link) continue;
+    if (isDealExpiredOrUnavailable(rawTitle, description, expiresRaw)) continue;
+
+    const { currentPrice, originalPrice, discountPercent } = extractPricesFromText(rawTitle, description, priceRaw);
+    if (!currentPrice) continue;
+
+    const category = mapCategory(rawCat, rawTitle);
+    const couponCode = extractCouponCode(description);
+    const isBlackFriday = /(black friday|cyber monday|thanksgiving|holiday|doorbuster)/i.test(`${rawTitle} ${description} ${rawCat}`);
+    const isStaffPick = getTagValue(itemXml, 'dealnews:staffPick').toLowerCase() === 'true';
+
+    let expiresInHours = null;
+    let expiresAt = null;
+    if (expiresRaw) {
+      const expMs = Date.parse(expiresRaw);
+      if (!Number.isNaN(expMs)) {
+        expiresAt = new Date(expMs).toISOString();
+        expiresInHours = Math.max(1, Math.round((expMs - Date.now()) / 3600000));
+      }
+    }
+
+    const badges = [merchant];
+    if (isBlackFriday) badges.unshift('Black Friday 2026');
+    else if (isStaffPick) badges.unshift('Editor Pick');
+    if (discountPercent && discountPercent >= 15) badges.push(`${discountPercent}% OFF`);
+    if (/free shipping|free s&h/i.test(`${rawTitle} ${description}`)) badges.push('Free Shipping');
+
+    const idHash = crypto.createHash('sha1').update(`dn:${rawTitle}:${merchant}`).digest('hex').slice(0, 10);
+    const merchantLinks = extractDirectMerchantLinks(rawDescHtml, link, merchant);
+
+    parsed.push({
+      id: `dn-${idHash}`,
+      title: rawTitle.replace(/\s+for\s+\$[\d,.]+.*$/i, '').trim() || rawTitle,
+      category,
+      currentPrice,
+      originalPrice,
+      discountPercent,
+      currency: priceAttrCurrency === 'INR' ? 'INR' : 'USD',
+      merchant,
+      merchantVerified: true,
+      score: isStaffPick ? 280 : isBlackFriday ? 220 : 140,
+      couponCode,
+      affiliateUrl: link,
+      amazonUsaUrl: merchantLinks.amazonUsaUrl,
+      amazonIndiaUrl: merchantLinks.amazonIndiaUrl,
+      walmartUrl: merchantLinks.walmartUrl,
+      primaryStore: merchant,
+      imageUrl: rawImage || DEFAULT_FALLBACK_IMAGES[category],
+      description: description || `${rawTitle} available at ${merchant}.`,
+      badges: badges.slice(0, 3),
+      expiresInHours,
+      expiresAt,
+      publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+      availability: 'Listed In Stock at Check Time',
+      sourceFeed: sourceName,
+      isBlackFriday,
+      specifications: [
+        `Retailer: ${merchant}`,
+        rawCat ? `Category: ${rawCat}` : `Department: ${category}`,
+        couponCode ? `Coupon Code: ${couponCode}` : 'No coupon code required',
+        `Source: ${sourceName}`,
+      ],
+      highlight: `Verified from ${sourceName} for ${merchant}. Click View Deal to confirm current checkout availability.`,
+    });
+  }
+
+  return parsed;
+}
+
+function parseSlickdealsXml(xmlText, sourceName, forceBlackFriday = false) {
+  const items = xmlText.match(/<item>[\s\S]*?<\/item>/gi) || [];
+  const parsed = [];
+
+  for (const itemXml of items) {
+    const rawTitle = stripHtml(getTagValue(itemXml, 'title'));
+    const link = buildDirectDealUrl(getTagValue(itemXml, 'link'));
+    const contentHtml = getTagValue(itemXml, 'content:encoded') || getTagValue(itemXml, 'description');
+    const description = stripHtml(contentHtml)
+      .replace(/^Thumb Score:\s*\+?-?\d+\s*/i, '')
+      .slice(0, 320);
+    const pubDate = getTagValue(itemXml, 'pubDate');
+
+    const exitSiteMatch = contentHtml.match(/data-product-exitWebsite=["']([^"']+)["']/i);
+    const bracketSiteMatch = description.match(/([A-Za-z0-9 '&.-]+?)\s*\[([a-z0-9.-]+\.[a-z]{2,})\]/i);
+    const retailerRaw = exitSiteMatch ? exitSiteMatch[1] : bracketSiteMatch ? bracketSiteMatch[2] : '';
+    const merchant = normalizeMerchantName(retailerRaw, link);
+
+    const imgMatch = contentHtml.match(/<img[^>]+src=["']([^"']+)["']/i);
+    const rawImage = imgMatch ? decodeEntities(imgMatch[1]) : '';
+
+    const thumbMatch = contentHtml.match(/Thumb Score:\s*\+?(-?\d+)/i);
+    const thumbScore = thumbMatch ? Number(thumbMatch[1]) : 0;
+    if (thumbScore < -2) continue;
+
+    if (!rawTitle || !link) continue;
+    if (isDealExpiredOrUnavailable(rawTitle, description, null)) continue;
+
+    const { currentPrice, originalPrice, discountPercent } = extractPricesFromText(rawTitle, description);
+    if (!currentPrice) continue;
+
+    const category = mapCategory('', rawTitle);
+    const couponCode = extractCouponCode(description);
+    const isBlackFriday =
+      forceBlackFriday || /(black friday|cyber monday|thanksgiving|holiday|doorbuster)/i.test(`${rawTitle} ${description}`);
+
+    const badges = [merchant];
+    if (isBlackFriday) badges.unshift('Black Friday 2026');
+    if (discountPercent && discountPercent >= 15) badges.push(`${discountPercent}% OFF`);
+    if (/free shipping|free s&h/i.test(`${rawTitle} ${description}`)) badges.push('Free Shipping');
+
+    const idHash = crypto.createHash('sha1').update(`sd:${rawTitle}:${merchant}`).digest('hex').slice(0, 10);
+    const merchantLinks = extractDirectMerchantLinks(contentHtml, link, merchant);
+
+    const cleanTitle = rawTitle
+      .replace(/\s+\$[\d,.]+(?:\s*\+\s*Free\s*(?:Shipping|S&H))?$/i, '')
+      .trim() || rawTitle;
+
+    parsed.push({
+      id: `sd-${idHash}`,
+      title: cleanTitle,
+      category,
+      currentPrice,
+      originalPrice,
+      discountPercent,
+      currency: 'USD',
+      merchant,
+      merchantVerified: true,
+      score: Math.max(50, 120 + thumbScore * 12),
+      couponCode,
+      affiliateUrl: link,
+      amazonUsaUrl: merchantLinks.amazonUsaUrl,
+      amazonIndiaUrl: merchantLinks.amazonIndiaUrl,
+      walmartUrl: merchantLinks.walmartUrl,
+      primaryStore: merchant,
+      imageUrl: rawImage || DEFAULT_FALLBACK_IMAGES[category],
+      description: description || `${cleanTitle} listed at ${merchant}.`,
+      badges: badges.slice(0, 3),
+      expiresInHours: null,
+      expiresAt: null,
+      publishedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+      availability: 'Listed Active at Check Time',
+      sourceFeed: sourceName,
+      isBlackFriday,
+      specifications: [
+        `Retailer: ${merchant}`,
+        `Community Votes: +${Math.max(0, thumbScore)}`,
+        couponCode ? `Coupon Code: ${couponCode}` : 'Direct Store Offer',
+        `Source: ${sourceName}`,
+      ],
+      highlight: `Live community-vetted offer from ${sourceName} at ${merchant}. Confirm final price & stock on retailer page.`,
+    });
+  }
+
+  return parsed;
+}
+
+function deduplicateDeals(deals) {
+  const map = new Map();
+  for (const deal of deals) {
+    const normTitle = deal.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .split(' ')
+      .slice(0, 6)
+      .join(' ');
+    const key = `${normTitle}|${deal.merchant.toLowerCase()}|${Math.round(deal.currentPrice)}`;
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, deal);
+    } else {
+      // Keep the richer entry (prefer one with originalPrice / expiration / higher score)
+      const existingRank = (existing.originalPrice ? 50 : 0) + (existing.expiresAt ? 20 : 0) + existing.score;
+      const newRank = (deal.originalPrice ? 50 : 0) + (deal.expiresAt ? 20 : 0) + deal.score;
+      if (newRank > existingRank) {
+        map.set(key, deal);
+      }
+    }
+  }
+  return Array.from(map.values());
+}
+
+export async function refreshLiveDealsFeed({ writePublicJson = true } = {}) {
+  const sources = [
+    {
+      id: 'dealnews-live',
+      name: 'DealNews Verified RSS',
+      url: 'https://www.dealnews.com/?rss=1',
+      parser: (xml) => parseDealNewsXml(xml, 'DealNews Verified RSS'),
+    },
+    {
+      id: 'slickdeals-blackfriday',
+      name: 'Slickdeals Black Friday 2026',
+      url: 'https://slickdeals.net/newsearch.php?q=black+friday&searcharea=deals&searchin=first&rss=1',
+      parser: (xml) => parseSlickdealsXml(xml, 'Slickdeals Black Friday 2026', true),
+    },
+    {
+      id: 'slickdeals-frontpage',
+      name: 'Slickdeals Frontpage Deals',
+      url: 'https://slickdeals.net/newsearch.php?mode=frontpage&searcharea=deals&searchin=first&rss=1',
+      parser: (xml) => parseSlickdealsXml(xml, 'Slickdeals Frontpage Deals', false),
+    },
+  ];
+
+  const sourcesStatus = [];
+  const allFetched = [];
+  const nowIso = new Date().toISOString();
+
+  await Promise.all(
+    sources.map(async (src) => {
+      try {
+        const { text, durationMs } = await fetchWithRetry(src.url, 2);
+        const items = src.parser(text);
+        allFetched.push(...items);
+        sourcesStatus.push({
+          id: src.id,
+          name: src.name,
+          status: items.length > 0 ? 'ok' : 'degraded',
+          itemCount: items.length,
+          durationMs,
+          checkedAt: nowIso,
+        });
+      } catch (err) {
+        sourcesStatus.push({
+          id: src.id,
+          name: src.name,
+          status: 'error',
+          itemCount: 0,
+          durationMs: 0,
+          checkedAt: nowIso,
+          error: err?.message || 'Source unavailable',
+        });
+      }
+    })
+  );
+
+  // Deduplicate & sort newest/featured first
+  const deduped = deduplicateDeals(allFetched).sort((a, b) => {
+    const tA = a.publishedAt ? Date.parse(a.publishedAt) : 0;
+    const tB = b.publishedAt ? Date.parse(b.publishedAt) : 0;
+    return tB - tA || b.score - a.score;
+  });
+
+  const healthySources = sourcesStatus.filter((s) => s.status === 'ok').length;
+  const anyHealthy = healthySources > 0 && deduped.length > 0;
+
+  const publicJsonPath = path.resolve(process.cwd(), 'public/deals-feed.json');
+  let previousPayload = null;
+  try {
+    const existingRaw = await fs.readFile(publicJsonPath, 'utf8');
+    previousPayload = JSON.parse(existingRaw);
+  } catch {
+    previousPayload = null;
+  }
+
+  const lastSuccessfulSyncAt = anyHealthy
+    ? nowIso
+    : previousPayload?.lastSuccessfulSyncAt || null;
+
+  const ageMinutes = lastSuccessfulSyncAt
+    ? Math.max(0, Math.round((Date.now() - Date.parse(lastSuccessfulSyncAt)) / 60000))
+    : FRESHNESS_LIMIT_MINUTES + 1;
+
+  const isStale = !anyHealthy && ageMinutes > FRESHNESS_LIMIT_MINUTES;
+
+  // Never serve stale prices if freshness limit exceeded
+  const finalDeals = anyHealthy
+    ? deduped.slice(0, 72)
+    : !isStale && Array.isArray(previousPayload?.deals)
+    ? previousPayload.deals
+    : [];
+
+  const payload = {
+    status: anyHealthy ? (healthySources === sources.length ? 'online' : 'partial') : 'degraded',
+    lastRefreshedAt: nowIso,
+    lastSuccessfulSyncAt,
+    refreshIntervalMinutes: REFRESH_INTERVAL_MINUTES,
+    freshnessLimitMinutes: FRESHNESS_LIMIT_MINUTES,
+    isStale,
+    totalDeals: finalDeals.length,
+    connectedSources: sourcesStatus.map((s) => s.name),
+    sourcesStatus,
+    affiliateDisclosure: AFFILIATE_DISCLOSURE,
+    deals: finalDeals,
+  };
+
+  if (writePublicJson) {
+    await fs.mkdir(path.dirname(publicJsonPath), { recursive: true });
+    await fs.writeFile(publicJsonPath, JSON.stringify(payload, null, 2), 'utf8');
+  }
+
+  return payload;
+}
