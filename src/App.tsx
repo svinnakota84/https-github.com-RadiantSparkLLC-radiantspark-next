@@ -61,7 +61,7 @@ export default function App() {
   const [isStripeModalOpen, setIsStripeModalOpen] = useState(false);
   const [stripePlanId, setStripePlanId] = useState('lifestyle_spark_monthly');
   const [stripePlanName, setStripePlanName] = useState('Lifestyle Spark Pro Monthly');
-  const [stripePriceUsd, setStripePriceUsd] = useState(29);
+  const [stripePriceUsd, setStripePriceUsd] = useState(9.99);
   const [stripeBillingInterval, setStripeBillingInterval] = useState<'month' | 'year' | 'one_time'>('month');
 
   // Business Inquiry, Supplier Intake & Owner Dashboard Modal state

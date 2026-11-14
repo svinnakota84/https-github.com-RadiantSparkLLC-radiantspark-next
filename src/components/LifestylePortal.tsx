@@ -661,7 +661,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                     if (onOpenStripeModal) {
                       onOpenStripeModal(
                         'Lifestyle Spark Pro Monthly',
-                        29,
+                        9.99,
                         'month',
                         'lifestyle_spark_monthly'
                       );
@@ -1023,7 +1023,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                   onClick={() =>
                     onOpenStripeModal(
                       'Lifestyle Spark Pro Monthly',
-                      29,
+                      9.99,
                       'month',
                       'lifestyle_spark_monthly'
                     )
@@ -1031,7 +1031,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                   className="py-3.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center justify-center gap-2 whitespace-nowrap"
                 >
                   <CreditCard className="w-4 h-4" />
-                  <span>Join Pro ($29/mo Card)</span>
+                  <span>Join Pro ($9.99/mo Card)</span>
                 </button>
               )}
             </div>

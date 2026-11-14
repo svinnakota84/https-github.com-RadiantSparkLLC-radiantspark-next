@@ -372,9 +372,9 @@
     };
 
     let PLANS = [
-      { id: 'lifestyle_spark_monthly', name: 'Lifestyle Spark Pro Monthly', priceUsd: 29, interval: 'month', description: 'Continuous personalized diet updates, recipes, workouts & cloud progress sync.' },
-      { id: 'lifestyle_spark_annual', name: 'Lifestyle Spark Pro Annual', priceUsd: 249, interval: 'year', description: 'Full 12-month membership saving 28% with multi-cuisine plans.' },
-      { id: 'lifestyle_spark_90day', name: 'Lifestyle Spark 90-Day Pass', priceUsd: 69, interval: 'one_time', description: 'Single one-time payment for a structured 12-week fat-loss blueprint.' }
+      { id: 'lifestyle_spark_monthly', name: 'Lifestyle Spark Pro Monthly', priceUsd: 9.99, interval: 'month', description: 'Continuous personalized diet updates, recipes, workouts & cloud progress sync.' },
+      { id: 'lifestyle_spark_annual', name: 'Lifestyle Spark Pro Annual', priceUsd: 149.99, interval: 'year', description: 'Full 12-month membership with multi-cuisine plans & priority coach swaps.' },
+      { id: 'lifestyle_spark_90day', name: 'Lifestyle Spark 90-Day Pass', priceUsd: 49.99, interval: 'one_time', description: 'Single one-time payment for a structured 12-week fat-loss blueprint.' }
     ];
 
     const RECIPES = [
@@ -693,7 +693,7 @@
     function renderStripePlans() {
       const code = document.getElementById('pro-currency').value || 'USD';
       document.getElementById('stripe-plans-grid').innerHTML = PLANS.map(p => {
-        const usd = p.priceUsd || p.usd || 29;
+        const usd = p.priceUsd || p.usd || 9.99;
         const desc = p.description || p.desc || '';
         const formatted = fmtMoney(usd, code);
         const unit = p.interval === 'year' ? '/yr' : p.interval === 'one_time' ? 'one-time' : '/mo';

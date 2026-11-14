@@ -38,7 +38,7 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
   onClose,
   planId,
   planName = 'Lifestyle Spark Pro Monthly',
-  priceUsd = 29,
+  priceUsd = 9.99,
   billingInterval = 'month',
   defaultEmail = '',
   defaultName = '',
