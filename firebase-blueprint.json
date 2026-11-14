@@ -1,0 +1,291 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "Lifestyle Spark Member Profile",
+      "description": "Authenticated customer profile, dietary settings, body metrics, and server-verified membership tier.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Firebase Auth user UID matching the document ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 200,
+          "description": "Verified customer email address."
+        },
+        "fullName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120,
+          "description": "Customer display name."
+        },
+        "phoneWhatsApp": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "Optional WhatsApp contact number for meal plan export."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["member", "admin"],
+          "description": "Access role; always defaults to member on signup."
+        },
+        "subscriptionStatus": {
+          "type": "string",
+          "enum": ["free", "active"],
+          "description": "Membership tier managed via verified Stripe payments."
+        },
+        "subscriptionPlan": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Active Lifestyle Spark plan name."
+        },
+        "subscriptionCurrency": {
+          "type": "string",
+          "maxLength": 10,
+          "description": "Billing currency code (USD, INR, EUR, etc.)."
+        },
+        "dietPreference": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Dietary style identifier."
+        },
+        "lifestyleGoal": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Fitness/nutrition objective."
+        },
+        "dailyCalorieGoal": {
+          "type": "integer",
+          "description": "Target daily calorie intake (1000-4500)."
+        },
+        "currentWeightKg": {
+          "type": "number",
+          "description": "Current weight in kilograms."
+        },
+        "targetWeightKg": {
+          "type": "number",
+          "description": "Goal weight in kilograms."
+        },
+        "heightCm": {
+          "type": "number",
+          "description": "Height in centimeters."
+        },
+        "age": {
+          "type": "integer",
+          "description": "Member age in years."
+        },
+        "gender": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "Biological profile setting for BMR formula."
+        },
+        "savedPlanSummary": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Latest generated meal matrix summary."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server last update timestamp."
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "fullName",
+        "role",
+        "subscriptionStatus",
+        "dietPreference",
+        "lifestyleGoal",
+        "dailyCalorieGoal",
+        "currentWeightKg",
+        "targetWeightKg",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "DietPlan": {
+      "title": "Saved Custom Diet Plan",
+      "description": "Personalized calorie, macro, and daily meal breakdown generated for a user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "dietName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 150
+        },
+        "dailyCalories": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        "proteinGrams": {
+          "type": "integer"
+        },
+        "carbsGrams": {
+          "type": "integer"
+        },
+        "fatGrams": {
+          "type": "integer"
+        },
+        "breakfast": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "lunch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "snack": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "dinner": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "cookTip": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "exerciseFocus": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "aiCoachNote": {
+          "type": "string",
+          "maxLength": 600
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "dietName",
+        "dailyCalories",
+        "proteinGrams",
+        "carbsGrams",
+        "fatGrams",
+        "breakfast",
+        "lunch",
+        "snack",
+        "dinner",
+        "createdAt"
+      ]
+    },
+    "WorkoutLog": {
+      "title": "Completed Workout Session",
+      "description": "Recorded fat-loss exercise session and estimated calorie burn.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140
+        },
+        "minutes": {
+          "type": "integer"
+        },
+        "estimatedCalories": {
+          "type": "integer"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "minutes",
+        "estimatedCalories",
+        "completedAt"
+      ]
+    },
+    "FavoriteRecipe": {
+      "title": "Saved Healthy Recipe",
+      "description": "Bookmarked healthy cooking recipe for quick access.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "recipeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "savedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "userId",
+        "recipeId",
+        "title",
+        "savedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Private Lifestyle Spark member profile and wellness configuration."
+    },
+    "/users/{userId}/dietPlans/{planId}": {
+      "schema": {
+        "$ref": "#/entities/DietPlan"
+      },
+      "description": "Saved custom diet and macro plans owned by the member."
+    },
+    "/users/{userId}/workoutLogs/{logId}": {
+      "schema": {
+        "$ref": "#/entities/WorkoutLog"
+      },
+      "description": "Completed workout activity logs owned by the member."
+    },
+    "/users/{userId}/favoriteRecipes/{recipeId}": {
+      "schema": {
+        "$ref": "#/entities/FavoriteRecipe"
+      },
+      "description": "Bookmarked recipes owned by the member."
+    }
+  }
+}

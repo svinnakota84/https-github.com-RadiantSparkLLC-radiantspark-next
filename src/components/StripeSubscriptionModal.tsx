@@ -20,6 +20,7 @@ import {
   SUPPORTED_CURRENCIES,
   formatLocalizedCurrency,
 } from '../data/lifesparkData';
+import { safeFetchJson } from '../utils/apiBase';
 
 interface StripeSubscriptionModalProps {
   isOpen: boolean;
@@ -54,11 +55,13 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
     configured: boolean;
     paymentLinkConfigured: boolean;
     paymentLinkUrl: string | null;
+    staticHostDetected: boolean;
   }>({
     checked: false,
     configured: false,
     paymentLinkConfigured: false,
     paymentLinkUrl: null,
+    staticHostDetected: false,
   });
 
   useEffect(() => {
@@ -69,23 +72,23 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
   useEffect(() => {
     if (!isOpen) return;
     setErrorMsg(null);
-    fetch('/api/stripe/config')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data) {
-          setStripeStatus({
-            checked: true,
-            configured: Boolean(data.configured),
-            paymentLinkConfigured: Boolean(data.paymentLinkConfigured),
-            paymentLinkUrl: data.paymentLinkUrl || null,
-          });
-        } else {
-          setStripeStatus((s) => ({ ...s, checked: true }));
-        }
-      })
-      .catch(() => {
-        setStripeStatus((s) => ({ ...s, checked: true }));
-      });
+    safeFetchJson('/api/stripe/config').then((res) => {
+      if (res.ok && res.data) {
+        setStripeStatus({
+          checked: true,
+          configured: Boolean(res.data.configured),
+          paymentLinkConfigured: Boolean(res.data.paymentLinkConfigured),
+          paymentLinkUrl: res.data.paymentLinkUrl || null,
+          staticHostDetected: false,
+        });
+      } else {
+        setStripeStatus((s) => ({
+          ...s,
+          checked: true,
+          staticHostDetected: res.isStaticHtmlHost,
+        }));
+      }
+    });
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -112,7 +115,7 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
     setIsProcessing(true);
     try {
       const resolvedPlanId = planId || `${planName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}`;
-      const res = await fetch('/api/stripe/create-checkout-session', {
+      const res = await safeFetchJson('/api/stripe/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -127,9 +130,8 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
         }),
       });
 
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && data.url) {
-        window.location.assign(data.url);
+      if (res.ok && res.data?.url) {
+        window.location.assign(res.data.url);
         return;
       }
 
@@ -144,10 +146,16 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
         return;
       }
 
-      setErrorMsg(
-        data.error ||
-          'Live Stripe server key (STRIPE_SECRET_KEY) is not configured in this environment yet.'
-      );
+      if (res.isStaticHtmlHost) {
+        setErrorMsg(
+          'This domain is serving static files without the Node Stripe server. Host server.ts (or set VITE_API_BASE_URL / VITE_STRIPE_PAYMENT_LINK_URL) so Checkout Sessions create securely with your Stripe account.'
+        );
+      } else {
+        setErrorMsg(
+          res.data?.error ||
+            'Live Stripe server key (STRIPE_SECRET_KEY) is not configured in this environment yet.'
+        );
+      }
     } catch {
       setErrorMsg(
         'Could not reach the payment server. Verify the backend server is running with STRIPE_SECRET_KEY configured.'

@@ -51,7 +51,7 @@ shutil.make_archive(final_zip_base, 'zip', target_dir)
 shutil.copy2(final_zip_name, 'public/radiant-spark-production-dist.zip')
 
 # 2. Clean Full Source Repository ZIP (includes .github/workflows, src, server.ts, scripts, public without screenshots/zips)
-exclude_dirs = {'node_modules', '.git', 'dist', 'data', '.aistudio', 'aistudio'}
+exclude_dirs = {'node_modules', '.git', 'dist', '.aistudio', 'aistudio'}
 full_codebase_zip = 'public/radiant-spark-full-codebase.zip'
 if os.path.exists(full_codebase_zip):
     os.remove(full_codebase_zip)
@@ -62,6 +62,7 @@ with zipfile.ZipFile(full_codebase_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
         dirs[:] = [
             d for d in dirs
             if d not in exclude_dirs
+            and not (rel_root == '.' and d == 'data')
             and not (rel_root == 'public/assets' and d == 'aistudio')
         ]
         for f in files:

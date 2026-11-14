@@ -1,0 +1,304 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ------------------------------------------------------------------------
+    // Reusable Hardened Helpers
+    // ------------------------------------------------------------------------
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isVerifiedUser() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isVerifiedUser() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'vsandeep442@gmail.com'
+      );
+    }
+
+    // ------------------------------------------------------------------------
+    // Entity Validation Blueprints (no existing() or diff() inside helpers)
+    // ------------------------------------------------------------------------
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll([
+          'uid',
+          'email',
+          'fullName',
+          'role',
+          'subscriptionStatus',
+          'dietPreference',
+          'lifestyleGoal',
+          'dailyCalorieGoal',
+          'currentWeightKg',
+          'targetWeightKg',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'uid',
+          'email',
+          'fullName',
+          'phoneWhatsApp',
+          'role',
+          'subscriptionStatus',
+          'subscriptionPlan',
+          'subscriptionCurrency',
+          'dietPreference',
+          'lifestyleGoal',
+          'dailyCalorieGoal',
+          'currentWeightKg',
+          'targetWeightKg',
+          'heightCm',
+          'age',
+          'gender',
+          'savedPlanSummary',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        isValidId(data.uid) &&
+        data.uid == userId &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 200 &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 120 &&
+        (!('phoneWhatsApp' in data) || (data.phoneWhatsApp is string && data.phoneWhatsApp.size() <= 32)) &&
+        data.role in ['member', 'admin'] &&
+        data.subscriptionStatus in ['free', 'active'] &&
+        (!('subscriptionPlan' in data) || data.subscriptionPlan == null || (data.subscriptionPlan is string && data.subscriptionPlan.size() <= 100)) &&
+        (!('subscriptionCurrency' in data) || data.subscriptionCurrency == null || (data.subscriptionCurrency is string && data.subscriptionCurrency.size() <= 10)) &&
+        data.dietPreference is string && data.dietPreference.size() >= 1 && data.dietPreference.size() <= 50 &&
+        data.lifestyleGoal is string && data.lifestyleGoal.size() >= 1 && data.lifestyleGoal.size() <= 50 &&
+        data.dailyCalorieGoal is int && data.dailyCalorieGoal >= 1000 && data.dailyCalorieGoal <= 4500 &&
+        data.currentWeightKg is number && data.currentWeightKg >= 25 && data.currentWeightKg <= 300 &&
+        data.targetWeightKg is number && data.targetWeightKg >= 25 && data.targetWeightKg <= 300 &&
+        (!('heightCm' in data) || (data.heightCm is number && data.heightCm >= 100 && data.heightCm <= 250)) &&
+        (!('age' in data) || (data.age is int && data.age >= 16 && data.age <= 110)) &&
+        (!('gender' in data) || (data.gender is string && data.gender.size() <= 20)) &&
+        (!('savedPlanSummary' in data) || (data.savedPlanSummary is string && data.savedPlanSummary.size() <= 2000)) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidDietPlan(data, userId) {
+      return data.keys().hasAll([
+          'userId',
+          'dietName',
+          'dailyCalories',
+          'proteinGrams',
+          'carbsGrams',
+          'fatGrams',
+          'breakfast',
+          'lunch',
+          'snack',
+          'dinner',
+          'createdAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId',
+          'dietName',
+          'dailyCalories',
+          'proteinGrams',
+          'carbsGrams',
+          'fatGrams',
+          'breakfast',
+          'lunch',
+          'snack',
+          'dinner',
+          'cookTip',
+          'exerciseFocus',
+          'aiCoachNote',
+          'createdAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == userId &&
+        data.dietName is string && data.dietName.size() >= 1 && data.dietName.size() <= 150 &&
+        data.dailyCalories is string && data.dailyCalories.size() >= 1 && data.dailyCalories.size() <= 40 &&
+        data.proteinGrams is int && data.proteinGrams >= 10 && data.proteinGrams <= 500 &&
+        data.carbsGrams is int && data.carbsGrams >= 0 && data.carbsGrams <= 800 &&
+        data.fatGrams is int && data.fatGrams >= 5 && data.fatGrams <= 400 &&
+        data.breakfast is string && data.breakfast.size() >= 1 && data.breakfast.size() <= 400 &&
+        data.lunch is string && data.lunch.size() >= 1 && data.lunch.size() <= 400 &&
+        data.snack is string && data.snack.size() >= 1 && data.snack.size() <= 400 &&
+        data.dinner is string && data.dinner.size() >= 1 && data.dinner.size() <= 400 &&
+        (!('cookTip' in data) || (data.cookTip is string && data.cookTip.size() <= 500)) &&
+        (!('exerciseFocus' in data) || (data.exerciseFocus is string && data.exerciseFocus.size() <= 400)) &&
+        (!('aiCoachNote' in data) || (data.aiCoachNote is string && data.aiCoachNote.size() <= 600)) &&
+        data.createdAt is timestamp;
+    }
+
+    function isValidWorkoutLog(data, userId) {
+      return data.keys().hasAll([
+          'userId',
+          'title',
+          'minutes',
+          'estimatedCalories',
+          'completedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId',
+          'title',
+          'minutes',
+          'estimatedCalories',
+          'completedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == userId &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 140 &&
+        data.minutes is int && data.minutes >= 1 && data.minutes <= 360 &&
+        data.estimatedCalories is int && data.estimatedCalories >= 5 && data.estimatedCalories <= 3000 &&
+        data.completedAt is timestamp;
+    }
+
+    function isValidFavoriteRecipe(data, userId) {
+      return data.keys().hasAll([
+          'userId',
+          'recipeId',
+          'title',
+          'savedAt'
+        ]) &&
+        data.keys().hasOnly([
+          'userId',
+          'recipeId',
+          'title',
+          'savedAt'
+        ]) &&
+        isValidId(data.userId) &&
+        data.userId == userId &&
+        isValidId(data.recipeId) &&
+        data.title is string && data.title.size() >= 1 && data.title.size() <= 160 &&
+        data.savedAt is timestamp;
+    }
+
+    // ------------------------------------------------------------------------
+    // Admins Lookup Collection
+    // ------------------------------------------------------------------------
+    match /admins/{adminId} {
+      allow get: if isValidId(adminId) && isOwner(adminId);
+      allow list, create, update, delete: if false;
+    }
+
+    // ------------------------------------------------------------------------
+    // Users & PII-Isolated Subcollections
+    // ------------------------------------------------------------------------
+    match /users/{userId} {
+      allow get: if isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+
+      allow create: if isValidId(userId) &&
+        isOwner(userId) &&
+        isValidUserProfile(incoming(), userId) &&
+        incoming().uid == request.auth.uid &&
+        incoming().email == request.auth.token.email &&
+        incoming().role == 'member' &&
+        incoming().subscriptionStatus == 'free' &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isValidId(userId) &&
+        isValidUserProfile(incoming(), userId) &&
+        incoming().uid == existing().uid &&
+        incoming().email == existing().email &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time && (
+          isAdmin() ||
+          (
+            isOwner(userId) &&
+            incoming().role == existing().role &&
+            incoming().subscriptionStatus == existing().subscriptionStatus &&
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'fullName',
+              'phoneWhatsApp',
+              'dietPreference',
+              'lifestyleGoal',
+              'dailyCalorieGoal',
+              'currentWeightKg',
+              'targetWeightKg',
+              'heightCm',
+              'age',
+              'gender',
+              'savedPlanSummary',
+              'updatedAt'
+            ])
+          )
+        );
+
+      allow delete: if isAdmin() && isValidId(userId);
+
+      // Saved Diet Plans
+      match /dietPlans/{planId} {
+        allow get: if isValidId(userId) && isValidId(planId) && (isOwner(userId) || isAdmin());
+        allow list: if (isVerifiedUser() && resource.data.userId == request.auth.uid) || isAdmin();
+
+        allow create: if isValidId(userId) && isValidId(planId) &&
+          (isOwner(userId) || isAdmin()) &&
+          isValidDietPlan(incoming(), userId) &&
+          incoming().createdAt == request.time &&
+          exists(/databases/$(database)/documents/users/$(userId));
+
+        allow update: if false;
+        allow delete: if isValidId(userId) && isValidId(planId) &&
+          (isOwner(userId) || isAdmin()) &&
+          exists(/databases/$(database)/documents/users/$(userId));
+      }
+
+      // Completed Workout Logs
+      match /workoutLogs/{logId} {
+        allow get: if isValidId(userId) && isValidId(logId) && (isOwner(userId) || isAdmin());
+        allow list: if (isVerifiedUser() && resource.data.userId == request.auth.uid) || isAdmin();
+
+        allow create: if isValidId(userId) && isValidId(logId) &&
+          (isOwner(userId) || isAdmin()) &&
+          isValidWorkoutLog(incoming(), userId) &&
+          incoming().completedAt == request.time &&
+          exists(/databases/$(database)/documents/users/$(userId));
+
+        allow update: if false;
+        allow delete: if isValidId(userId) && isValidId(logId) &&
+          (isOwner(userId) || isAdmin()) &&
+          exists(/databases/$(database)/documents/users/$(userId));
+      }
+
+      // Favorite Recipes
+      match /favoriteRecipes/{recipeId} {
+        allow get: if isValidId(userId) && isValidId(recipeId) && (isOwner(userId) || isAdmin());
+        allow list: if (isVerifiedUser() && resource.data.userId == request.auth.uid) || isAdmin();
+
+        allow create: if isValidId(userId) && isValidId(recipeId) &&
+          (isOwner(userId) || isAdmin()) &&
+          isValidFavoriteRecipe(incoming(), userId) &&
+          incoming().recipeId == recipeId &&
+          incoming().savedAt == request.time &&
+          exists(/databases/$(database)/documents/users/$(userId));
+
+        allow update: if false;
+        allow delete: if isValidId(userId) && isValidId(recipeId) &&
+          (isOwner(userId) || isAdmin()) &&
+          exists(/databases/$(database)/documents/users/$(userId));
+      }
+    }
+  }
+}

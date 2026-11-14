@@ -37,6 +37,21 @@ const INQUIRIES_FILE = path.join(DATA_DIR, 'inquiries.json');
 const SUPPLIERS_FILE = path.join(DATA_DIR, 'suppliers.json');
 const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const MEMBERSHIPS_FILE = path.join(DATA_DIR, 'memberships.json');
+
+let firebaseAppletConfig: {
+  projectId?: string;
+  apiKey?: string;
+  authDomain?: string;
+  firestoreDatabaseId?: string;
+} | null = null;
+
+try {
+  const fbRaw = await fs.readFile(path.resolve(process.cwd(), 'firebase-applet-config.json'), 'utf8');
+  firebaseAppletConfig = JSON.parse(fbRaw);
+} catch {
+  firebaseAppletConfig = null;
+}
 
 const SESSION_SECRET =
   process.env.LIFESPARK_SESSION_SECRET ||
@@ -45,6 +60,23 @@ const SESSION_SECRET =
 const stripeClient = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null;
+
+app.use('/api', (req, res, next) => {
+  const origin = req.header('origin');
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-webhook-secret,stripe-signature');
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  return next();
+});
 
 const CURRENCY_RATES: Record<string, { rate: number; zeroDecimal?: boolean; symbol: string }> = {
   USD: { rate: 1, symbol: '$' },
@@ -316,6 +348,52 @@ function resolveRequestOrigin(req: express.Request) {
   return `${proto}://${host}`;
 }
 
+interface MembershipRecord {
+  email: string;
+  userId?: string | null;
+  subscriptionStatus: 'free' | 'active';
+  subscriptionPlan: string;
+  subscriptionCurrency: string;
+  stripeCustomerId?: string | null;
+  stripeSessionId?: string | null;
+  updatedAt: string;
+}
+
+async function verifyFirebaseIdToken(idToken?: string | null): Promise<{ uid: string; email: string; name?: string } | null> {
+  if (!idToken || !firebaseAppletConfig?.apiKey || idToken.split('.').length !== 3) return null;
+  try {
+    const resp = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(firebaseAppletConfig.apiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      }
+    );
+    if (!resp.ok) return null;
+    const data = (await resp.json()) as any;
+    const fbUser = data?.users?.[0];
+    if (!fbUser?.localId || !fbUser?.email) return null;
+    return {
+      uid: String(fbUser.localId),
+      email: String(fbUser.email).toLowerCase(),
+      name: fbUser.displayName ? String(fbUser.displayName) : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function findMembershipByEmailOrUid(email?: string | null, userId?: string | null): Promise<MembershipRecord | null> {
+  const memberships = await readJsonFile<MembershipRecord[]>(MEMBERSHIPS_FILE, []);
+  const normEmail = email ? email.trim().toLowerCase() : null;
+  return (
+    memberships.find(
+      (m) => (userId && m.userId === userId) || (normEmail && m.email.toLowerCase() === normEmail)
+    ) || null
+  );
+}
+
 async function activateUserSubscription({
   email,
   userId,
@@ -331,8 +409,30 @@ async function activateUserSubscription({
   customerId?: string | null;
   sessionId?: string | null;
 }) {
-  const users = await readJsonFile<StoredUser[]>(USERS_FILE, []);
   const normEmail = email ? email.trim().toLowerCase() : null;
+  const nowIso = new Date().toISOString();
+
+  if (normEmail || userId) {
+    const memberships = await readJsonFile<MembershipRecord[]>(MEMBERSHIPS_FILE, []);
+    const mIdx = memberships.findIndex(
+      (m) => (userId && m.userId === userId) || (normEmail && m.email.toLowerCase() === normEmail)
+    );
+    const updatedRecord: MembershipRecord = {
+      email: normEmail || (mIdx >= 0 ? memberships[mIdx].email : ''),
+      userId: userId || (mIdx >= 0 ? memberships[mIdx].userId : null),
+      subscriptionStatus: 'active',
+      subscriptionPlan: planName || (mIdx >= 0 ? memberships[mIdx].subscriptionPlan : 'Lifestyle Spark Pro Monthly'),
+      subscriptionCurrency: currency || (mIdx >= 0 ? memberships[mIdx].subscriptionCurrency : 'USD'),
+      stripeCustomerId: customerId || (mIdx >= 0 ? memberships[mIdx].stripeCustomerId : null),
+      stripeSessionId: sessionId || (mIdx >= 0 ? memberships[mIdx].stripeSessionId : null),
+      updatedAt: nowIso,
+    };
+    if (mIdx >= 0) memberships[mIdx] = updatedRecord;
+    else memberships.unshift(updatedRecord);
+    await writeJsonFile(MEMBERSHIPS_FILE, memberships.slice(0, 1000));
+  }
+
+  const users = await readJsonFile<StoredUser[]>(USERS_FILE, []);
   const idx = users.findIndex(
     (u) => (userId && u.id === userId) || (normEmail && u.email.toLowerCase() === normEmail)
   );
@@ -344,7 +444,7 @@ async function activateUserSubscription({
       subscriptionCurrency: currency || users[idx].subscriptionCurrency || 'USD',
       stripeCustomerId: customerId || users[idx].stripeCustomerId || null,
       stripeSessionId: sessionId || users[idx].stripeSessionId || null,
-      subscriptionUpdatedAt: new Date().toISOString(),
+      subscriptionUpdatedAt: nowIso,
     };
     await writeJsonFile(USERS_FILE, users);
     return users[idx];
@@ -807,15 +907,106 @@ app.post('/api/auth/logout', (_req, res) => {
 app.get('/api/auth/me', async (req, res) => {
   const token = extractRequestToken(req);
   const claims = verifySessionToken(token);
-  if (!claims) {
-    return res.status(401).json({ authenticated: false, user: null });
+  if (claims) {
+    const users = await readJsonFile<StoredUser[]>(USERS_FILE, []);
+    const user = users.find((u) => u.id === claims.uid);
+    if (user) {
+      const m = await findMembershipByEmailOrUid(user.email, user.id);
+      if (m && m.subscriptionStatus === 'active' && user.subscriptionStatus !== 'active') {
+        user.subscriptionStatus = 'active';
+        user.subscriptionPlan = m.subscriptionPlan;
+        user.subscriptionCurrency = m.subscriptionCurrency;
+      }
+      return res.json({ authenticated: true, authProvider: 'server_session', user: sanitizeUser(user) });
+    }
   }
-  const users = await readJsonFile<StoredUser[]>(USERS_FILE, []);
-  const user = users.find((u) => u.id === claims.uid);
-  if (!user) {
-    return res.status(401).json({ authenticated: false, user: null });
+
+  const fbClaims = await verifyFirebaseIdToken(token);
+  if (fbClaims) {
+    const m = await findMembershipByEmailOrUid(fbClaims.email, fbClaims.uid);
+    return res.json({
+      authenticated: true,
+      authProvider: 'firebase_google',
+      user: {
+        id: fbClaims.uid,
+        email: fbClaims.email,
+        fullName: fbClaims.name || fbClaims.email.split('@')[0],
+        subscriptionStatus: m?.subscriptionStatus || 'free',
+        subscriptionPlan: m?.subscriptionPlan || null,
+        subscriptionCurrency: m?.subscriptionCurrency || null,
+      },
+    });
   }
-  return res.json({ authenticated: true, user: sanitizeUser(user) });
+
+  return res.status(401).json({ authenticated: false, user: null });
+});
+
+app.get('/api/membership', async (req, res) => {
+  const paymentLinkUrl = process.env.STRIPE_PAYMENT_LINK_URL || process.env.VITE_STRIPE_PAYMENT_LINK_URL || null;
+  const token = extractRequestToken(req);
+  const sessionClaims = verifySessionToken(token);
+  const fbClaims = sessionClaims ? null : await verifyFirebaseIdToken(token);
+
+  let memberEmail: string | null = sessionClaims?.email || fbClaims?.email || null;
+  let memberUid: string | null = sessionClaims?.uid || fbClaims?.uid || null;
+  let memberName: string | null = fbClaims?.name || null;
+  let subscriptionStatus: 'free' | 'active' | 'anonymous' = memberUid ? 'free' : 'anonymous';
+  let subscriptionPlan: string | null = null;
+  let subscriptionCurrency: string | null = null;
+
+  if (sessionClaims) {
+    const users = await readJsonFile<StoredUser[]>(USERS_FILE, []);
+    const u = users.find((x) => x.id === sessionClaims.uid);
+    if (u) {
+      memberEmail = u.email;
+      memberName = u.fullName;
+      subscriptionStatus = u.subscriptionStatus;
+      subscriptionPlan = u.subscriptionPlan || null;
+      subscriptionCurrency = u.subscriptionCurrency || null;
+    }
+  }
+
+  if (memberEmail || memberUid) {
+    const m = await findMembershipByEmailOrUid(memberEmail, memberUid);
+    if (m && m.subscriptionStatus === 'active') {
+      subscriptionStatus = 'active';
+      subscriptionPlan = m.subscriptionPlan;
+      subscriptionCurrency = m.subscriptionCurrency;
+    }
+  }
+
+  return res.json({
+    activeBackend: firebaseAppletConfig ? 'node+firebase' : 'node',
+    authenticated: Boolean(memberUid),
+    authProvider: sessionClaims ? 'server_session' : fbClaims ? 'firebase_google' : null,
+    firebase: {
+      configured: Boolean(firebaseAppletConfig?.projectId),
+      projectId: firebaseAppletConfig?.projectId || null,
+      firestoreDatabaseId: firebaseAppletConfig?.firestoreDatabaseId || null,
+      googleAuthEnabled: Boolean(firebaseAppletConfig?.apiKey),
+    },
+    stripe: {
+      connected: Boolean(stripeClient),
+      paymentLinkConfigured: Boolean(paymentLinkUrl),
+      webhookConfigured: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+      mode: stripeClient ? 'checkout_session' : paymentLinkUrl ? 'payment_link' : 'unconfigured',
+    },
+    membership: {
+      status: subscriptionStatus,
+      planName: subscriptionPlan,
+      currency: subscriptionCurrency,
+      uid: memberUid,
+      email: memberEmail,
+      fullName: memberName,
+    },
+  });
+});
+
+app.get('/api/firebase/config', (_req, res) => {
+  if (!firebaseAppletConfig) {
+    return res.status(404).json({ error: 'Firebase config not provisioned' });
+  }
+  return res.json(firebaseAppletConfig);
 });
 
 app.post('/api/lifespark/profile', async (req, res) => {
@@ -1366,6 +1557,11 @@ Provide concise, factual, non-binding operational information based strictly on 
   }
 });
 
+// Guarantee ALL unmatched /api/* endpoints return structured JSON, never HTML
+app.all('/api/*', (_req, res) => {
+  return res.status(404).json({ error: 'API endpoint not found' });
+});
+
 // Mount Vite middleware in dev or serve static build in production
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
@@ -1382,7 +1578,9 @@ async function startServer() {
     app.use(vite.middlewares);
 
     app.use('*', async (req, res, next) => {
-      if (req.originalUrl.startsWith('/api/')) return next();
+      if (req.originalUrl.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+      }
       try {
         const htmlPath = path.resolve(process.cwd(), 'index.html');
         let html = await fs.readFile(htmlPath, 'utf8');

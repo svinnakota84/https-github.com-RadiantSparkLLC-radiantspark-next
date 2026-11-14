@@ -246,11 +246,21 @@
     <section id="tab-account" class="hidden space-y-5">
       <div id="account-logged-out" class="p-6 rounded-3xl bg-slate-900 border border-slate-800 max-w-xl mx-auto space-y-4">
         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <h2 id="auth-heading" class="text-lg font-extrabold text-white">Sign In to Lifestyle Spark</h2>
+          <div>
+            <h2 id="auth-heading" class="text-lg font-extrabold text-white">Sign In to Lifestyle Spark</h2>
+            <p class="text-[11px] font-mono text-emerald-400">Active DB: Firebase Cloud Firestore + Auth</p>
+          </div>
           <button onclick="toggleAuthMode()" id="auth-switch-btn" type="button" class="text-xs text-emerald-400 underline font-semibold min-h-[40px]">
             Create New Account
           </button>
         </div>
+
+        <button onclick="signInGoogleMobile()" type="button" class="w-full min-h-[48px] rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-md">
+          <span>G</span>
+          <span>Continue with Google (Instant Cloud Login)</span>
+        </button>
+
+        <div class="text-center text-[11px] text-slate-500 font-mono">OR SERVER EMAIL ACCOUNT</div>
 
         <form onsubmit="submitMobileAuth(event)" class="space-y-3 text-xs">
           <div id="auth-name-wrap" class="hidden">
@@ -607,20 +617,52 @@
       updateTimerDisplay();
     }
 
+    async function safeJson(url, opts) {
+      try {
+        const res = await fetch(url, opts);
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+        if (!ct.includes('application/json')) return { ok: false, staticHtml: true, data: null };
+        return { ok: res.ok, staticHtml: false, data: await res.json() };
+      } catch {
+        return { ok: false, staticHtml: false, data: null };
+      }
+    }
+
+    async function signInGoogleMobile() {
+      const errBox = document.getElementById('auth-error-box');
+      if (errBox) errBox.classList.add('hidden');
+      if (window.__fbGoogleSignIn) {
+        try {
+          await window.__fbGoogleSignIn();
+        } catch (err) {
+          if (errBox) {
+            errBox.textContent = (err && err.message) || 'Google Sign-In failed.';
+            errBox.classList.remove('hidden');
+          }
+        }
+      }
+    }
+
     async function logWorkout(title, minutes, estimatedCalories) {
+      if (window.__fbLogWorkout && window.__fbActiveUser) {
+        const ok = await window.__fbLogWorkout(title, minutes, estimatedCalories);
+        if (ok) {
+          alert('Workout saved to your Cloud Firestore history.');
+          return;
+        }
+      }
       const token = localStorage.getItem('lifespark_token');
       if (!token) {
         switchMobileTab('account');
         return;
       }
-      const res = await fetch('/api/lifespark/profile', {
+      const res = await safeJson('/api/lifespark/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ workoutLog: { title, minutes, estimatedCalories } })
-      }).catch(() => null);
-      if (res && res.ok) {
-        const d = await res.json();
-        setMemberUI(d.user);
+      });
+      if (res.ok && res.data && res.data.user) {
+        setMemberUI(res.data.user);
         alert('Workout saved to your Lifestyle Spark history.');
       }
     }
@@ -642,24 +684,23 @@
       const fullName = document.getElementById('auth-name').value.trim();
       const endpoint = authMode === 'register' ? '/api/auth/register' : '/api/auth/login';
 
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(authMode === 'register' ? { fullName, email, password } : { email, password })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          errBox.textContent = data.error || 'Authentication failed.';
-          errBox.classList.remove('hidden');
-          return;
-        }
-        localStorage.setItem('lifespark_token', data.token);
-        setMemberUI(data.user);
-      } catch {
-        errBox.textContent = 'Could not reach backend auth service.';
+      const res = await safeJson(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(authMode === 'register' ? { fullName, email, password } : { email, password })
+      });
+      if (res.staticHtml) {
+        errBox.textContent = 'This domain serves static files only. Tap "Continue with Google (Instant Cloud Login)" above to sign in via Firebase Cloud!';
         errBox.classList.remove('hidden');
+        return;
       }
+      if (!res.ok || !res.data) {
+        errBox.textContent = (res.data && res.data.error) || 'Authentication failed.';
+        errBox.classList.remove('hidden');
+        return;
+      }
+      localStorage.setItem('lifespark_token', res.data.token);
+      setMemberUI(res.data.user);
     }
 
     function setMemberUI(user) {
@@ -672,19 +713,20 @@
       }
       document.getElementById('account-logged-out').classList.add('hidden');
       document.getElementById('account-logged-in').classList.remove('hidden');
-      document.getElementById('top-user-btn').textContent = user.fullName.split(' ')[0] || 'Account';
-      document.getElementById('member-name').textContent = user.fullName;
-      document.getElementById('member-email').textContent = user.email;
+      document.getElementById('top-user-btn').textContent = (user.fullName || 'Account').split(' ')[0];
+      document.getElementById('member-name').textContent = user.fullName || 'Member';
+      document.getElementById('member-email').textContent = user.email || '';
       document.getElementById('member-sub-badge').textContent = user.subscriptionStatus === 'active' ? ('Pro Active: ' + (user.subscriptionPlan || '')) : 'Free Member';
       document.getElementById('member-wo-count').textContent = (user.workoutLogs || []).length;
       document.getElementById('member-rec-count').textContent = (user.favoriteRecipes || []).length;
-      if (document.getElementById('stripe-email') && !document.getElementById('stripe-email').value) {
+      if (document.getElementById('stripe-email') && !document.getElementById('stripe-email').value && user.email) {
         document.getElementById('stripe-email').value = user.email;
       }
       if (user.savedPlan) applyPlanToUI(user.savedPlan);
     }
 
     async function logoutMobile() {
+      if (window.__fbSignOut) await window.__fbSignOut().catch(() => {});
       await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
       localStorage.removeItem('lifespark_token');
       setMemberUI(null);
@@ -724,29 +766,28 @@
         return;
       }
 
-      try {
-        const token = localStorage.getItem('lifespark_token');
-        const res = await fetch('/api/stripe/create-checkout-session', {
-          method: 'POST',
-          headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Bearer ' + token } : {}),
-          body: JSON.stringify({ planId, planName, priceUsd, currency, billingInterval, email, returnPath: '/lifespark.html' })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (res.ok && data.url) {
-          window.location.assign(data.url);
-          return;
-        }
-        if (paymentLinkUrl) {
-          window.location.assign(paymentLinkUrl);
-          return;
-        }
-        errBox.textContent = data.error || 'STRIPE_SECRET_KEY is not configured on this server yet.';
-        errBox.classList.remove('hidden');
-      } catch {
-        errBox.textContent = 'Cannot reach Stripe server endpoint.';
-        errBox.classList.remove('hidden');
+      const token = localStorage.getItem('lifespark_token');
+      const res = await safeJson('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Bearer ' + token } : {}),
+        body: JSON.stringify({ planId, planName, priceUsd, currency, billingInterval, email, returnPath: '/lifespark.html' })
+      });
+      if (res.ok && res.data && res.data.url) {
+        window.location.assign(res.data.url);
+        return;
       }
+      if (paymentLinkUrl) {
+        window.location.assign(paymentLinkUrl);
+        return;
+      }
+      errBox.textContent = res.staticHtml
+        ? 'This static host does not run the Node Stripe backend. Run server.ts with STRIPE_SECRET_KEY (or set STRIPE_PAYMENT_LINK_URL).'
+        : (res.data && res.data.error) || 'STRIPE_SECRET_KEY is not configured on this server yet.';
+      errBox.classList.remove('hidden');
     }
+
+    // Expose helpers for Firebase module script
+    window.__setMemberUI = setMemberUI;
 
     // Boot & PWA install wiring
     (function init() {
@@ -755,45 +796,53 @@
       renderStripePlans();
 
       const token = localStorage.getItem('lifespark_token');
-      fetch('/api/auth/me', { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
-        .then(r => r.ok ? r.json() : null)
-        .then(d => { if (d && d.authenticated && d.user) setMemberUI(d.user); })
-        .catch(() => {});
+      safeJson('/api/membership', { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
+        .then(res => {
+          const el = document.getElementById('stripe-server-status');
+          if (!el) return;
+          if (res.staticHtml) {
+            el.textContent = 'Static host detected (Google Firebase Auth active; connect Node backend + STRIPE_SECRET_KEY for dynamic Checkout).';
+            return;
+          }
+          if (res.ok && res.data && res.data.stripe) {
+            const st = res.data.stripe;
+            el.textContent = st.connected
+              ? 'Stripe Live Server Ready · Worldwide Cards settle directly to your Stripe account.'
+              : st.paymentLinkConfigured
+              ? 'Stripe Payment Link Ready · Worldwide checkout active.'
+              : 'Active Membership Backend Connected (Node + Firebase) · Set STRIPE_SECRET_KEY in environment to process card charges.';
+          }
+        });
 
-      fetch('/api/stripe/plans')
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
-          if (d && Array.isArray(d.plans) && d.plans.length > 0) {
-            PLANS = d.plans;
+      safeJson('/api/auth/me', { headers: token ? { 'Authorization': 'Bearer ' + token } : {} })
+        .then(res => { if (res.ok && res.data && res.data.authenticated && res.data.user) setMemberUI(res.data.user); });
+
+      safeJson('/api/stripe/plans')
+        .then(res => {
+          if (res.ok && res.data && Array.isArray(res.data.plans) && res.data.plans.length > 0) {
+            PLANS = res.data.plans;
             renderStripePlans();
           }
-        })
-        .catch(() => {});
+        });
 
-      fetch('/api/stripe/config')
-        .then(r => r.ok ? r.json() : null)
-        .then(cfg => {
-          const el = document.getElementById('stripe-server-status');
-          if (!cfg || !el) return;
-          paymentLinkUrl = cfg.paymentLinkUrl || null;
-          el.textContent = cfg.configured
-            ? 'Stripe Live Server Ready · Worldwide Cards, Apple Pay & Google Pay settle directly to your Stripe account.'
-            : cfg.paymentLinkConfigured
-            ? 'Stripe Payment Link Ready · Worldwide checkout active.'
-            : 'Backend Plans Synced · Add STRIPE_SECRET_KEY in server environment secrets to activate live card charges.';
-        }).catch(() => {});
+      safeJson('/api/stripe/config')
+        .then(res => {
+          if (res.ok && res.data) {
+            paymentLinkUrl = res.data.paymentLinkUrl || null;
+          }
+        });
 
       const params = new URLSearchParams(window.location.search);
       const cs = params.get('checkout');
       const sid = params.get('session_id');
       const banner = document.getElementById('checkout-banner');
       if (cs === 'success' && sid && banner) {
-        fetch('/api/stripe/verify-session?session_id=' + encodeURIComponent(sid))
-          .then(r => r.json())
-          .then(v => {
+        safeJson('/api/stripe/verify-session?session_id=' + encodeURIComponent(sid))
+          .then(res => {
+            const v = res.data;
             banner.className = 'p-4 rounded-2xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 text-xs flex items-center justify-between gap-3';
             banner.textContent = v && v.verified ? `Stripe payment verified (${v.planName} · ${v.currency}). Membership activated.` : 'Checkout returned cleanly.';
-          }).catch(() => {});
+          });
       }
 
       // PWA Install Button logic
@@ -829,6 +878,119 @@
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       }
     })();
+  </script>
+
+  <!-- Firebase Auth (Google Sign-In) & Cloud Firestore Live Sync Module -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, getDocFromServer, setDoc, collection, getDocs, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+    try {
+      const cfgResp = await fetch('/firebase-applet-config.json');
+      if (cfgResp.ok) {
+        const cfg = await cfgResp.json();
+        const fbApp = initializeApp(cfg);
+        const fbAuth = getAuth(fbApp);
+        const fbDb = getFirestore(fbApp, cfg.firestoreDatabaseId);
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        getDocFromServer(doc(fbDb, 'test', 'connection')).catch((err) => {
+          if (err && String(err.message || '').includes('the client is offline')) {
+            console.error('Please check your Firebase configuration.');
+          }
+        });
+
+        window.__fbGoogleSignIn = () => signInWithPopup(fbAuth, provider);
+        window.__fbSignOut = () => signOut(fbAuth);
+        window.__fbLogWorkout = async (title, minutes, estimatedCalories) => {
+          const u = fbAuth.currentUser;
+          if (!u) return false;
+          const id = 'wo_' + Date.now();
+          await setDoc(doc(fbDb, 'users', u.uid, 'workoutLogs', id), {
+            userId: u.uid,
+            title: String(title).slice(0, 140),
+            minutes: Math.round(Number(minutes) || 20),
+            estimatedCalories: Math.round(Number(estimatedCalories) || 150),
+            completedAt: serverTimestamp()
+          });
+          return true;
+        };
+
+        onAuthStateChanged(fbAuth, async (user) => {
+          window.__fbActiveUser = user || null;
+          if (!user) return;
+          const userRef = doc(fbDb, 'users', user.uid);
+          const snap = await getDoc(userRef);
+          let pdata = snap.exists() ? snap.data() : null;
+          if (!pdata) {
+            pdata = {
+              uid: user.uid,
+              email: String(user.email || '').slice(0, 200),
+              fullName: String(user.displayName || 'Member').slice(0, 120),
+              phoneWhatsApp: '',
+              role: 'member',
+              subscriptionStatus: 'free',
+              subscriptionPlan: null,
+              subscriptionCurrency: null,
+              dietPreference: 'high_protein',
+              lifestyleGoal: 'weight_loss',
+              dailyCalorieGoal: 1650,
+              currentWeightKg: 74,
+              targetWeightKg: 63,
+              heightCm: 168,
+              age: 29,
+              gender: 'female',
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            };
+            await setDoc(userRef, pdata);
+          }
+
+          let woLogs = [];
+          try {
+            const ws = await getDocs(query(collection(fbDb, 'users', user.uid, 'workoutLogs'), where('userId', '==', user.uid), orderBy('completedAt', 'desc'), limit(30)));
+            woLogs = ws.docs.map(d => ({ id: d.id, ...d.data() }));
+          } catch {}
+
+          let favs = [];
+          try {
+            const fs = await getDocs(query(collection(fbDb, 'users', user.uid, 'favoriteRecipes'), where('userId', '==', user.uid), limit(50)));
+            favs = fs.docs.map(d => d.id);
+          } catch {}
+
+          let subStatus = pdata.subscriptionStatus || 'free';
+          let subPlan = pdata.subscriptionPlan || null;
+          try {
+            const idToken = await user.getIdToken();
+            const m = await fetch('/api/membership', { headers: { Authorization: 'Bearer ' + idToken } });
+            const ct = (m.headers.get('content-type') || '').toLowerCase();
+            if (m.ok && ct.includes('application/json')) {
+              const md = await m.json();
+              if (md && md.membership && md.membership.status === 'active') {
+                subStatus = 'active';
+                subPlan = md.membership.planName || subPlan;
+              }
+            }
+          } catch {}
+
+          if (window.__setMemberUI) {
+            window.__setMemberUI({
+              id: user.uid,
+              fullName: pdata.fullName || user.displayName || 'Member',
+              email: pdata.email || user.email,
+              subscriptionStatus: subStatus,
+              subscriptionPlan: subPlan,
+              workoutLogs: woLogs,
+              favoriteRecipes: favs
+            });
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Firebase mobile init skipped:', err);
+    }
   </script>
 </body>
 </html>

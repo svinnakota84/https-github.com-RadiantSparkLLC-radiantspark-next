@@ -36,6 +36,18 @@ import {
   estimateWorkoutCalories,
   formatLocalizedCurrency,
 } from '../data/lifesparkData';
+import {
+  auth,
+  ensureAndLoadMemberProfile,
+  firebaseConfig,
+  logWorkoutToFirestore,
+  saveDietPlanAndMetricsToFirestore,
+  signInWithGoogleFirebase,
+  signOutFirebase,
+  subscribeFirebaseAuth,
+  toggleFavoriteRecipeInFirestore,
+} from '../firebase';
+import { resolveApiUrl, safeFetchJson } from '../utils/apiBase';
 
 interface LifestylePortalProps {
   onOpenStripeModal?: (
@@ -58,14 +70,18 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
     connected: boolean;
     mode: string;
     webhookConfigured: boolean;
+    activeBackend: string;
+    staticHostDetected: boolean;
   }>({
     loaded: false,
     connected: false,
     mode: 'checking',
     webhookConfigured: false,
+    activeBackend: 'firebase',
+    staticHostDetected: false,
   });
 
-  // Customer Auth State
+  // Customer Auth State (Firebase Auth + Express Session fallback)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [authToken, setAuthToken] = useState<string | null>(() => {
     try {
@@ -74,6 +90,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
       return null;
     }
   });
+  const [firebaseUser, setFirebaseUser] = useState<any | null>(null);
   const [currentUser, setCurrentUser] = useState<any | null>(null);
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
@@ -130,15 +147,96 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
   const [workoutStatusMsg, setWorkoutStatusMsg] = useState<string | null>(null);
   const [whatsappSent, setWhatsappSent] = useState(false);
 
-  // Hydrate logged-in user + check Stripe return session
+  // Subscribe to live Firebase Authentication & Cloud Firestore member profile
+  useEffect(() => {
+    const unsubscribe = subscribeFirebaseAuth(async (fbUser) => {
+      setFirebaseUser(fbUser);
+      if (fbUser) {
+        try {
+          const workspace = await ensureAndLoadMemberProfile(fbUser);
+          let stripeSub = workspace.subscriptionStatus;
+          let stripePlan = workspace.subscriptionPlan;
+
+          const idToken = await fbUser.getIdToken().catch(() => null);
+          if (idToken) {
+            const memRes = await safeFetchJson('/api/membership', {
+              headers: { Authorization: `Bearer ${idToken}` },
+            });
+            if (memRes.ok && memRes.data?.membership?.status === 'active') {
+              stripeSub = 'active';
+              stripePlan = memRes.data.membership.planName || stripePlan;
+            }
+          }
+
+          setCurrentUser({
+            id: workspace.uid,
+            fullName: workspace.fullName,
+            email: workspace.email,
+            phoneWhatsApp: workspace.phoneWhatsApp,
+            subscriptionStatus: stripeSub,
+            subscriptionPlan: stripePlan,
+            favoriteRecipes: workspace.favoriteRecipes,
+            workoutLogs: workspace.workoutLogs,
+            authProvider: 'firebase_google',
+          });
+          if (workspace.latestDietPlan) {
+            setGeneratedPlan(workspace.latestDietPlan);
+          }
+          setFormData((prev) => ({
+            ...prev,
+            fullName: workspace.fullName || prev.fullName,
+            email: workspace.email || prev.email,
+            phoneWhatsApp: workspace.phoneWhatsApp || prev.phoneWhatsApp,
+            currentWeightKg: String(workspace.currentWeightKg || prev.currentWeightKg),
+            targetWeightKg: String(workspace.targetWeightKg || prev.targetWeightKg),
+            heightCm: String(workspace.heightCm || prev.heightCm),
+            age: String(workspace.age || prev.age),
+            gender: workspace.gender || prev.gender,
+            dietPreference: workspace.dietPreference || prev.dietPreference,
+            lifestyleGoal: workspace.lifestyleGoal || prev.lifestyleGoal,
+            dailyCalorieGoal: String(workspace.dailyCalorieGoal || prev.dailyCalorieGoal),
+          }));
+        } catch (err) {
+          console.error('Firebase member sync failed:', err);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Hydrate server membership / session + check Stripe return session & backend plans
   useEffect(() => {
     const token = authToken;
-    fetch('/api/auth/me', {
+    safeFetchJson('/api/membership', {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.authenticated && data.user) {
+    }).then((memRes) => {
+      if (memRes.isStaticHtmlHost) {
+        setStripeBackendState((s) => ({
+          ...s,
+          loaded: true,
+          staticHostDetected: true,
+          activeBackend: 'firebase_cloud',
+        }));
+      } else if (memRes.ok && memRes.data) {
+        const stripeInfo = memRes.data.stripe || {};
+        setStripeBackendState((s) => ({
+          ...s,
+          loaded: true,
+          connected: Boolean(stripeInfo.connected || stripeInfo.paymentLinkConfigured),
+          mode: stripeInfo.mode || s.mode,
+          webhookConfigured: Boolean(stripeInfo.webhookConfigured),
+          activeBackend: memRes.data.activeBackend || 'node+firebase',
+          staticHostDetected: false,
+        }));
+      }
+    });
+
+    if (!firebaseUser) {
+      safeFetchJson('/api/auth/me', {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      }).then((res) => {
+        if (res.ok && res.data?.authenticated && res.data.user) {
+          const data = res.data;
           setCurrentUser(data.user);
           if (data.user.savedPlan) setGeneratedPlan(data.user.savedPlan);
           setFormData((prev) => ({
@@ -153,56 +251,60 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
             dailyCalorieGoal: String(data.user.profile?.dailyCalorieGoal || prev.dailyCalorieGoal),
           }));
         }
-      })
-      .catch(() => {});
+      });
+    }
 
     const params = new URLSearchParams(window.location.search);
     const checkoutState = params.get('checkout');
     const sessionId = params.get('session_id');
     if (checkoutState === 'success' && sessionId) {
-      fetch(`/api/stripe/verify-session?session_id=${encodeURIComponent(sessionId)}`)
-        .then((r) => r.json())
-        .then((v) => {
-          if (v?.verified) {
-            setCheckoutNotice({
-              type: 'success',
-              message: `Stripe payment confirmed (${v.planName} · ${v.currency}). Your membership is active!`,
-            });
-            setActiveTab('plans');
-          } else {
-            setCheckoutNotice({
-              type: 'info',
-              message: 'Checkout returned cleanly. If payment is still settling, refresh in a moment.',
-            });
-          }
-        })
-        .catch(() => {});
+      safeFetchJson(`/api/stripe/verify-session?session_id=${encodeURIComponent(sessionId)}`).then((vRes) => {
+        const v = vRes.data;
+        if (vRes.ok && v?.verified) {
+          setCheckoutNotice({
+            type: 'success',
+            message: `Stripe payment confirmed (${v.planName} · ${v.currency}). Your membership is active!`,
+          });
+          setCurrentUser((prev: any) =>
+            prev ? { ...prev, subscriptionStatus: 'active', subscriptionPlan: v.planName } : prev
+          );
+          setActiveTab('plans');
+        } else {
+          setCheckoutNotice({
+            type: 'info',
+            message: 'Checkout returned cleanly. If payment is still settling, refresh in a moment.',
+          });
+        }
+      });
     } else if (checkoutState === 'cancelled') {
       setCheckoutNotice({
         type: 'info',
         message: 'Stripe checkout was cancelled. No card charge was placed.',
       });
     }
+
     // Fetch authoritative subscription plans & live Stripe connection status from backend
-    fetch(`/api/stripe/plans?currency=${encodeURIComponent(selectedCurrency)}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data && Array.isArray(data.plans) && data.plans.length > 0) {
-          setBackendPlans(data.plans);
-          setStripeBackendState({
-            loaded: true,
-            connected: Boolean(data.stripeConnected || data.paymentLinkConfigured),
-            mode: data.mode || 'unconfigured',
-            webhookConfigured: Boolean(data.webhookConfigured),
-          });
-        } else {
-          setStripeBackendState((s) => ({ ...s, loaded: true, mode: 'static_fallback' }));
-        }
-      })
-      .catch(() => {
-        setStripeBackendState((s) => ({ ...s, loaded: true, mode: 'static_fallback' }));
-      });
-  }, [authToken, selectedCurrency]);
+    safeFetchJson(`/api/stripe/plans?currency=${encodeURIComponent(selectedCurrency)}`).then((res) => {
+      const data = res.data;
+      if (res.ok && data && Array.isArray(data.plans) && data.plans.length > 0) {
+        setBackendPlans(data.plans);
+        setStripeBackendState((s) => ({
+          ...s,
+          loaded: true,
+          connected: Boolean(data.stripeConnected || data.paymentLinkConfigured),
+          mode: data.mode || 'unconfigured',
+          webhookConfigured: Boolean(data.webhookConfigured),
+        }));
+      } else {
+        setStripeBackendState((s) => ({
+          ...s,
+          loaded: true,
+          mode: 'static_fallback',
+          staticHostDetected: res.isStaticHtmlHost || s.staticHostDetected,
+        }));
+      }
+    });
+  }, [authToken, selectedCurrency, firebaseUser]);
 
   // Workout Interval Timer
   useEffect(() => {
@@ -218,6 +320,19 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
     }, 1000);
     return () => clearInterval(id);
   }, [timerRunning]);
+
+  const handleGoogleSignIn = async () => {
+    setAuthError(null);
+    setAuthBusy(true);
+    try {
+      await signInWithGoogleFirebase();
+      setShowAuthPanel(false);
+    } catch (err: any) {
+      setAuthError(err?.message || 'Google Sign-In did not complete. Please allow popups and try again.');
+    } finally {
+      setAuthBusy(false);
+    }
+  };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,15 +353,23 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
             }
           : { email: authEmail, password: authPassword };
 
-      const res = await fetch(endpoint, {
+      const res = await safeFetchJson(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setAuthError(data.error || 'Authentication failed.');
+
+      if (res.isStaticHtmlHost) {
+        setAuthError(
+          'Email/password requires the Node API server, which is inactive on this static host. Use "Continue with Google (Cloud Sync)" below — it works anywhere via Firebase!'
+        );
+        return;
+      }
+
+      if (!res.ok || !res.data) {
+        setAuthError(res.data?.error || 'Authentication failed.');
       } else {
+        const data = res.data;
         setAuthToken(data.token);
         try {
           localStorage.setItem('lifespark_token', data.token);
@@ -258,14 +381,16 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
         setShowAuthPanel(false);
       }
     } catch {
-      setAuthError('Could not reach authentication server.');
+      setAuthError('Could not reach authentication server. Try Continue with Google above.');
     } finally {
       setAuthBusy(false);
     }
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+    await signOutFirebase().catch(() => {});
+    setFirebaseUser(null);
+    await fetch(resolveApiUrl('/api/auth/logout'), { method: 'POST' }).catch(() => {});
     setAuthToken(null);
     setCurrentUser(null);
     try {
@@ -278,90 +403,162 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
   const handleGeneratePlan = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
-    try {
-      const res = await fetch('/api/lifespark/plan', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-        },
-        body: JSON.stringify({
-          fullName: formData.fullName || currentUser?.fullName || 'Member',
-          age: Number(formData.age),
-          gender: formData.gender,
-          heightCm: Number(formData.heightCm),
-          currentWeightKg: Number(formData.currentWeightKg),
-          targetWeightKg: Number(formData.targetWeightKg),
-          dietPreference: formData.dietPreference,
-          lifestyleGoal: formData.lifestyleGoal,
-          dailyCalorieGoal: Number(formData.dailyCalorieGoal),
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.plan) {
-          setGeneratedPlan(data.plan);
-          setIsGenerating(false);
-          return;
-        }
-      }
-    } catch {
-      // client fallback below
+    let computedPlan: any = null;
+
+    const res = await safeFetchJson('/api/lifespark/plan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
+      body: JSON.stringify({
+        fullName: formData.fullName || currentUser?.fullName || 'Member',
+        age: Number(formData.age),
+        gender: formData.gender,
+        heightCm: Number(formData.heightCm),
+        currentWeightKg: Number(formData.currentWeightKg),
+        targetWeightKg: Number(formData.targetWeightKg),
+        dietPreference: formData.dietPreference,
+        lifestyleGoal: formData.lifestyleGoal,
+        dailyCalorieGoal: Number(formData.dailyCalorieGoal),
+      }),
+    });
+
+    if (res.ok && res.data?.plan) {
+      computedPlan = res.data.plan;
+    } else {
+      const weightKg = Number(formData.currentWeightKg) || 74;
+      const heightCm = Number(formData.heightCm) || 168;
+      const age = Number(formData.age) || 29;
+      const targetCal = Number(formData.dailyCalorieGoal) || 1650;
+      const proteinGrams = Math.round((targetCal * 0.3) / 4);
+      const fatGrams = Math.round((targetCal * 0.28) / 9);
+      const carbsGrams = Math.max(40, Math.round((targetCal - proteinGrams * 4 - fatGrams * 9) / 4));
+      computedPlan = {
+        ...generatedPlan,
+        subscriberName: formData.fullName || currentUser?.fullName || 'Member',
+        dailyCalories: `${targetCal} kcal`,
+        macros: { proteinGrams, carbsGrams, fatGrams },
+        aiCoachNote: `Coach Maya Chen calculated ${targetCal} kcal (${proteinGrams}g P / ${carbsGrams}g C / ${fatGrams}g F) for ${weightKg} kg at ${heightCm} cm (Age ${age}).`,
+      };
     }
 
-    setGeneratedPlan((prev: any) => ({
-      ...prev,
-      subscriberName: formData.fullName || currentUser?.fullName || 'Member',
-      dailyCalories: `${formData.dailyCalorieGoal} kcal`,
-    }));
+    setGeneratedPlan(computedPlan);
+
+    if (auth.currentUser) {
+      saveDietPlanAndMetricsToFirestore(
+        auth.currentUser,
+        {
+          fullName: formData.fullName || currentUser?.fullName || 'Member',
+          phoneWhatsApp: formData.phoneWhatsApp,
+          dietPreference: formData.dietPreference,
+          lifestyleGoal: formData.lifestyleGoal,
+          dailyCalorieGoal: Number(formData.dailyCalorieGoal) || 1650,
+          currentWeightKg: Number(formData.currentWeightKg) || 74,
+          targetWeightKg: Number(formData.targetWeightKg) || 63,
+          heightCm: Number(formData.heightCm) || 168,
+          age: Number(formData.age) || 29,
+          gender: formData.gender || 'female',
+        },
+        computedPlan
+      ).catch((err) => console.error('Cloud plan sync failed:', err));
+    }
+
     setIsGenerating(false);
   };
 
   const handleLogCompletedWorkout = async (title: string, durationMinutes: number, cal: number) => {
     setWorkoutStatusMsg(null);
-    if (!authToken) {
+    if (!authToken && !auth.currentUser) {
       setWorkoutStatusMsg(
-        `Session complete (~${cal} kcal). Sign in above to save workout history to your profile.`
+        `Session complete (~${cal} kcal). Sign in above to save workout history to your Cloud profile.`
       );
       return;
     }
-    try {
-      const res = await fetch('/api/lifespark/profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          workoutLog: { title, minutes: durationMinutes, estimatedCalories: cal },
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCurrentUser(data.user);
-        setWorkoutStatusMsg(`Saved "${title}" (~${cal} kcal burned) to your Lifestyle Spark log.`);
+
+    if (auth.currentUser) {
+      try {
+        await logWorkoutToFirestore(auth.currentUser, {
+          title,
+          minutes: durationMinutes,
+          estimatedCalories: cal,
+        });
+        const newEntry = {
+          id: `wo_${Date.now()}`,
+          title,
+          minutes: durationMinutes,
+          estimatedCalories: cal,
+          completedAt: new Date().toISOString(),
+        };
+        setCurrentUser((prev: any) =>
+          prev ? { ...prev, workoutLogs: [newEntry, ...(prev.workoutLogs || [])] } : prev
+        );
+        setWorkoutStatusMsg(`Saved "${title}" (~${cal} kcal burned) to Cloud Firestore.`);
+        return;
+      } catch {
+        setWorkoutStatusMsg('Could not sync workout to Firestore right now.');
+        return;
       }
-    } catch {
+    }
+
+    const res = await safeFetchJson('/api/lifespark/profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({
+        workoutLog: { title, minutes: durationMinutes, estimatedCalories: cal },
+      }),
+    });
+    if (res.ok && res.data?.user) {
+      setCurrentUser(res.data.user);
+      setWorkoutStatusMsg(`Saved "${title}" (~${cal} kcal burned) to your Lifestyle Spark log.`);
+    } else {
       setWorkoutStatusMsg('Could not sync workout right now.');
     }
   };
 
   const handleToggleFavoriteRecipe = async (recipeId: string) => {
-    if (!authToken) {
+    if (!authToken && !auth.currentUser) {
       setShowAuthPanel(true);
       return;
     }
-    const res = await fetch('/api/lifespark/profile', {
+
+    if (auth.currentUser) {
+      const rec = LIFESPARK_RECIPES.find((r) => r.id === recipeId);
+      const currentlySaved = Boolean(currentUser?.favoriteRecipes?.includes(recipeId));
+      try {
+        const nowSaved = await toggleFavoriteRecipeInFirestore(
+          auth.currentUser,
+          recipeId,
+          rec?.title || 'Healthy Recipe',
+          currentlySaved
+        );
+        setCurrentUser((prev: any) => {
+          if (!prev) return prev;
+          const prevFavs: string[] = prev.favoriteRecipes || [];
+          const nextFavs = nowSaved
+            ? [recipeId, ...prevFavs.filter((id) => id !== recipeId)]
+            : prevFavs.filter((id) => id !== recipeId);
+          return { ...prev, favoriteRecipes: nextFavs };
+        });
+      } catch {
+        // handled by handleFirestoreError logging
+      }
+      return;
+    }
+
+    const res = await safeFetchJson('/api/lifespark/profile', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({ toggleFavoriteRecipeId: recipeId }),
-    }).catch(() => null);
-    if (res && res.ok) {
-      const data = await res.json();
-      setCurrentUser(data.user);
+    });
+    if (res.ok && res.data?.user) {
+      setCurrentUser(res.data.user);
     }
   };
 
@@ -685,14 +882,26 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
         ) : (
           <>
             <div>
+              <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-emerald-400 mb-1">
+                <span>Active DB &amp; Auth: Cloud Firestore + Firebase Auth ({firebaseConfig.projectId})</span>
+              </div>
               <strong className="text-white text-sm font-bold block">
                 Member Login &amp; Sync Across Web + Lifestyle Spark App
               </strong>
               <p className="text-xs text-slate-400">
-                Sign in or create an account to save custom meal plans, food recipes, workout logs, and Stripe subscriptions.
+                Sign in with Google (works everywhere via Firebase Cloud) or your member account to save custom meal plans, recipes, workout logs, and Stripe subscriptions.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={authBusy}
+                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-black text-xs flex items-center gap-2 whitespace-nowrap shadow-md"
+              >
+                <span>G</span>
+                <span>Continue with Google</span>
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -702,7 +911,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
                 className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-1.5 whitespace-nowrap"
               >
                 <LogIn className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Member Sign In</span>
+                <span>Email Sign In</span>
               </button>
               <button
                 type="button"
@@ -725,21 +934,36 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
           onSubmit={handleAuthSubmit}
           className="p-6 rounded-3xl bg-slate-950 border border-emerald-500/40 space-y-4 shadow-xl"
         >
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <h3 className="text-base font-bold text-white">
-              {authMode === 'register'
-                ? 'Create Your Lifestyle Spark Member Account'
-                : 'Sign In to Your Lifestyle Spark Account'}
-            </h3>
-            <button
-              type="button"
-              onClick={() => setAuthMode(authMode === 'register' ? 'login' : 'register')}
-              className="text-xs text-emerald-400 underline font-semibold"
-            >
-              {authMode === 'register'
-                ? 'Already have an account? Sign In'
-                : 'New here? Create Account'}
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="text-base font-bold text-white">
+                {authMode === 'register'
+                  ? 'Create Your Lifestyle Spark Member Account'
+                  : 'Sign In to Your Lifestyle Spark Account'}
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Instant Google Cloud Sign-In (Firebase) or server Email/Password session
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={authBusy}
+                className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-black text-xs"
+              >
+                Continue with Google
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMode(authMode === 'register' ? 'login' : 'register')}
+                className="text-xs text-emerald-400 underline font-semibold"
+              >
+                {authMode === 'register'
+                  ? 'Already have an account? Sign In'
+                  : 'New here? Create Account'}
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
