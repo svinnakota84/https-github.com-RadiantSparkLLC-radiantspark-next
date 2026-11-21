@@ -1,71 +1,278 @@
 {
   "status": "online",
-  "lastRefreshedAt": "2026-11-21T01:53:08.143Z",
-  "lastSuccessfulSyncAt": "2026-11-21T01:53:08.143Z",
+  "lastRefreshedAt": "2026-11-21T08:58:54.771Z",
+  "lastSuccessfulSyncAt": "2026-11-21T08:58:54.771Z",
   "refreshIntervalMinutes": 15,
   "freshnessLimitMinutes": 360,
   "isStale": false,
   "totalDeals": 96,
   "connectedSources": [
-    "DealNews Verified RSS",
     "DealNews Electronics RSS",
-    "Slickdeals Frontpage Deals",
+    "DealNews Verified RSS",
     "Slickdeals Electronics Frontpage",
-    "Slickdeals Black Friday 2026",
-    "Slickdeals Black Friday Electronics"
+    "Slickdeals Frontpage Deals",
+    "Slickdeals Black Friday Electronics",
+    "Slickdeals Black Friday 2026"
   ],
   "sourcesStatus": [
-    {
-      "id": "dealnews-live",
-      "name": "DealNews Verified RSS",
-      "status": "ok",
-      "itemCount": 46,
-      "durationMs": 168,
-      "checkedAt": "2026-11-21T01:53:08.143Z"
-    },
     {
       "id": "dealnews-electronics",
       "name": "DealNews Electronics RSS",
       "status": "ok",
-      "itemCount": 37,
-      "durationMs": 209,
-      "checkedAt": "2026-11-21T01:53:08.143Z"
+      "itemCount": 38,
+      "durationMs": 201,
+      "checkedAt": "2026-11-21T08:58:54.771Z"
     },
     {
-      "id": "slickdeals-frontpage",
-      "name": "Slickdeals Frontpage Deals",
+      "id": "dealnews-live",
+      "name": "DealNews Verified RSS",
       "status": "ok",
-      "itemCount": 23,
-      "durationMs": 590,
-      "checkedAt": "2026-11-21T01:53:08.143Z"
+      "itemCount": 45,
+      "durationMs": 248,
+      "checkedAt": "2026-11-21T08:58:54.771Z"
     },
     {
       "id": "slickdeals-electronics",
       "name": "Slickdeals Electronics Frontpage",
       "status": "ok",
-      "itemCount": 23,
-      "durationMs": 609,
-      "checkedAt": "2026-11-21T01:53:08.143Z"
+      "itemCount": 24,
+      "durationMs": 555,
+      "checkedAt": "2026-11-21T08:58:54.771Z"
     },
     {
-      "id": "slickdeals-blackfriday",
-      "name": "Slickdeals Black Friday 2026",
+      "id": "slickdeals-frontpage",
+      "name": "Slickdeals Frontpage Deals",
       "status": "ok",
       "itemCount": 24,
-      "durationMs": 1190,
-      "checkedAt": "2026-11-21T01:53:08.143Z"
+      "durationMs": 640,
+      "checkedAt": "2026-11-21T08:58:54.771Z"
     },
     {
       "id": "slickdeals-bf-electronics",
       "name": "Slickdeals Black Friday Electronics",
       "status": "ok",
-      "itemCount": 25,
-      "durationMs": 1240,
-      "checkedAt": "2026-11-21T01:53:08.143Z"
+      "itemCount": 20,
+      "durationMs": 1369,
+      "checkedAt": "2026-11-21T08:58:54.771Z"
+    },
+    {
+      "id": "slickdeals-blackfriday",
+      "name": "Slickdeals Black Friday 2026",
+      "status": "ok",
+      "itemCount": 23,
+      "durationMs": 1434,
+      "checkedAt": "2026-11-21T08:58:54.771Z"
     }
   ],
   "affiliateDisclosure": "Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers. Verify final pricing, taxes, shipping, and stock directly on the merchant checkout page.",
   "deals": [
+    {
+      "id": "sd-b9d5753cc0",
+      "title": "Cowin E7 Bluetooth Noise-Canceling Over-Ear Headphones, many colors",
+      "category": "electronics",
+      "currentPrice": 35,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Verified Merchant",
+      "merchantVerified": true,
+      "score": 144,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20362347-cowin-e7-bluetooth-noise-canceling-over-ear-headphones-many-colors-35?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Verified Merchant",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/2/9/8/9/1/0/9/8/300x300/22505046.thumb",
+      "description": "All colors in stock as of this post: black, blue, green, purple, red, gray. The headband and adjustment mechanisms are metal, so they last a lot longer than most cheap headphones, especially for kids and people who aren't careful with their stuff. Replacement earpads are cheap. (But usually only available in black.) Ba",
+      "badges": [
+        "Black Friday 2026",
+        "Verified Merchant"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:24:23.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Verified Merchant",
+        "Community Votes: +2",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Verified Merchant. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-4b28a3f99d",
+      "title": "Apple MacBook Pro 16\" Z1MZ0002P (Early 2026) 16.2\" Laptop Computer - Space Black Apple M5 Max 18-Core CPU; 128GB Unified Memory; 8TB Solid State Drive; 40-Core GPU",
+      "category": "electronics",
+      "currentPrice": 779,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Microcenter",
+      "merchantVerified": true,
+      "score": 144,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20362320-apple-macbook-pro-16-z1mz0002p-early-2026-16-2-laptop-computer-space-black-apple-m5-max-18-core-cpu-128gb-unified-memory-8tb-solid-state-drive-40-core-gpu-7799-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Microcenter",
+      "imageUrl": "/assets/sparkdeals-tech.jpg",
+      "description": "Maxed Out Apple Macbook Pro (Space Black) at Micro Center Apple M5 Max 18-core Chip Apple M5 Max Chip 40-Core GPU 16.2\" Liquid Retina XDR Display 128GB Unified RAM 8TB SSD Original price $9999.99 Discount $2200 Final price $7799.99 https://www.microcenter .com/produ...pace-black",
+      "badges": [
+        "Black Friday 2026",
+        "Microcenter"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:15:40.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Microcenter",
+        "Community Votes: +2",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Microcenter. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-57aa510530",
+      "title": "2-Pk DEWALT 20V MAX Lithium-Ion 5.0Ah Batteries w/ Charger $89 + Free S&H Orders $150+",
+      "category": "electronics",
+      "currentPrice": 89,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Fastenersinc.net",
+      "merchantVerified": true,
+      "score": 516,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20358744-dewalt-dcb205-2c-battery-kit-20v-max-5-ah-lithium-ion-includes-charger-88-51?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Fastenersinc.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/8/2/3/9/6/6/7/300x300/22503957.thumb",
+      "description": "Fasteners Inc has DeWalt DCB205-2C for $89 in the Black Friday Sale (11/20/2026) • Shipping is $8.74, or free shipping at $150 • Fasteners doesn't collect sales tax outside CA • Fasteners Inc is a DeWalt authorized dealer who sell genuine products Other Black Friday Deals [ fastenersinc.net ] https://fastenersinc.ne t/",
+      "badges": [
+        "Black Friday 2026",
+        "Fastenersinc.net",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T06:40:09.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Fastenersinc.net",
+        "Community Votes: +33",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Fastenersinc.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-60139e504a",
+      "title": "Amazon Fire TV Stick HD 1080p Streaming Device w/ Alexa Voice Remote",
+      "category": "electronics",
+      "currentPrice": 15.99,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Home Depot",
+      "merchantVerified": true,
+      "score": 132,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20361429-amazon-fire-tv-stick-hd-1080p-streaming-device-w-alexa-voice-remote-15-99-free-shipping?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Home Depot",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/4/9/0/0/1/2/300x300/22502751.thumb",
+      "description": "Home Depot [ homedepot.com ] has Amazon Fire TV Stick HD 1080p Streaming Device w/ Alexa Voice Remote on sale for $15.99 . Shipping is free.",
+      "badges": [
+        "Black Friday 2026",
+        "Home Depot",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T04:12:47.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Home Depot",
+        "Community Votes: +1",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Home Depot. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-985ef7c9a4",
+      "title": "TCL - 65\" S4CF Series 4K UHD HDR Smart TV with Fire TV (2026)",
+      "category": "electronics",
+      "currentPrice": 229.99,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Best Buy",
+      "merchantVerified": true,
+      "score": 144,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20361408-tcl-65-s4cf-series-4k-uhd-hdr-smart-tv-with-fire-tv-2026-229-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Best Buy",
+      "imageUrl": "/assets/sparkdeals-tech.jpg",
+      "description": "https://www.bestbuy.com/product/t...c=pdp_page",
+      "badges": [
+        "Black Friday 2026",
+        "Best Buy"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T04:04:50.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Best Buy",
+        "Community Votes: +2",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Best Buy. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-dfa6beffe6",
+      "title": "Shokz OpenFit Air Sports Headphones (Black/White)",
+      "category": "electronics",
+      "currentPrice": 59.95,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Shokz",
+      "merchantVerified": true,
+      "score": 252,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20361201-shokz-openfit-air-sports-headphones-black-white-59-95-free-shipping?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Shokz",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/2/8/5/9/6/8/4/7/300x300/22502250.thumb",
+      "description": "Shokz [ shokz.com ] has Shokz OpenFit Air Sports Headphones (Black/White) on sale for $119.95- $60 when you apply discount code SDopenfitair checkout = $59.95. Shipping is free .",
+      "badges": [
+        "Black Friday 2026",
+        "Shokz",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T03:19:07.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Shokz",
+        "Community Votes: +11",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Shokz. Confirm final price & stock on retailer page."
+    },
     {
       "id": "sd-7497c13e7c",
       "title": "LG Partner: 65 Inch Class LG Gallery TV with Frame LX7B Mini LED 4K Smart TV",
@@ -76,7 +283,7 @@
       "currency": "USD",
       "merchant": "Lg",
       "merchantVerified": true,
-      "score": 132,
+      "score": 156,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360706-lg-partner-65-inch-class-lg-gallery-tv-with-frame-lx7b-mini-led-4k-smart-tv-650-24?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Lg",
@@ -94,7 +301,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Lg",
-        "Community Votes: +1",
+        "Community Votes: +3",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday Electronics"
       ],
@@ -110,7 +317,7 @@
       "currency": "USD",
       "merchant": "Lg",
       "merchantVerified": true,
-      "score": 132,
+      "score": 156,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360655-lg-partner-65-inch-class-lg-oled-evo-ai-c6-4k-smart-tv-m5-sound-suite-speakers-2-units-1133-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Lg",
@@ -128,7 +335,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Lg",
-        "Community Votes: +1",
+        "Community Votes: +3",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday Electronics"
       ],
@@ -144,11 +351,11 @@
       "currency": "USD",
       "merchant": "Lg",
       "merchantVerified": true,
-      "score": 156,
+      "score": 288,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360583-lg-partner-77-c6h-oled-evo-4k-tv-27-ultragear-g5-ips-fhd-200hz-1ms-monitor-1619-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Lg",
-      "imageUrl": "/assets/sparkdeals-tech.jpg",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/4/6/0/2/4/2/2/300x300/22502709.thumb",
       "description": "The deal is back. For LG Partner Members - 77\" C6 OLED evo AI C6H 4K Smart TV + Free Gaming Monitor ($126 value) + Delivery/Setup + Free $300 Rinse Credit for $1619.99 when you follow the steps below. Deal Instructions 1. Sign up or log in to LG Partner Store with an eligible account Note: Eligibility based on your emp",
       "badges": [
         "Black Friday 2026",
@@ -162,46 +369,11 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Lg",
-        "Community Votes: +3",
+        "Community Votes: +14",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday Electronics"
       ],
       "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Lg. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-06186db5ba",
-      "title": "Baseus Bass BH1 Lite Bluetooth 6.0 Over-Ear Headphones w/ 80H Playtime & AI ENC (Cosmic Black) $19.99 + Free Shipping w/ Prime or on $35+",
-      "category": "electronics",
-      "currentPrice": 19.99,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 132,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20360553-baseus-bass-bh1-lite-bluetooth-6-0-over-ear-headphones-w-80h-playtime-ai-enc-cosmic-black-19-99-free-shipping-w-prime-or-on-35?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/2/0/5/3/8/1/8/4/300x300/22500588.thumb",
-      "description": "Baseus Official Store via Amazon [ amazon.com ] has Baseus Bass BH1 Lite Bluetooth 6.0 Over-Ear Headphones w/ 80H Playtime & AI ENC (Cosmic Black) on sale for $19.99 . Shipping is free w/ Prime or on orders $35+. Don't have Amazon Prime? [LIST][*]Students can get a free 6-Month Amazon Prime trial [ amazon.com ] with fr",
-      "badges": [
-        "Black Friday 2026",
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:02:47.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday Electronics",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +1",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday Electronics"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-663f1d7d80",
@@ -215,7 +387,7 @@
       "merchantVerified": true,
       "score": 220,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Beats-Headphones-Earbuds-Black-Friday-Deals-at-Best-Buy-for-From-50-free-shipping/22415967.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/Beats-Headphones-Earbuds-Black-Friday-Deals-at-Best-Buy-for-From-50-free-shipping/22415967.html?iref=rss-c142",
       "primaryStore": "Best Buy",
       "imageUrl": "https://d.dlnws.com/64599/1795221830-6501017_sd.webp?h=250&w=183",
       "description": "Best Buy's Black Friday Beats lineup covers over-ear headphones, on-ear headphones, and true wireless earbuds. Studio Pro wireless noise cancelling headphones in black are $150 off at $149.99, and Solo 4 on-ear headphones drop to $99.99. Solo Buds True Wireless Earbuds start at $49.99 for the lowest entry price. My Best Buy members get free shipping on all orders (it's free to join).",
@@ -224,19 +396,19 @@
         "Best Buy",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T00:43:57.000Z",
       "publishedAt": "2026-11-21T00:43:57.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Best Buy",
         "Category: Headphones",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for Best Buy. Click View Deal to confirm current checkout availability."
+      "highlight": "Verified from DealNews Electronics RSS for Best Buy. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "sd-347a886a20",
@@ -248,7 +420,7 @@
       "currency": "USD",
       "merchant": "B&H Photo",
       "merchantVerified": true,
-      "score": 156,
+      "score": 288,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360223-starting-11-21-2026-4-50-pm-cst-apple-14-macbook-pro-w-m6-12-core-24gb-ram-1tb-ssd-space-black-1999?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "B&H Photo",
@@ -266,7 +438,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: B&H Photo",
-        "Community Votes: +3",
+        "Community Votes: +14",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday Electronics"
       ],
@@ -282,7 +454,7 @@
       "currency": "USD",
       "merchant": "B&H Photo",
       "merchantVerified": true,
-      "score": 120,
+      "score": 180,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360187-starting-11-21-2026-4-50-pm-cst-apple-14-macbook-pro-w-m6-12-core-16gb-ram-1tb-ssd-space-black-1799-free-shipping?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "B&H Photo",
@@ -301,45 +473,11 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: B&H Photo",
-        "Community Votes: +0",
+        "Community Votes: +5",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday Electronics"
       ],
       "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at B&H Photo. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-026d417b0d",
-      "title": "Cricket wireless- iPhone 17e- New- $280 with 3 month plan",
-      "category": "electronics",
-      "currentPrice": 280,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Cricketwireless",
-      "merchantVerified": true,
-      "score": 144,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20360067-cricket-wireless-iphone-17e-new-280-with-3-month-plan?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Cricketwireless",
-      "imageUrl": "/assets/sparkdeals-tech.jpg",
-      "description": "Cricket wireless is offering new iPhone 17e for $100 and when you pay for three month supreme unlimited plan($60*3=$180.00) and when you port your number. Total is $280 plus applicable taxes https://www.cricketwire less.com/s...-17e-256gb",
-      "badges": [
-        "Black Friday 2026",
-        "Cricketwireless"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T23:07:17.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday Electronics",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Cricketwireless",
-        "Community Votes: +2",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday Electronics"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Cricketwireless. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-0fe6b10585",
@@ -353,7 +491,7 @@
       "merchantVerified": true,
       "score": 220,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Apple/Apple-Watch-Ultra-3-49-mm-GPS-Cellular-Smart-Watch/496563.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/products/Apple/Apple-Watch-Ultra-3-49-mm-GPS-Cellular-Smart-Watch/496563.html?iref=rss-c142",
       "primaryStore": "Best Buy",
       "imageUrl": "https://d.dlnws.com/64599/1764770957-apple-watch-ultra-black-band-axwu.webp?h=250&w=250",
       "description": "Apple Watch Ultra 3 drops to $549 in Best Buy's Black Friday sale. That's a $250 savings. My Best Buy members get free shipping on all orders (it's free to join).",
@@ -362,54 +500,19 @@
         "Best Buy",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T22:48:25.000Z",
       "publishedAt": "2026-11-20T22:48:25.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Best Buy",
         "Category: Smart Watches",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for Best Buy. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-7ed3120541",
-      "title": "Sony WH-1000XM6 Wireless Noise Canceling Closed Back Over-Ear Headphones (Black) from $293 & More + Free S&H",
-      "category": "electronics",
-      "currentPrice": 293,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Adorama",
-      "merchantVerified": true,
-      "score": 492,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359713-sony-wh-1000xm6-wireless-noise-canceling-closed-back-over-ear-headphones-black-from-293-more-free-s-h?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Adorama",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/9/5/3/2/3/300x300/22498305.thumb",
-      "description": "deal [ adorama.com ] $309 + Free S/H w/ code JHCE9926",
-      "badges": [
-        "Black Friday 2026",
-        "Adorama",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T22:01:00.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday Electronics",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Adorama",
-        "Community Votes: +31",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday Electronics"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Adorama. Confirm final price & stock on retailer page."
+      "highlight": "Verified from DealNews Electronics RSS for Best Buy. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "sd-0d570394cb",
@@ -421,7 +524,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 144,
+      "score": 168,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359680-dewalt-dcb1112-fast-charger-20v-12-a-wall-mountable-compatible-with-20v-max-batteries-59?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -440,7 +543,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +2",
+        "Community Votes: +4",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -456,11 +559,11 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 156,
+      "score": 192,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359629-dewalt-dcw620b-plunge-router-20v-max-2-1-4-peak-hp-cordless-variable-speed-11000-23000-rpm-219?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/4/5/6/0/3/7/8/300x300/22498626.thumb",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/4/2/8/1/6/300x300/22503321.thumb",
       "description": "This is a Fastner's Inc. Black Friday deal. They are an authorized retailer for this brand. Price good through 11/30/26. Free shipping on orders over $150.00, otherwise it's about $8.00. No sales taxes collected for most states (excludes CA and possibly OR). https://fastenersinc.ne t/product/...5166515391",
       "badges": [
         "Black Friday 2026",
@@ -475,7 +578,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +3",
+        "Community Votes: +6",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -491,7 +594,7 @@
       "currency": "USD",
       "merchant": "Greenworkstools",
       "merchantVerified": true,
-      "score": 120,
+      "score": 132,
       "couponCode": "SDNEWSLETTER15",
       "affiliateUrl": "https://slickdeals.net/f/20359617-greenworks-48v-24v-x-2-21-cordless-battery-self-propelled-mower-3pc-combo-kit-2-5-0ah-batteries-1-2-0-ah-battery-1-dual-port-rapid-charger-and-1-2a-charger-357?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Greenworkstools",
@@ -509,47 +612,11 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Greenworkstools",
-        "Community Votes: +0",
+        "Community Votes: +1",
         "Coupon Code: SDNEWSLETTER15",
         "Source: Slickdeals Black Friday 2026"
       ],
       "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Greenworkstools. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-3398eb2df8",
-      "title": "RK ROYAL KLUDGE A72 HE 8K Wireless Hall Effect Gaming Keyboard Split Alice Ergonomic Layout | Anime Mechanical Keyboard RGB, Matching Anime Wrist Rest $75.99 Amazon Black Friday",
-      "category": "electronics",
-      "currentPrice": 75.99,
-      "originalPrice": 99.99,
-      "discountPercent": 24,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 120,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359134-rk-royal-kludge-a72-he-8k-wireless-hall-effect-gaming-keyboard-split-alice-ergonomic-layout-anime-mechanical-keyboard-rgb-matching-anime-wrist-rest-75-99-amazon-black-friday?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "amazonUsaUrl": "https://www.amazon.com/RK-ROYAL-K...B0HF3WGLSM",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/7/0/5/8/6/300x300/22497345.thumb",
-      "description": "Magnetic Hall Effect switches and wrist rest ergonomic keyboard -24% $75.99 Price history List Price: $99.99 https://www.amazon.com/RK-ROYAL-K...B0HF3WGLSM",
-      "badges": [
-        "Black Friday 2026",
-        "Amazon USA",
-        "24% OFF"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T20:25:38.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +0",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-d28ddae9f2",
@@ -572,7 +639,7 @@
         "Best Buy",
         "Free Shipping"
       ],
-      "expiresInHours": 196,
+      "expiresInHours": 189,
       "expiresAt": "2026-11-29T06:00:00.000Z",
       "publishedAt": "2026-11-20T16:28:37.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -607,7 +674,7 @@
         "Verizon",
         "Free Shipping"
       ],
-      "expiresInHours": 2150,
+      "expiresInHours": 2143,
       "expiresAt": "2027-02-18T16:21:48.000Z",
       "publishedAt": "2026-11-20T16:21:48.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -642,7 +709,7 @@
         "Best Buy",
         "Free Shipping"
       ],
-      "expiresInHours": 196,
+      "expiresInHours": 189,
       "expiresAt": "2026-11-29T06:00:00.000Z",
       "publishedAt": "2026-11-20T15:40:13.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -651,41 +718,6 @@
       "specifications": [
         "Retailer: Best Buy",
         "Category: Electronics",
-        "No coupon code required",
-        "Source: DealNews Electronics RSS"
-      ],
-      "highlight": "Verified from DealNews Electronics RSS for Best Buy. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-e95c09a382",
-      "title": "Samsung QN90F 50\" 4K Neo QLED Smart TV",
-      "category": "electronics",
-      "currentPrice": 900,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Best Buy",
-      "merchantVerified": true,
-      "score": 220,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Samsung-QN90-F-50-4-K-Neo-QLED-Smart-TV-for-900-free-shipping/22415259.html?iref=rss-c142",
-      "primaryStore": "Best Buy",
-      "imageUrl": "https://d.dlnws.com/64599/1795188425-93be89ce-9de5-4e8c-a923-cff7fdb67a53.webp?h=159&w=250",
-      "description": "As one of Best Buy's Black Friday Deals of the Day, this Samsung's 50",
-      "badges": [
-        "Black Friday 2026",
-        "Best Buy",
-        "Free Shipping"
-      ],
-      "expiresInHours": 4,
-      "expiresAt": "2026-11-21T05:58:00.000Z",
-      "publishedAt": "2026-11-20T15:27:13.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Electronics RSS",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Best Buy",
-        "Category: TVs",
         "No coupon code required",
         "Source: DealNews Electronics RSS"
       ],
@@ -712,7 +744,7 @@
         "AliExpress",
         "80% OFF"
       ],
-      "expiresInHours": 339,
+      "expiresInHours": 332,
       "expiresAt": "2026-12-05T04:59:00.000Z",
       "publishedAt": "2026-11-19T09:15:50.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -727,6 +759,1394 @@
       "highlight": "Verified from DealNews Electronics RSS for AliExpress. Click View Deal to confirm current checkout availability."
     },
     {
+      "id": "sd-c5438b6393",
+      "title": "adidas Men's Grand Court 3.0 Shoes (Maroon / Off White / Gum)",
+      "category": "apparel",
+      "currentPrice": 20,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "eBay",
+      "merchantVerified": true,
+      "score": 384,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20361528-adidas-men-grand-court-3-0-shoes-maroon-off-white-gum-20?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "eBay",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22505214.thumb",
+      "description": "adidas men GRAND COURT 3.0 Shoes (Maroon / Off White / Gum) $20.00 Apply code EXTRA50SALE at checkout. Free shipping. Details Regular fit Laces Upper: Other Materials / Textile Lining: Textile CLOUDFOAM cushioning Linear logo on heel tab and tongue COLD CEMENT construction https://www.ebay.com/itm/96022234...9515 75832",
+      "badges": [
+        "eBay",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:57:32.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: eBay",
+        "Community Votes: +22",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at eBay. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "dn-31b0527ff5",
+      "title": "Wrangler Wrancher Men's Stretch Canvas Utility Work Gloves",
+      "category": "home",
+      "currentPrice": 8,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Wrangler-Wrancher-Mens-Stretch-Canvas-Utility-Work-Gloves-for-8-via-Sub-Save-free-shipping-w-Prime/22417713.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795251169-product-trimmed.jpg?h=190&w=250",
+      "description": "At Amazon, check out with Subscribe & Save to get these Wrangler Wrancher Men's Stretch Canvas Utility Work Gloves for $8. It's the best price we could find by $7. Shipping is free for Prime members.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2160,
+      "expiresAt": "2027-02-19T08:52:55.000Z",
+      "publishedAt": "2026-11-21T08:52:55.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Category: Tools & Hardware",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-4a8438fbdd",
+      "title": "Hyperkin Trooper 2 Premium USB Game Controller for PC, Mac, & Linux",
+      "category": "electronics",
+      "currentPrice": 17,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Hyperkin-Trooper-2-Premium-USB-Game-Controller-for-PC-Mac-Linux-for-17-free-shipping-w-Prime/22417712.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795251034-product-trimmed.jpg?h=250&w=249",
+      "description": "Amazon has the Hyperkin Trooper 2 Premium USB Game Controller for $17, down from $20. The 10-foot USB cable gives plenty of room to sit back from the screen. Shipping is free for Prime members.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2160,
+      "expiresAt": "2027-02-19T08:50:40.000Z",
+      "publishedAt": "2026-11-21T08:50:40.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Category: Joysticks/Gamepads",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-6f9f80541d",
+      "title": "Skull Cap Helmet Liner w/ Glasses Holes",
+      "category": "lifestyle",
+      "currentPrice": 8.53,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Skull-Cap-Helmet-Liner-w-Glasses-Holes-for-9-free-shipping-w-Prime/22417698.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795250750-81vff8gugrl.jpg?h=250&w=250",
+      "description": "At Amazon, get this Skull Cap Helmet Liner for $8.53. It's the best price Amazon has charged for this Skull Cap Helmet Liner. Shipping is free for Prime members.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2160,
+      "expiresAt": "2027-02-19T08:45:57.000Z",
+      "publishedAt": "2026-11-21T08:45:57.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Category: Bicycling",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "sd-6351c452bd",
+      "title": "Switch Digital Games: Metroid Dread or Donkey Kong Country Returns HD $42 Each & More",
+      "category": "gaming",
+      "currentPrice": 42,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 1560,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20354574-switch-digital-games-metroid-dread-or-donkey-kong-country-returns-hd-42-each-more?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22505136.thumb",
+      "description": "Amazon.com Services LLC via Amazon [ amazon.com ] has Metroid Dread (Nintendo Switch Digital Code) for $41.99 . Shipping is free .[list][*] Donkey Kong Country Returns HD [ amazon.com ] (Nintendo Switch Digital Code) - $41.99 [*] Kirby and the Forgotten Land [ amazon.com ] (Nintendo Switch Digital Code) - $41.88",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:43:04.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +120",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "dn-5c5a44463f",
+      "title": "Epson WorkForce Pro WF-4935 Wireless All-in-One Printer",
+      "category": "lifestyle",
+      "currentPrice": 150,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Epson/Epson-Work-Force-Pro-WF-4935-Wireless-All-in-One-Printer/561833.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795250320-product-trimmed.jpg?h=220&w=250",
+      "description": "At Amazon, get this Epson WorkForce Pro WF-4935 Wireless All-in-One Printer for $150. It's the best price we could find by $150. The 500-sheet capacity across two trays and 50-sheet document feeder suit higher-volume home or office use. Shipping is free.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2160,
+      "expiresAt": "2027-02-19T08:38:45.000Z",
+      "publishedAt": "2026-11-21T08:38:45.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Category: Inkjet Printers",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "sd-7b40f3ca98",
+      "title": "Asmodee Harmonies Family Strategy Board Game",
+      "category": "gaming",
+      "currentPrice": 23.5,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Slickdeals.net",
+      "merchantVerified": true,
+      "score": 372,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20354610-23-49-asmodee-harmonies-family-strategy-board-game-at-amazon?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Slickdeals.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22505067.thumb",
+      "description": "Amazon has Asmodee Harmonies Family Strategy Board Game on sale for $23.49 . Shipping is free w/ Prime or on $35+ orders. Thanks to community member phoinix for sharing this deal. About this product : [LIST] [*]42 beautifully illustrated cards create oneiric landscapes [*]120 wooden tokens provide tactile gaming experi",
+      "badges": [
+        "Slickdeals.net"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:31:07.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Slickdeals.net",
+        "Community Votes: +21",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Slickdeals.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "dn-47b5f2ecc8",
+      "title": "FlexiSpot Big & Tall PU Leather Office Chair",
+      "category": "home",
+      "currentPrice": 150,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Flexi-Spot-Big-Tall-PU-Leather-Office-Chair-for-150-free-shipping-w-Prime/22417679.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795249841-product-trimmed.jpg?h=250&w=197",
+      "description": "At Amazon, get this FlexiSpot Big & Tall PU Leather Office Chair for $150. It's the best price Amazon has charged for this model. It is rated for up to 600 lbs and uses a metal frame with a memory foam seat. The armrests adjust for width, and the soft rubber wheels are made for use on hardwood, tile, and carpet. Shipping is free.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2160,
+      "expiresAt": "2027-02-19T08:30:46.000Z",
+      "publishedAt": "2026-11-21T08:30:46.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Category: Office Chairs",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "sd-e1f6710ee4",
+      "title": "JSAUX Hard PC Carrying Case for Nintendo Switch 2 (Black)",
+      "category": "electronics",
+      "currentPrice": 13,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 336,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20354658-12-98-jsaux-hard-pc-carrying-case-for-nintendo-switch-2-black-at-amazon?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/7/1/5/2/7/300x300/22484970.thumb",
+      "description": "Woot via Amazon [ amazon.com ] has JSAUX Hard PC Carrying Case for Nintendo Switch 2 (Black) for $12.98 . Shipping is free with Prime or on $35+ orders. * Previous Frontpage Deal at $14 with 36 Deal Score and 4 comments amazon.com/dp/B0FZKTK836 [ amazon.com ]",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:27:59.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +18",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-bdb0fa44cd",
+      "title": "adidas Men's Originals Premise Backpack (Black / White)",
+      "category": "apparel",
+      "currentPrice": 21,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "eBay",
+      "merchantVerified": true,
+      "score": 432,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20353209-adidas-men-originals-premise-backpack-21?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "eBay",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22504998.thumb",
+      "description": "adidas men Originals Premise Backpack $21.00 Apply code EXTRA50SALE at checkout. Free shipping. Details Lifetime Warranty - built to last Multiple zippered pockets give you plenty of storage space Interior sleeve securely stores up to a 16 inch laptop Padded shoulder straps for extra comfort Two side water bottle pocke",
+      "badges": [
+        "eBay",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:20:27.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: eBay",
+        "Community Votes: +26",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at eBay. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-093d92a0cf",
+      "title": "It's a Magical World: A Calvin and Hobbes Collection (Kindle Edition)",
+      "category": "electronics",
+      "currentPrice": 2,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 684,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20357175-it-s-a-magical-world-a-calvin-and-hobbes-collection-kindle-edition-1-99?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/8/2/3/9/6/6/7/300x300/22504902.thumb",
+      "description": "Amazon [ amazon.com ] has It's a Magical World: A Calvin & Hobbes Collection (Kindle Edition) for $1.99",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:07:50.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +47",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-2558171414",
+      "title": "Lenovo LOQ Essential Laptop: 15.3\" 2K 165Hz, Ultra X7 358H, 16GB RAM, 512GB SSD",
+      "category": "electronics",
+      "currentPrice": 800,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Best Buy",
+      "merchantVerified": true,
+      "score": 444,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20351907-lenovo-loq-essential-15-3-2k-gaming-laptop-intel-core-ultra-x7-358h-2026-16gb-ram-intel-arc-b390-512gb-storage-luna-grey-799-99?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Best Buy",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22504866.thumb",
+      "description": "Lenovo LOQ Essential Laptop: 15.3\" 2K 165Hz, Ultra X7 358H, 16GB RAM, 512GB SSD https://www.bestbuy.com/product/l...=SaleEvent",
+      "badges": [
+        "Best Buy",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:05:59.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Best Buy",
+        "Community Votes: +27",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Best Buy. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-0774439bc1",
+      "title": "Shokz OpenRun Wireless Bone Conduction Open-Ear Standard Headphones (Grey)",
+      "category": "electronics",
+      "currentPrice": 64.95,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Shokz",
+      "merchantVerified": true,
+      "score": 396,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20360712-shokz-openrun-wireless-bone-conduction-open-ear-headphones-grey-standard-64-95-free-shipping?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Shokz",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/2/8/5/9/6/8/4/7/300x300/22500879.thumb",
+      "description": "Shokz [ shokz.com ] has the Shokz OpenRun Wireless Bone Conduction Open-Ear Headphones (Grey/Standard) for $64.95 w/ code SDopenrun at checkout. Shipping is free. Note: Code is only valid for the grey/standard option.",
+      "badges": [
+        "Shokz",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:05:19.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Shokz",
+        "Community Votes: +23",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Shokz. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-8b6a247071",
+      "title": "Disney's Hoppers (4K UHD Digital Film)",
+      "category": "lifestyle",
+      "currentPrice": 5,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Fandango",
+      "merchantVerified": true,
+      "score": 624,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20356002-disney-s-hoppers-2026-4k-uhd-digital-film-ma-5-via-vudu-fandango-at-home?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Fandango",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/8/6/6/3/0/300x300/22488561.thumb",
+      "description": "VUDU/Fandango at Home For those interested Note , film is Movies Anywhere ( MA ) compatible Disney's Hoppers [ fandango.com ] (2026) (4K UHD Digital Film) $5",
+      "badges": [
+        "Fandango"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T08:03:01.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Fandango",
+        "Community Votes: +42",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Fandango. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-3981284aa3",
+      "title": "adidas Men's Adizero Ubersonic 5 Tennis Shoes (2 Colors)",
+      "category": "apparel",
+      "currentPrice": 49,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Slickdeals.net",
+      "merchantVerified": true,
+      "score": 312,
+      "couponCode": "EXTRA50SALE",
+      "affiliateUrl": "https://slickdeals.net/f/20361585-adidas-men-s-adizero-ubersonic-5-tennis-shoes-2-colors-49-free-s-h?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Slickdeals.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/3/2/8/0/4/4/7/300x300/22503114.thumb",
+      "description": "adidas via eBay has adidas Men's Adizero Ubersonic 5 Tennis Shoes (various) on sale for $98 - $49 (50%) off when you apply coupon code EXTRA50SALE at checkout = $49 . Shipping is free . Thanks to Community Member SickerDealer for sharing this deal. Available options :",
+      "badges": [
+        "Slickdeals.net",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:48:40.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Slickdeals.net",
+        "Community Votes: +16",
+        "Coupon Code: EXTRA50SALE",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Slickdeals.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-fb68fd6d09",
+      "title": "The Wild Robot: Collector's Edition (4K Ultra HD + Blu-ray + Digital)",
+      "category": "lifestyle",
+      "currentPrice": 13,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 444,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20353095-the-wild-robot-collector-s-edition-4k-ultra-hd-blu-ray-digital-12-99-amazon-com?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "amazonUsaUrl": "https://www.amazon.com/dp/B0DGY4LZXC",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22504734.thumb",
+      "description": "https://www.amazon.com/dp/B0DGY4LZXC",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:47:16.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +27",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-47a130a0ab",
+      "title": "Lenovo Chromebook Plus: Core 3 Series 1 N355, 14\" WUXGA Touch, 8GB RAM, 128GB UFS",
+      "category": "lifestyle",
+      "currentPrice": 399,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Best Buy",
+      "merchantVerified": true,
+      "score": 156,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20362221-lenovo-chromebook-plus-core-3-series-1-n355-14-wuxga-touch-8gb-ram-128gb-ufs-399-free-s-h?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Best Buy",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/3/6/3/4/6/300x300/22504653.thumb",
+      "description": "Best Buy [ bestbuy.com ] has Lenovo Chromebook Plus 14\" 2K 2-in-1 Touchscreen Laptop: Intel Core 3 Series 1 (2025), 8GB Memory, 128GB Storage (Cosmic Blue, 83LN0004US) on sale for $399 . Shipping is free or select free store pickup where stock permits. Specs :[LIST][*]Intel Core 3 Series 1 N355 (8-core / 8-thread, up t",
+      "badges": [
+        "Black Friday 2026",
+        "Best Buy",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:44:05.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Best Buy",
+        "Community Votes: +3",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Best Buy. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-a764643da0",
+      "title": "1KG ERYONE Silk PLA 1.75mm 3D Printer Filament (Silk Olive Green)",
+      "category": "lifestyle",
+      "currentPrice": 11.05,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 396,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20349078-1kg-eryone-silk-pla-3d-printer-filament-olive-green-11-04-w-prime-s-h?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/9/9/5/4/3/300x300/22469580.thumb",
+      "description": "Eryone via Amazon Product Link [ amazon.com ]",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:36:46.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +23",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-52e6950d03",
+      "title": "Lenovo Tab One 8.7\" Tablet: 1340x800, MediaTek Helio G85, 4GB RAM, 64GB eMMC",
+      "category": "electronics",
+      "currentPrice": 90,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Best Buy",
+      "merchantVerified": true,
+      "score": 480,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20338986-lenovo-tab-one-8-7-hd-tablet-w-mediatek-helio-g85-4gb-ram-64gb-emmc-luna-grey-89-99-free-shipping?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Best Buy",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/4/6/9/4/2/0/300x300/22435338.thumb",
+      "description": "Best Buy [ bestbuy.com ] has Lenovo Tab One 8.7\" HD Tablet w/ MediaTek Helio G85, 4GB RAM & 64GB eMMC (Luna Grey) on sale for $89.99 . Shipping is free.",
+      "badges": [
+        "Best Buy",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:30:04.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Best Buy",
+        "Community Votes: +30",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Best Buy. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-db52b1fcd1",
+      "title": "Prime Members: 8-Pc Seesii Torque Wrench Set (1/4\", 3/8\", & 1/2\" Drive)",
+      "category": "electronics",
+      "currentPrice": 50,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 312,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20356857-prime-seesii-3-piece-torque-wrench-set-1-4-3-8-1-2-drive-49-99-or-less-free-shipping?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/2/5/5/9/8/9/2/7/300x300/22490976.thumb",
+      "description": "Seesii-US via Amazon [ amazon.com ] has for Prime Members : Seesii 3-Piece Torque Wrench Set (1/4\", 3/8\" & 1/2\" Drive) on sale for $49.99 . Shipping is free . Note: For additional savings, this item qualifies for the following Multibuy discounts:[LIST][*] 6% off any 2 or 8% off any 3 [ amazon.com ]",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:27:11.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +16",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-ab07e66f58",
+      "title": "5-Pc Bosch Assorted SDS-Plus Bulldog Tough Rotary Hammer Bit Set",
+      "category": "electronics",
+      "currentPrice": 15.55,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 324,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20356767-5-piece-bosch-assorted-sds-plus-bulldog-tough-rotary-hammer-bit-set-hc4ck005-15-57-free-shipping-w-prime-or-on-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/2/5/5/9/8/9/2/7/300x300/22490796.thumb",
+      "description": "Amazon [ amazon.com ] has 5-Piece Bosch Assorted SDS-Plus Bulldog Tough Rotary Hammer Bit Set (HC4CK005) on sale for $15.57 . Shipping is free w/ Prime or on orders $35+. Compiled From Merchant's Product Page: [LIST][*] Specs: [LIST][*]Model: HC4CK005[*]Shank type: SDS-Plus[*]Material: Carbide (Bosch-made)[*]Number of ",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:23:15.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +17",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-12c7ce2479",
+      "title": "Royalton Resorts Cancun Black Friday Sale - Up to 45% OFF + Kids Stay Free + Free Cancellation + Free Roundtrip Airport Transfers - Official Website",
+      "category": "lifestyle",
+      "currentPrice": 199,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Royaltonresorts",
+      "merchantVerified": true,
+      "score": 156,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20362146-royalton-resorts-cancun-black-friday-sale-up-to-45-off-kids-stay-free-free-cancellation-free-roundtrip-airport-transfers-official-website-199?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Royaltonresorts",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/6/1/3/6/1/6/7/300x300/22504296.thumb",
+      "description": "Royalton Resorts Cancun Black Friday Sale - Save Up to 45% OFF! Enjoy exclusive Black Friday deals at Royalton Resorts in Cancun. Book your Caribbean getaway and enjoy up to 45% OFF, Kids Stay Free, Free Cancellation, and Free Roundtrip Airport Transfers. Experience All-In Luxury® with exceptional dining, premium drink",
+      "badges": [
+        "Black Friday 2026",
+        "Royaltonresorts"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:19:54.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Royaltonresorts",
+        "Community Votes: +3",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Royaltonresorts. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-b30c9e5ee6",
+      "title": "Tractor Supply Co: 37-Pc JobSmart SAE/Metric Screwdriver Set $5 + Free Pickup",
+      "category": "electronics",
+      "currentPrice": 5,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Tractorsupply",
+      "merchantVerified": true,
+      "score": 468,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20350779-jobsmart-37-pc-sae-metric-screwdriver-set-4-99?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Tractorsupply",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/9/9/5/2/5/2/300x300/22474461.thumb",
+      "description": "Available for pickup and delivery https://www.tractorsupp ly.com/tsc...et-6070250",
+      "badges": [
+        "Tractorsupply"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:16:58.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Tractorsupply",
+        "Community Votes: +29",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Tractorsupply. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-eba8dbfa22",
+      "title": "43mm Citizen Men's Eco-Drive Weekender Avion Field Watch",
+      "category": "electronics",
+      "currentPrice": 159.35,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 444,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20355939-159-37-citizen-men-s-eco-drive-avion-43mm-stainless-steel-bm7550-01e-at-amazon?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "amazonUsaUrl": "https://www.amazon.com/Citizen-Ec...B0B9177YKG",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/4/0/2/8/300x300/22504383.thumb",
+      "description": "$159.37: CITIZEN Men's Eco-Drive Avion 43mm Stainless Steel BM7550-01E at Amazon Shipping is free with Prime or on $35+ orders. https://www.amazon.com/Citizen-Ec...B0B9177YKG",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:16:34.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +27",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-fdee38fb41",
+      "title": "3-Pc Cook with Color Reversible Stainless Steel & Wheat Straw Cutting Board Set",
+      "category": "electronics",
+      "currentPrice": 15,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Walmart",
+      "merchantVerified": true,
+      "score": 432,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20330910-3-piece-cook-with-color-reversible-stainless-steel-wheat-straw-cutting-board-set-gray-15-free-shipping-w-prime-or-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Walmart",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/4/6/9/4/2/0/300x300/22378476.thumb",
+      "description": "Walmart [ walmart.com ] has 3-Piece Cook With Color Reversible Stainless Steel & Wheat Straw Cutting Board Set (Gray) on sale for $15 . Shipping is free w/ Walmart+ or on $35+.",
+      "badges": [
+        "Walmart"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:08:18.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Walmart",
+        "Community Votes: +26",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Walmart. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-98cd09356c",
+      "title": "JBL Tune 245NC True Wireless Noise Cancelling Earbuds (Black)",
+      "category": "electronics",
+      "currentPrice": 39.95,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Slickdeals.net",
+      "merchantVerified": true,
+      "score": 468,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20338752-jbl-tune-245nc-true-wireless-anc-in-ear-earbuds-black-39-95-free-shipping?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Slickdeals.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/4/0/4/0/3/4/4/300x300/22434324.thumb",
+      "description": "Best Buy has JBL Tune 245NC True Wireless Noise Cancelling Earbuds (Black, JBLT245NCTWSBLKAM) on sale for $39.95 . Shipping is free , otherwise select free store pickup where available. Thanks to Deal Hunter ItsSoCheap for sharing this deal.[LIST][*] Note : Availability for pickup may vary by location.",
+      "badges": [
+        "Slickdeals.net",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:07:00.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Slickdeals.net",
+        "Community Votes: +29",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Slickdeals.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-c83eabbe6d",
+      "title": "55\" Hisense QD5 Hi-QLED 4K 60Hz Roku TV (2026)",
+      "category": "electronics",
+      "currentPrice": 180,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Slickdeals.net",
+      "merchantVerified": true,
+      "score": 492,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20347209-hisense-qd5-hi-qled-4k-smart-tvs-2026-55-179-99?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Slickdeals.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/3/7/7/7/5/0/5/300x300/22464510.thumb",
+      "description": "Best Buy has 55\" Hisense QD5 Series Hi-QLED 4K Smart Roku TV (2026, 55QD5SR) on sale for $179.99 . Shipping is free . Thanks Community Member ROBORA for sharing this deal Details :[LIST][*]Resolution: 3840x2160 (4K UHD)[*]Refresh Rate: 60Hz[*]Motion Rate: Motion Rate 60[*]QLED Panel Type[*]WiFi 5 w/ Bluetooth 5.3",
+      "badges": [
+        "Slickdeals.net",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T07:01:03.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Slickdeals.net",
+        "Community Votes: +31",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Slickdeals.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-924fed768d",
+      "title": "Mayski RFID-Blocking Aluminum Credit Card Holder Wallet w/ 7 Slots (Happy Flower)",
+      "category": "lifestyle",
+      "currentPrice": 3.8,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 324,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20358654-rfid-credit-card-holder-for-women-slim-aluminum-card-wallet-3-79-amazon?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/4/1/4/5/2/0/2/300x300/22496307.thumb",
+      "description": "Amazon [ amazon.com ] has 4.3\" x 2.7\" x 0.6\" RFID Credit Card Holder for Women Slim Aluminum Card Wallet (Mayski) on sale for $3.79 . Shipping is free w/ Prime or on orders of $35+. This item is sold by a third-party seller and Fulfilled by Amazon. At $3.79 , that's $0.40 lower than the last time this item made the Fro",
+      "badges": [
+        "Amazon USA"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T06:52:31.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Community Votes: +17",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Amazon USA. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-0be3c9c8c9",
+      "title": "Disney Women's Minnie Mouse Graphic Striped Long Sleeve Sweater",
+      "category": "electronics",
+      "currentPrice": 7.8,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Slickdeals.net",
+      "merchantVerified": true,
+      "score": 456,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20335992-disney-women-s-minnie-mouse-graphic-striped-long-sleeve-sweater-sizes-xs-3xl-7-82-free-shipping-w-walmart-or-on-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Slickdeals.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/5/9/0/8/1/7/9/300x300/22425177.thumb",
+      "description": "Walmart has Disney Women's Minnie Mouse Graphic Striped Long Sleeve Sweater (Various Sizes) on sale for $7.82 . Shipping is free w/ Walmart+ ( 30-day trial for $1 ) or on orders of $35+.",
+      "badges": [
+        "Slickdeals.net"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T06:42:51.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Slickdeals.net",
+        "Community Votes: +28",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Slickdeals.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "sd-f1c0b3a749",
+      "title": "Prime Members: 4-Pk Monster Multi-Color & White Outdoor Smart Flood Lights",
+      "category": "lifestyle",
+      "currentPrice": 37.05,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Slickdeals.net",
+      "merchantVerified": true,
+      "score": 444,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20350581-prime-members-4-pk-monster-multi-color-white-outdoor-smart-flood-lights-37-04-free-s-h?utm_source=rss&utm_content=fp&utm_medium=RSS2",
+      "primaryStore": "Slickdeals.net",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/4/4/1/0/9/7/300x300/22473861.thumb",
+      "description": "AllTech 365 via Amazon has for Prime Members: 4-Pack Monster Multi-Color & White Outdoor Smart Flood Lights (MOW7-1017-ICW) on sale for $37.04 . Shipping is free . Thanks to Slickdeals Staff DesertGardener for sharing this deal. Features : [LIST] [*]Multi-Color + Warm White Lighting",
+      "badges": [
+        "Slickdeals.net",
+        "Free Shipping"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T06:35:23.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Electronics Frontpage",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Slickdeals.net",
+        "Community Votes: +27",
+        "Direct Store Offer",
+        "Source: Slickdeals Electronics Frontpage"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Electronics Frontpage at Slickdeals.net. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "dn-8951688fb6",
+      "title": "Sleep Number ComfortNext Lux 13\" Queen Mattress",
+      "category": "home",
+      "currentPrice": 3199,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Sleep Number",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Sleep-Number-Comfort-Next-Lux-13-Queen-Mattress-for-3-199-free-shipping/22405832.html?iref=rss",
+      "primaryStore": "Sleep Number",
+      "imageUrl": "https://d.dlnws.com/64599/1794912920-cnl_upt_updated.jpeg?h=250&w=250",
+      "description": "Each side of the bed has its own firmness setting, and a thick polyfoam top layer limits motion transfer between sleepers. Compared with the base ComfortNext, the Lux adds a layer of micro coils aimed at lower-back support. It's 20% off, a savings of $800, dropping from $3,999 to $3,199.20. Other sizes are also discounted.",
+      "badges": [
+        "Sleep Number",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2156,
+      "expiresAt": "2027-02-19T05:01:00.000Z",
+      "publishedAt": "2026-11-21T05:01:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Sleep Number",
+        "Category: Mattresses",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Sleep Number. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-6f1be4bb03",
+      "title": "SmallRig 6,800mAh V Mount Battery",
+      "category": "energy",
+      "currentPrice": 139.99,
+      "originalPrice": 200,
+      "discountPercent": 30,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Small-Rig/Small-Rig-6-800-m-Ah-V-Mount-Battery/561279.html?iref=rss-c142",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795173945-draftworks_img_nkscu4eklajb5omlimp.jpeg?h=250&w=250",
+      "description": "Anyone running a camera rig or on-set monitor for long stretches will get the most out of this V-mount battery's capacity without needing a cart full of spares, and it's currently $60 off the $200 list price at Amazon. Deal ends November 30.",
+      "badges": [
+        "Amazon USA",
+        "30% OFF",
+        "Free Shipping"
+      ],
+      "expiresInHours": 236,
+      "expiresAt": "2026-12-01T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Electronics RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Category: Batteries",
+        "No coupon code required",
+        "Source: DealNews Electronics RSS"
+      ],
+      "highlight": "Verified from DealNews Electronics RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-d75a1e2c3c",
+      "title": "Dual 12\" Karaoke Machine & Powered PA System w/ Bluetooth",
+      "category": "lifestyle",
+      "currentPrice": 199.99,
+      "originalPrice": 279.99,
+      "discountPercent": 29,
+      "currency": "USD",
+      "merchant": "Walmart",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Dual-12-Karaoke-Machine-Powered-PA-System-w-Bluetooth-for-200-free-shipping/22414954.html?iref=rss-c142",
+      "primaryStore": "Walmart",
+      "imageUrl": "https://d.dlnws.com/64599/1795178680-aoto-party-12-dual-12-inch-karaoke-machine-and-powered-pa-system-with-bluetooth-titanium-driver-wired-microphone-and-2-speaker-stands_84a7f37e-7893-4d05-b7ae-3b7945be5ffc-3b6de79686f63479a110c34c9d4c5a9c.avif?h=250&w=250",
+      "description": "This one's suited for anyone hosting gatherings or small events who needs a PA system with real volume, not just a bookshelf speaker with Bluetooth. Walmart has it for $199.99, which is $80 off the $279.99 list price. Free shipping applies.",
+      "badges": [
+        "Walmart",
+        "29% OFF",
+        "Free Shipping"
+      ],
+      "expiresInHours": 212,
+      "expiresAt": "2026-11-30T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Electronics RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Walmart",
+        "Category: Speakers",
+        "No coupon code required",
+        "Source: DealNews Electronics RSS"
+      ],
+      "highlight": "Verified from DealNews Electronics RSS for Walmart. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-172caa0dc7",
+      "title": "Classic Tailored Button-Front Overcoat",
+      "category": "lifestyle",
+      "currentPrice": 28,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "LoomBasics",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/Classic-Tailored-Button-Front-Overcoat-for-28-9-shipping/22415347.html?iref=rss",
+      "primaryStore": "LoomBasics",
+      "imageUrl": "https://d.dlnws.com/64599/1795190892-draftworks_img_oiapresolt2e8cgcdpo.jpeg?h=235&w=250",
+      "description": "This wool-blend overcoat suits anyone needing a structured layer for business casual or dressier winter outfits, and at $28 it's $62 below the $90 list price. Apply coupon code",
+      "badges": [
+        "LoomBasics"
+      ],
+      "expiresInHours": 332,
+      "expiresAt": "2026-12-05T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: LoomBasics",
+        "Category: Coats",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for LoomBasics. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-556da89a6e",
+      "title": "SmallRig Foldable V Mount Battery Plate",
+      "category": "energy",
+      "currentPrice": 59.99,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Small-Rig/Small-Rig-Foldable-V-Mount-Battery-Plate/561421.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1781800805-draftworks_img_r6hfu0j6es98abdebol.jpeg?h=250&w=250",
+      "description": "Video shooters running V-mount batteries on cages or rigs get a folding plate that tucks out of the way when not in use, and Amazon has it marked down to $60, a $20 drop from the $80 list price.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 236,
+      "expiresAt": "2026-12-01T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Department: energy",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-b5df0e37af",
+      "title": "SmallRig AD-100 FreeBlazer Heavy-Duty Carbon Fiber Tripod",
+      "category": "lifestyle",
+      "currentPrice": 279.99,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Small-Rig/Small-Rig-AD-100-Free-Blazer-Heavy-Duty-Carbon-Fiber-Tripod/561437.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1781712745-draftworks_img_5k3j30p42g23fiegeec.jpeg?h=250&w=250",
+      "description": "Built for stability with heavier camera rigs, this carbon fiber tripod suits photographers and videographers who need a sturdy base in the field, and it's $120 off the list price right now.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 236,
+      "expiresAt": "2026-12-01T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Department: lifestyle",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-949d5aee84",
+      "title": "Turboblaze 6-Quart Air Fryer",
+      "category": "food",
+      "currentPrice": 89.98,
+      "originalPrice": 120,
+      "discountPercent": 25,
+      "currency": "USD",
+      "merchant": "Cosori",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Cosori/Turboblaze-6-Quart-Air-Fryer/561301.html?iref=rss",
+      "primaryStore": "Cosori",
+      "imageUrl": "https://d.dlnws.com/64599/1795177530-draftworks_img_sg0ph9dbnp4ucfgleio.png?h=250&w=250",
+      "description": "Cosori's Turboblaze 6-Quart Air Fryer suits anyone cooking for a family or batch-prepping meals, offering enough capacity to handle a full chicken or a large tray of vegetables in one go. At $90, that's $30 off the $120 list price.",
+      "badges": [
+        "Cosori",
+        "25% OFF",
+        "Free Shipping"
+      ],
+      "expiresInHours": 236,
+      "expiresAt": "2026-12-01T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Cosori",
+        "Department: food",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Cosori. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-125c95cfff",
+      "title": "DJI Osmo Action 4 Essential Combo",
+      "category": "lifestyle",
+      "currentPrice": 155,
+      "originalPrice": 229,
+      "discountPercent": 32,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/DJI/DJI-Osmo-Action-4-Essential-Combo/487954.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1786132010-draftworks_img_1gf8oacra922ejnpnfa.jpeg?h=250&w=250",
+      "description": "Rugged and waterproof without a housing, this action camera suits anyone filming surf, snow, or anything that'll dunk a regular camera, and it's $74 off the $229 list price at Amazon.",
+      "badges": [
+        "Amazon USA",
+        "32% OFF",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2156,
+      "expiresAt": "2027-02-19T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Department: lifestyle",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "dn-b7207599d8",
+      "title": "Eureka Blaze 3-in-1 Stick Vacuum Cleaner",
+      "category": "home",
+      "currentPrice": 28.49,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Amazon USA",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Eureka/Eureka-Blaze-3-in-1-Stick-Vacuum-Cleaner/541145.html?iref=rss",
+      "primaryStore": "Amazon USA",
+      "imageUrl": "https://d.dlnws.com/64599/1795184840-draftworks_img_ro3hh4802g9a8ccedkn.jpeg?h=250&w=250",
+      "description": "Lightweight and converts between stick, handheld, and crevice tool setups, which suits apartments or anyone doing quick cleanups rather than deep carpet work, and it's $11.50 off the usual $40 price.",
+      "badges": [
+        "Amazon USA",
+        "Free Shipping"
+      ],
+      "expiresInHours": 236,
+      "expiresAt": "2026-12-01T05:00:00.000Z",
+      "publishedAt": "2026-11-21T05:00:00.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Verified RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Amazon USA",
+        "Department: home",
+        "No coupon code required",
+        "Source: DealNews Verified RSS"
+      ],
+      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+    },
+    {
+      "id": "sd-b9d1f5a8af",
+      "title": "50% Off Grammarly Pro Subscription (Annual, 3-Month, and 1-Month Plans)",
+      "category": "lifestyle",
+      "currentPrice": 72,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Grammarly",
+      "merchantVerified": true,
+      "score": 132,
+      "couponCode": null,
+      "affiliateUrl": "https://slickdeals.net/f/20361114-50-off-grammarly-pro-subscription-annual-3-month-and-1-month-plans-72?utm_source=rss&utm_content=def&utm_medium=RSS2",
+      "primaryStore": "Grammarly",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/2/8/3/7/9/1/5/5/300x300/22501905.thumb",
+      "description": "The Black Friday/Cyber Monday 50% off deal is back. With the discount, the Grammarly Pro Annual Subscription is $72. (Step 1) View the Article for Details: Does Grammarly offer a Black Friday or Cyber Monday discount? [ grammarly.com ] (Step 2) Click the link in the article to choose your preferred subscription plan. N",
+      "badges": [
+        "Black Friday 2026",
+        "Grammarly"
+      ],
+      "expiresInHours": null,
+      "expiresAt": null,
+      "publishedAt": "2026-11-21T02:49:22.000Z",
+      "availability": "Listed Active at Check Time",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
+      "isBlackFriday": true,
+      "specifications": [
+        "Retailer: Grammarly",
+        "Community Votes: +1",
+        "Direct Store Offer",
+        "Source: Slickdeals Black Friday Electronics"
+      ],
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Grammarly. Confirm final price & stock on retailer page."
+    },
+    {
+      "id": "dn-fe72e26458",
+      "title": "Samsung HW-B53WF 2.1-Channel Soundbar w/ Wireless Subwoofer",
+      "category": "lifestyle",
+      "currentPrice": 170,
+      "originalPrice": null,
+      "discountPercent": null,
+      "currency": "USD",
+      "merchant": "Target",
+      "merchantVerified": true,
+      "score": 140,
+      "couponCode": null,
+      "affiliateUrl": "https://www.dealnews.com/products/Samsung/Samsung-HW-B53-WF-2-1-Channel-Soundbar-w-Wireless-Subwoofer/561625.html?iref=rss-c142",
+      "primaryStore": "Target",
+      "imageUrl": "https://d.dlnws.com/64599/1795226185-guest_75ad33fe-3599-4c45-9f32-3b3c80ac3000.avif?h=250&w=250",
+      "description": "At Target, this Samsung soundbar is $30 off. It includes a wireless subwoofer and supports Dolby Audio and DTS Virtual:X virtual surround sound. Target Circle Card holders can save an extra 5% at checkout. Shipping is free.",
+      "badges": [
+        "Target",
+        "Free Shipping"
+      ],
+      "expiresInHours": 2153,
+      "expiresAt": "2027-02-19T01:57:09.000Z",
+      "publishedAt": "2026-11-21T01:57:09.000Z",
+      "availability": "Listed In Stock at Check Time",
+      "sourceFeed": "DealNews Electronics RSS",
+      "isBlackFriday": false,
+      "specifications": [
+        "Retailer: Target",
+        "Category: Soundbars",
+        "No coupon code required",
+        "Source: DealNews Electronics RSS"
+      ],
+      "highlight": "Verified from DealNews Electronics RSS for Target. Click View Deal to confirm current checkout availability."
+    },
+    {
       "id": "dn-fd6b079594",
       "title": "Unlocked Motorola Moto G Stylus 256GB Phone (2025)",
       "category": "lifestyle",
@@ -738,7 +2158,7 @@
       "merchantVerified": true,
       "score": 220,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Motorola/Unlocked-Motorola-Moto-G-Stylus-256-GB-Phone-2025/493646.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/products/Motorola/Unlocked-Motorola-Moto-G-Stylus-256-GB-Phone-2025/493646.html?iref=rss-c142",
       "primaryStore": "Best Buy",
       "imageUrl": "https://d.dlnws.com/64599/1795225835-f7ab6e25-912d-498a-83e7-f0b903294b16.webp?h=250&w=250",
       "description": "In the Best Buy Black Friday sale, this Motorola Moto G Stylus 2025 is $200 off. The unlocked phone works with all major U.S. carriers and includes a built-in stylus and 256GB of storage. A free Microsoft XBOX Game Pass Ultimate 1 Month Membership is included with purchase. My Best Buy members get free shipping on all orders (it's free to join).",
@@ -747,53 +2167,19 @@
         "Best Buy",
         "Free Shipping"
       ],
-      "expiresInHours": 2160,
+      "expiresInHours": 2153,
       "expiresAt": "2027-02-19T01:50:41.000Z",
       "publishedAt": "2026-11-21T01:50:41.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Best Buy",
         "Category: Android Phones",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for Best Buy. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-b6129921d4",
-      "title": "OtterBox Phone Cases: iPhone 16 Symmetry Series, Samsung Galaxy S26 Sole Series $5 Each & More + Free S&H w/ Prime",
-      "category": "electronics",
-      "currentPrice": 5,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Woot",
-      "merchantVerified": true,
-      "score": 480,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20354223-phone-cases-otterbox-iphone-16-or-samsung-galaxy-s26-case-4-99-more-free-shipping-w-prime?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Woot",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/2/0/5/3/8/1/8/4/300x300/22483632.thumb",
-      "description": "Woot! [ woot.com ] has OtterBox iPhone 16 Symmetry Series Clear Case on sale for $4.99 . Shipping is free w/ Prime (must be signed in) or is otherwise a flat $6 fee per order. Example Deals: [LIST][*] OtterBox iPhone 16 Symmetry Series Clear Case [ woot.com ] (Various Colors) $4.99",
-      "badges": [
-        "Woot",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:48:17.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Woot",
-        "Community Votes: +30",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Woot. Confirm final price & stock on retailer page."
+      "highlight": "Verified from DealNews Electronics RSS for Best Buy. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "dn-2e9c5e9d56",
@@ -816,7 +2202,7 @@
         "Macy's",
         "Free Shipping"
       ],
-      "expiresInHours": 195,
+      "expiresInHours": 188,
       "expiresAt": "2026-11-29T04:59:00.000Z",
       "publishedAt": "2026-11-21T01:46:31.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -829,39 +2215,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Macy's. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-a38e3362a0",
-      "title": "16-Oz Amazon Grocery Lightly Salted Pretzel Sticks $1.75 w/ S&S",
-      "category": "food",
-      "currentPrice": 1.75,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 492,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20354235-16-oz-amazon-grocery-pretzel-sticks-1-77-w-s-s-free-shipping-w-prime-or-on-orders-over-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/4/1/3/2/6/0/300x300/22483722.thumb",
-      "description": "Amazon [ amazon.com ] has 16-Oz Amazon Grocery Pretzel Sticks for $1.86 - 5% when you check out via Subscribe & Save = $1.77 . Shipping is free with Prime or on $35+",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:41:06.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +31",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-eba2606342",
@@ -883,7 +2236,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2160,
+      "expiresInHours": 2153,
       "expiresAt": "2027-02-19T01:40:36.000Z",
       "publishedAt": "2026-11-21T01:40:36.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -896,40 +2249,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-10cdcd674b",
-      "title": "27\" MSI MAG 272QP QD-OLED X24 1440p 240Hz QD-OLED Gaming Monitor",
-      "category": "electronics",
-      "currentPrice": 300,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 396,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20356911-299-99-27-msi-mag-272qp-qd-oled-x24-1440p-240hz-qd-oled-gaming-monitor-at-amazon?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/7/1/5/2/7/300x300/22491345.thumb",
-      "description": "Amazon [ amazon.com ] has 27\" MSI MAG 272QP QD-OLED X24 1440p 240Hz QD-OLED Gaming Monitor for $299.99 . Shipping is free . * Deal history: [list][*] Popular Deal at $300 with 31 Deal Score and 4 comments [*] Frontpage Deal at $385 with 30 Deal Score and 5 comments",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:34:23.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +23",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-ee14710b93",
@@ -952,7 +2271,7 @@
         "Sweetwater",
         "Free Shipping"
       ],
-      "expiresInHours": 75,
+      "expiresInHours": 68,
       "expiresAt": "2026-11-24T04:59:00.000Z",
       "publishedAt": "2026-11-21T01:33:26.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -965,40 +2284,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Sweetwater. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-5d13fed6bf",
-      "title": "Prime Members: VEEKTOMX 10000mAh 22.5W Fast Charging Mini Power Bank",
-      "category": "lifestyle",
-      "currentPrice": 9.4,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 432,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20357628-prime-veektomx-10000mah-22-5w-fast-charging-mini-power-bank-9-40-free-s-h?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/9/5/3/2/3/300x300/22493796.thumb",
-      "description": "deal [ amazon.com ] $9.40 @ Amazon + Free S/H (",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:28:48.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +26",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-46be114f6b",
@@ -1020,7 +2305,7 @@
         "Guitar Center",
         "Free Shipping"
       ],
-      "expiresInHours": 2160,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T01:23:51.000Z",
       "publishedAt": "2026-11-21T01:23:51.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1033,72 +2318,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Guitar Center. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-921c7fd143",
-      "title": "10-Pk Energizer CR2032 3V Lithium Coin Batteries $6.60 w/ S&S",
-      "category": "energy",
-      "currentPrice": 6.6,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 432,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20345148-sns-6-61-or-5-92-10-pk-energizer-cr2032-3v-lithium-coin-batteries-at-amazon-66-1-each?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/7/1/5/2/7/300x300/22458546.thumb",
-      "description": "Amazon [ amazon.com ] has 10-Pk Energizer CR2032 3V Lithium Coin Batteries for $6.96 - 5% when you check out via Subscribe & Save = $6.61 . Shipping is free with Prime or on $35+ orders. * Deal history: [list][*] Frontpage Deal at $7.30 with 50 Deal Score and 3 comments",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:23:39.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +26",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-07c9177128",
-      "title": "Baseus Picogo 5000mAh MagSafe Power Bank w/ USB-C Cable",
-      "category": "electronics",
-      "currentPrice": 12.3,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Slickdeals.net",
-      "merchantVerified": true,
-      "score": 432,
-      "couponCode": "WILL",
-      "affiliateUrl": "https://slickdeals.net/f/20336187-baseus-picogo-5000mah-magsafe-power-bank-w-usb-c-cable-12-30?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Slickdeals.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/4/2/9/3/0/8/300x300/22425900.thumb",
-      "description": "Note: Final price at checkout after the promo code will be the same for Prime and Non-Prime Members. Baseus Brand Store via Amazon has Baseus Picogo 5000mAh MagSafe 0.3\" Portable Power Bank w/ Braided USB-C Cable (Various) on sale for $12.29 with promo code N95B7AEC at checkout. Shipping is free w/ Prime or on $35+ ord",
-      "badges": [
-        "Slickdeals.net"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:21:17.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Slickdeals.net",
-        "Community Votes: +26",
-        "Coupon Code: WILL",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Slickdeals.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-aa5b012814",
@@ -1120,7 +2339,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T01:21:04.000Z",
       "publishedAt": "2026-11-21T01:21:04.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1133,175 +2352,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-03c04b49aa",
-      "title": "Energy Connoisseur Speakers: 2x CF-30 Floors + CC-5 Center + 2x CB-5 Bookshelf $349 & ESW-C8 Sub + Free S&H",
-      "category": "lifestyle",
-      "currentPrice": 349,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Adorama",
-      "merchantVerified": true,
-      "score": 276,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359287-energy-connoisseur-speakers-2x-cf-30-floors-cc-5-center-2x-cb-5-bookshelf-349-esw-c8-sub-free-s-h?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Adorama",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/9/5/3/2/3/300x300/22497909.thumb",
-      "description": "deal [ adorama.com ] $349+ Free S/H w/ code JHCE9926",
-      "badges": [
-        "Adorama",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:20:37.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Adorama",
-        "Community Votes: +13",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Adorama. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-498c625075",
-      "title": "6-Pk 32-Oz Blue Diamond Almond Breeze Dairy Free Almondmilk (Unsweetened Vanilla)",
-      "category": "food",
-      "currentPrice": 10.5,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 432,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20354184-6-pack-32-oz-almond-breeze-dairy-free-almondmilk-unsweetened-vanilla-10-49-free-shipping-w-prime-or-on-orders-over-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/4/1/3/2/6/0/300x300/22483572.thumb",
-      "description": "Amazon [ amazon.com ] has 6-Pack 32-Oz Almond Breeze Dairy Free Almondmilk (Unsweetened Vanilla) for $10.49 . Shipping is free with Prime or on $35+",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:20:05.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +26",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-3a3b203ac5",
-      "title": "EA SPORTS FC 27 (Nintendo Switch)",
-      "category": "gaming",
-      "currentPrice": 28,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Walmart",
-      "merchantVerified": true,
-      "score": 516,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20336736-34-97-ea-sports-fc-27-nintendo-switch-game?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "walmartUrl": "https://www.walmart.com/ip/EA-SPO...hbdg=L130",
-      "primaryStore": "Walmart",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/5/1/4/8/2/1/3/300x300/22500735.thumb",
-      "description": "https://www.walmart.com/ip/EA-SPO...hbdg=L130 0",
-      "badges": [
-        "Walmart"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:15:57.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Walmart",
-        "Community Votes: +33",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Walmart. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-c0162af72d",
-      "title": "adidas Men's Galaxy 7 Running Shoes (Black/White)",
-      "category": "apparel",
-      "currentPrice": 21,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "eBay",
-      "merchantVerified": true,
-      "score": 660,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20347410-adidas-men-galaxy-7-running-shoes-core-black-cloud-white-core-black-21?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "eBay",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/3/2/8/0/4/4/7/300x300/22464807.thumb",
-      "description": "adidas men Galaxy 7 Running Shoes (Core Black / Cloud White / Core Black) $21.00 Apply code EXTRA50SALE at checkout. Free shipping. Details Regular fit Lace closure Upper: Textile / Other Materials Lining: Textile TPU outsole https://www.ebay.com/itm/96021344...9511 744400",
-      "badges": [
-        "eBay",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:14:47.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: eBay",
-        "Community Votes: +45",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at eBay. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-333e2defe0",
-      "title": "Beats Solo 4 Wireless On-Ear Bluetooth Headphones (Amazon Exclusive Metallic Pink)",
-      "category": "electronics",
-      "currentPrice": 80,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 432,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20354535-79-99-beats-solo-4-wireless-on-ear-bluetooth-headphones-amazon-exclusive-metallic-pink-at-amazon?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/7/1/5/2/7/300x300/22484553.thumb",
-      "description": "Amazon [ amazon.com ] has Beats Solo 4 Wireless On-Ear Bluetooth Headphones (Amazon Exclusive Metallic Pink) for $79.99 . Shipping is free . Savings Offer Up to 3 free months of Apple Arcade, Fitness+, and News+. apply. ( check and activate [ amazon.com ] ) * Previous Frontpage Deal at $100 with 24 Deal Score and 1 com",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:14:40.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +26",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-5e8a6fa6ff",
@@ -1323,7 +2373,7 @@
         "Musician's Friend",
         "Free Shipping"
       ],
-      "expiresInHours": 11,
+      "expiresInHours": 4,
       "expiresAt": "2026-11-21T13:00:00.000Z",
       "publishedAt": "2026-11-21T01:10:32.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1357,7 +2407,7 @@
         "Zappos",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T01:04:34.000Z",
       "publishedAt": "2026-11-21T01:04:34.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1370,143 +2420,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Zappos. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-43c365db68",
-      "title": "Globlazer 76\" Multi-Level Indoor Extra Tall Cat Tree (Various)",
-      "category": "lifestyle",
-      "currentPrice": 76,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 468,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20355957-76-globlazer-multi-level-extra-tall-indoor-cat-tree-tower-4-colors-75-99-free-shipping?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/2/5/5/9/8/9/2/7/300x300/22488468.thumb",
-      "description": "Globlazer via Amazon [ amazon.com ] has 76\" Globlazer Multi-Level Extra Tall Indoor Cat Tree Tower w/ Cat Condos, Hammocks, Perches and Scratching Posts (4 Colors) for $75.99 . Shipping is free . Available Colors:[LIST][*] Dark Grey [ amazon.com ]",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:03:44.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +29",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-263063f811",
-      "title": "4-Pc Cuisinart Magnetic Stainless Steel Measuring Cup Set",
-      "category": "electronics",
-      "currentPrice": 15.6,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 480,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20333523-4-pc-cuisinart-magnetic-stainless-steel-measuring-cup-set-15-60?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "amazonUsaUrl": "https://www.amazon.com/dp/B0C86QRVSZ?psc=",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/2/9/8/1/5/7/1/1/300x300/22417878.thumb",
-      "description": "Amazon.com has Cuisinart Set of 4 Magnetic Measuring Cups, CTG-00-4MMC for $15.59. Shipping is free with Prime or on $35+ orders. Set includes: 1 cup, ½ cup, ⅓ cup, and ¼ cup https://www.amazon.com/dp/B0C86QRVSZ?psc= 1",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T01:02:21.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +30",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-f615b78634",
-      "title": "DEWALT 20V MAX 1-1/2\" Capacity Cordless Pruner (Tool Only) $79 + Free S&H on $150+",
-      "category": "home",
-      "currentPrice": 79,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Fastenersinc.net",
-      "merchantVerified": true,
-      "score": 396,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359719-dewalt-dcpr320b-cordless-pruner-1-1-2-in-cut-capacity-20v-max-lithium-ion-curved-shaft-60-spm-79?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/4/5/6/0/3/7/8/300x300/22498815.thumb",
-      "description": "This is a Fastner's Inc. Black Friday deal. They are an authorized retailer for this brand. Price good through 11/30/26. Free shipping on orders over $150.00, otherwise it's about $8.00. No sales taxes collected for most states (excludes CA and possibly OR). https://fastenersinc.ne t/product/...3215856831",
-      "badges": [
-        "Black Friday 2026",
-        "Fastenersinc.net",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:58:42.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Fastenersinc.net",
-        "Community Votes: +23",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Fastenersinc.net. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-e9fa463905",
-      "title": "Acer Predator Desktop: Ultra 7 265KF, RTX 5070, 32GB DDR5, 1TB SSD",
-      "category": "electronics",
-      "currentPrice": 195,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Best Buy",
-      "merchantVerified": true,
-      "score": 492,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20340441-acer-predator-orion-gaming-desktop-intel-ultra-7-265kf-rtx-5070-32gb-ddr5-1tb-ssd-1949-99?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Best Buy",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/2/6/8/0/6/1/2/1/300x300/22441938.thumb",
-      "description": "Acer Predator Orion Gaming Desktop Intel Core Ultra 7 265KF 2024 GeForce RTX 5070 32GB DDR5 Memory – 1TB Storage Black - Best Buy https://www.bestbuy.com/product/a...JX5V2XG3SP",
-      "badges": [
-        "Best Buy",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:57:15.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Best Buy",
-        "Community Votes: +31",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Best Buy. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-290805cc0c",
@@ -1529,7 +2442,7 @@
         "57% OFF",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T00:55:50.000Z",
       "publishedAt": "2026-11-21T00:55:50.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1564,7 +2477,7 @@
         "Macy's",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T00:51:20.000Z",
       "publishedAt": "2026-11-21T00:51:20.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1577,41 +2490,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Macy's. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-99402f356d",
-      "title": "Milwaukee M12 FUEL 5-3/8\" Brushless Circular Saw (Bare Tool) $89 + Free S&H on $150+",
-      "category": "home",
-      "currentPrice": 89,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Fastenersinc.net",
-      "merchantVerified": true,
-      "score": 504,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359356-milwaukee-tool-2521-20-m12-fuel-5-3-8-circular-saw-bare-tool-89?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/1/2/8/7/0/4/300x300/22498047.thumb",
-      "description": "Fasteners Inc has M12 2521-20 circ saw for $89 in the Black Friday Sale (11/20/2026) • $8.74 shipping, or free at $150 • Fasteners doesn't collect sales tax outside CA • Fasteners Inc is a Milwaukee authorized dealer who sell genuine products Other Black Friday Deals [ fastenersinc.net ] https://fastenersinc.ne t/produ",
-      "badges": [
-        "Black Friday 2026",
-        "Fastenersinc.net",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:51:01.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Fastenersinc.net",
-        "Community Votes: +32",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Fastenersinc.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-fcb7512857",
@@ -1634,7 +2512,7 @@
         "Macy's",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T00:48:45.000Z",
       "publishedAt": "2026-11-21T00:48:45.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -1649,206 +2527,6 @@
       "highlight": "Verified from DealNews Verified RSS for Macy's. Click View Deal to confirm current checkout availability."
     },
     {
-      "id": "sd-c8a31f5b2c",
-      "title": "Refurb: Greenworks 80V 21\" 4-in-1 Self-Propelled Mower w/ 2x Batteries & Charger",
-      "category": "electronics",
-      "currentPrice": 272,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Greenworkstools",
-      "merchantVerified": true,
-      "score": 648,
-      "couponCode": "SDNEWSLETTER15",
-      "affiliateUrl": "https://slickdeals.net/f/20355072-refurb-greenworks-80v-21-4-in-1-self-propelled-mower-w-2x-batteries-charger-272-free-s-h?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Greenworkstools",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/9/9/5/2/5/2/300x300/22486308.thumb",
-      "description": "Use coupon code SDNEWSLETTER15 to get price. Shipping is free https://www.greenworkst ools.com/p...zNFZoK-eH0",
-      "badges": [
-        "Greenworkstools",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:48:13.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Greenworkstools",
-        "Community Votes: +44",
-        "Coupon Code: SDNEWSLETTER15",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Greenworkstools. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-650e663183",
-      "title": "24-Oz PUMA Insulated Stainless Steel Water Bottle w/ Straw & Swivel Carry Handle",
-      "category": "beverages",
-      "currentPrice": 12,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 372,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20308272-puma-24-oz-insulated-stainless-steel-water-bottle-w-straw-carry-handle-snow-mountain-blue-11-99-free-shipping-w-prime-or-on-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/4/9/0/0/1/2/300x300/22429851.thumb",
-      "description": "Amazon [ amazon.com ] has PUMA 24-Oz Insulated Stainless Steel Water Bottle w/ Straw & Carry Handle (Snow Mountain Blue) on sale for $11.99 . Shipping is free w/ Prime or on orders $35+.",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:47:16.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +21",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-8a9accc0c8",
-      "title": "6-Pk 7.5-Oz Amazon Basics Liquid Hand Soap (Fresh Scent) $3.80 w/ S&S",
-      "category": "lifestyle",
-      "currentPrice": 3.8,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 372,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20344308-sns-3-79-or-3-39-6-pk-7-5-oz-amazon-basics-liquid-hand-soap-fresh-scent-at-amazon-63-2-each?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/7/1/5/2/7/300x300/22455966.thumb",
-      "description": "Amazon [ amazon.com ] has 6-Pk 7.5-Oz Amazon Basics Liquid Hand Soap (Fresh Scent) for $3.99 - 5% when you check out via Subscribe & Save = $3.79 . Shipping is free with Prime or on $35+ orders. * Previous Frontpage Deal at $4.45 with 69 Deal Score and 13 comments Subscribe & Save",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:43:19.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +21",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-2424a3949a",
-      "title": "Sonic the Hedgehog 2 (Blu-ray)",
-      "category": "lifestyle",
-      "currentPrice": 5,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 312,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359692-sonic-the-hedgehog-2-blu-ray-5-free-shipping-w-prime-or-on-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/4/8/5/3/3/0/300x300/22498788.thumb",
-      "description": "Amazon [ amazon.com ] has Sonic the Hedgehog 2 (Blu-ray) on sale for $5 . Shipping is free w/ Prime or on orders $35+. Synopsis: (From Amazon) Sonic (Ben Schwartz) teams up with Tails to race against Dr. Robotnik and his new partner Knuckles (Idris Elba) to find a powerful emerald before it can be used to destroy civil",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:43:03.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +16",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-a77fa0fa44",
-      "title": "Anker 715 Nano II 65W GaN II PPS USB-C Fast Charger",
-      "category": "electronics",
-      "currentPrice": 20,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 384,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20340477-anker-715-nano-ii-65w-gan-ii-pps-usb-c-fast-charger-20-free-shipping-w-prime-or-on-orders-over-35?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/4/1/3/2/6/0/300x300/22442064.thumb",
-      "description": "AnkerDirect via Amazon [ amazon.com ] has Anker 715 Nano II 65W GaN II PPS USB-C Fast Charger for $19.99 . Shipping is free with Prime or on $35+",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:41:09.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Community Votes: +22",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Amazon USA. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-2a3b814bdb",
-      "title": "40\" TCL Q3CR FHD 60Hz QLED Roku TV (2026)",
-      "category": "electronics",
-      "currentPrice": 100,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Best Buy",
-      "merchantVerified": true,
-      "score": 528,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20339196-99-99-tcl-40-q3cr-series-1080p-fhd-qled-smart-tv-with-roku-2026-at-bestbuy?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Best Buy",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/5/1/4/8/2/1/3/300x300/22500396.thumb",
-      "description": "$99.99: TCL - 40\" Q3CR Series 1080P FHD QLED Smart TV with Roku (2026) at BestBuy https://www.bestbuy.com/product/t...J36QYTQWPL",
-      "badges": [
-        "Best Buy",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:39:48.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Best Buy",
-        "Community Votes: +34",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Best Buy. Confirm final price & stock on retailer page."
-    },
-    {
       "id": "dn-ad65794900",
       "title": "Motorola Black Friday Sale: Up to $800 off + free shipping",
       "category": "lifestyle",
@@ -1860,7 +2538,7 @@
       "merchantVerified": true,
       "score": 220,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Motorola-Black-Friday-Sale-Up-to-800-off-free-shipping/22415966.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/Motorola-Black-Friday-Sale-Up-to-800-off-free-shipping/22415966.html?iref=rss-c142",
       "primaryStore": "Motorola",
       "imageUrl": "https://d.dlnws.com/64599/1795221192-x0sct486v61tpj626l8jezr2d8nvf3832023.avif?h=248&w=250",
       "description": "Motorola's Black Friday sale covers Razr foldables, Edge phones, and Moto G models, with several bundles that add free accessories like Moto Buds 2, a Moto Watch, or a Moto Tag. The pictured 2025 Razr Ultra with 1TB of storage drops to $700, down from $1,500. On the budget end, the Moto G Power 2025 is $200 and comes with free Moto Buds 2. Shipping is free.",
@@ -1869,19 +2547,19 @@
         "Motorola",
         "Free Shipping"
       ],
-      "expiresInHours": 8716,
+      "expiresInHours": 8709,
       "expiresAt": "2027-11-19T05:59:00.000Z",
       "publishedAt": "2026-11-21T00:33:17.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Motorola",
         "Category: Cell Phones",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for Motorola. Click View Deal to confirm current checkout availability."
+      "highlight": "Verified from DealNews Electronics RSS for Motorola. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "dn-456efc1503",
@@ -1895,7 +2573,7 @@
       "merchantVerified": true,
       "score": 140,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Unlocked-Samsung-Galaxy-S26-Ultra-256-GB-Android-Smartphone-for-1-049-free-shipping/22415950.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/Unlocked-Samsung-Galaxy-S26-Ultra-256-GB-Android-Smartphone-for-1-049-free-shipping/22415950.html?iref=rss-c142",
       "primaryStore": "Amazon USA",
       "imageUrl": "https://d.dlnws.com/64599/1795220974-61pnymf7ztl.jpg?h=167&w=250",
       "description": "Amazon takes 25% off the Samsung Galaxy S26 Ultra, bringing it to $1,049 for the 256GB unlocked model. That price is below its 90-day average of $1,128 at Amazon. Shipping is free.",
@@ -1903,53 +2581,19 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2159,
+      "expiresInHours": 2152,
       "expiresAt": "2027-02-19T00:29:40.000Z",
       "publishedAt": "2026-11-21T00:29:40.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": false,
       "specifications": [
         "Retailer: Amazon USA",
         "Category: Phones & Cell Phones",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-8c1b412cc1",
-      "title": "2-Pc Crescent 6\" + 10\" Cushion Grip Adjustable Wrench Set",
-      "category": "electronics",
-      "currentPrice": 20,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Home Depot",
-      "merchantVerified": true,
-      "score": 492,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20339358-2-piece-crescent-cushion-grip-adjustable-wrench-set-6-10-19-97-free-shipping?utm_source=rss&utm_content=fp&utm_medium=RSS2",
-      "primaryStore": "Home Depot",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/4/9/0/0/1/2/300x300/22437636.thumb",
-      "description": "Home Depot [ homedepot.com ] has 2-Piece Crescent Cushion Grip Adjustable Wrench Set (6\" & 10\") on sale for $19.97 . Shipping is free.",
-      "badges": [
-        "Home Depot",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-21T00:28:16.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Frontpage Deals",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Home Depot",
-        "Community Votes: +31",
-        "Direct Store Offer",
-        "Source: Slickdeals Frontpage Deals"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Frontpage Deals at Home Depot. Confirm final price & stock on retailer page."
+      "highlight": "Verified from DealNews Electronics RSS for Amazon USA. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "sd-f932d70e85",
@@ -1961,7 +2605,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 216,
+      "score": 312,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360385-fastner-s-inc-milwaukee-m12-bare-tool-black-friday-deals-m12-fuel-hatchet-6-pruning-saw-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -1980,7 +2624,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +8",
+        "Community Votes: +16",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -1996,7 +2640,7 @@
       "currency": "USD",
       "merchant": "Amazon USA",
       "merchantVerified": true,
-      "score": 132,
+      "score": 156,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360331-greenworks-24v-1-2-brushless-cordless-drill-400-in-lbs-2-0ah-12-000mah-power-bank-52-24?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "amazonUsaUrl": "https://www.amazon.com/gp/product...X0DER",
@@ -2011,15 +2655,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-21T00:01:44.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Amazon USA",
-        "Community Votes: +1",
+        "Community Votes: +3",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Amazon USA. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Amazon USA. Confirm final price & stock on retailer page."
     },
     {
       "id": "sd-7e8016c697",
@@ -2031,7 +2675,7 @@
       "currency": "USD",
       "merchant": "Awaytravel",
       "merchantVerified": true,
-      "score": 108,
+      "score": 120,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360211-away-mini-crossbody-bag-45-for-arctic-blue-or-pink?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Awaytravel",
@@ -2045,15 +2689,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-20T23:41:02.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Awaytravel",
         "Community Votes: +0",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Awaytravel. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Awaytravel. Confirm final price & stock on retailer page."
     },
     {
       "id": "sd-b6db861b63",
@@ -2065,7 +2709,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 144,
+      "score": 240,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360202-dewalt-dce100b-cordless-blower-20v-135-mph-3-speed-compact-design-89?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2080,15 +2724,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-20T23:38:12.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +2",
+        "Community Votes: +10",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Fastenersinc.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "sd-63cecc1bf5",
@@ -2100,7 +2744,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 144,
+      "score": 156,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360178-dewalt-dce512b-cordless-jobsite-fan-20-v-12-125-in-variable-speed-ip54-rated-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2115,15 +2759,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-20T23:34:19.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +2",
+        "Community Votes: +3",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Fastenersinc.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "sd-f54966e13f",
@@ -2135,7 +2779,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 156,
+      "score": 180,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360169-dewalt-20v-max-cordless-inflator-tool-only-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2150,15 +2794,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-20T23:31:37.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +3",
+        "Community Votes: +5",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Fastenersinc.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "sd-384bbab571",
@@ -2185,15 +2829,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-20T23:25:42.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
         "Community Votes: +5",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Fastenersinc.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "sd-9632476f8c",
@@ -2205,12 +2849,12 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 168,
+      "score": 240,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20360139-dewalt-dcs565b-circular-saw-6-1-2-in-brushless-motor-50-bevel-capacity-4950-rpm-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/4/5/6/0/3/7/8/300x300/22499526.thumb",
-      "description": "This is a Fastner's Inc. Black Friday deal. They are an authorized retailer for this brand. Price good through 11/30/26. Free shipping on orders over $150.00, otherwise it's about $8.00. No sales taxes collected for most states (excludes CA and possibly OR). https://fastenersinc.ne t/product/...3107179711 https://faste",
+      "imageUrl": "https://static.slickdealscdn.com/attachment/4/2/8/1/6/300x300/22502322.thumb",
+      "description": "This is a Fastner's Inc. Black Friday deal. They are an authorized retailer for this brand. Price good through 11/30/26. Free shipping on orders over $150.00, otherwise it's about $8.00. No sales taxes collected for most states (excludes CA and possibly OR). https://fastenersinc.ne t/product/...3107179711",
       "badges": [
         "Black Friday 2026",
         "Fastenersinc.net",
@@ -2220,15 +2864,15 @@
       "expiresAt": null,
       "publishedAt": "2026-11-20T23:24:20.000Z",
       "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
+      "sourceFeed": "Slickdeals Black Friday Electronics",
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +4",
+        "Community Votes: +10",
         "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
+        "Source: Slickdeals Black Friday Electronics"
       ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
+      "highlight": "Live community-vetted offer from Slickdeals Black Friday Electronics at Fastenersinc.net. Confirm final price & stock on retailer page."
     },
     {
       "id": "dn-bbb1f483ba",
@@ -2250,7 +2894,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T23:18:06.000Z",
       "publishedAt": "2026-11-20T23:18:06.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2284,7 +2928,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T23:08:51.000Z",
       "publishedAt": "2026-11-20T23:08:51.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2297,110 +2941,6 @@
         "Source: DealNews Verified RSS"
       ],
       "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-ac487c392a",
-      "title": "Olight O'Pen 3 Rechargeable Pen Light",
-      "category": "home",
-      "currentPrice": 63.99,
-      "originalPrice": 80,
-      "discountPercent": 20,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Olight/Olight-OPen-3-Rechargeable-Pen-Light/560618.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795103068-draftworks_img_6k4c8b4khds45ecdgnh.jpeg?h=250&w=250",
-      "description": "Clips into a pocket or bag for quick access, which makes sense for mechanics, nurses, or anyone who needs a reliable light without carrying a full flashlight. It's rechargeable rather than battery-powered, and currently $16 off the $80 list price. Deal ends December 1.",
-      "badges": [
-        "Amazon USA",
-        "20% OFF",
-        "Free Shipping"
-      ],
-      "expiresInHours": 267,
-      "expiresAt": "2026-12-02T05:00:00.000Z",
-      "publishedAt": "2026-11-20T22:54:39.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Department: home",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-a883a6fdb7",
-      "title": "Enya Nova Go Carbon Fiber Travel Guitar",
-      "category": "lifestyle",
-      "currentPrice": 209.99,
-      "originalPrice": 280,
-      "discountPercent": 25,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Enya/Enya-Nova-Go-Carbon-Fiber-Travel-Guitar/501140.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1782218780-draftworks_img_8ko37d08fdsvekicncc.jpeg?h=250&w=250",
-      "description": "A smaller-bodied guitar like this suits travelers or players tight on space who still want built-in pickup and speaker functions for practicing without extra gear. It's $70 (25%) off the $280 list price. Deal ends December 2.",
-      "badges": [
-        "Amazon USA",
-        "25% OFF",
-        "Free Shipping"
-      ],
-      "expiresInHours": 291,
-      "expiresAt": "2026-12-03T05:00:00.000Z",
-      "publishedAt": "2026-11-20T22:52:16.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Musical Instruments",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-c42ff932cf",
-      "title": "Bestier 70.8\" Freestanding Electric Fireplace TV Stand w/ Adjustable Glass Shelves",
-      "category": "electronics",
-      "currentPrice": 211.93,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Home Depot",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Bestier-70-8-Freestanding-Electric-Fireplace-TV-Stand-w-Adjustable-Glass-Shelves-for-212-free-shipping/22406580.html?iref=rss",
-      "primaryStore": "Home Depot",
-      "imageUrl": "https://d.dlnws.com/64599/1794946771-2026-11-17_15-18-08.png?h=243&w=250",
-      "description": "This 70.8",
-      "badges": [
-        "Home Depot",
-        "Free Shipping"
-      ],
-      "expiresInHours": 267,
-      "expiresAt": "2026-12-02T05:00:00.000Z",
-      "publishedAt": "2026-11-20T22:52:05.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Home Depot",
-        "Category: TV Stands",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Home Depot. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "dn-54e3d9ead3",
@@ -2422,7 +2962,7 @@
         "eBay",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T22:45:03.000Z",
       "publishedAt": "2026-11-20T22:45:03.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2456,7 +2996,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T22:40:44.000Z",
       "publishedAt": "2026-11-20T22:40:44.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2465,41 +3005,6 @@
       "specifications": [
         "Retailer: Amazon USA",
         "Category: iPads",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-980038a9de",
-      "title": "Tineco Floor One S7 Stretch Cordless Wet Dry Vacuum and Steam Mop",
-      "category": "gaming",
-      "currentPrice": 389,
-      "originalPrice": 699,
-      "discountPercent": 44,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Tineco/Tineco-Floor-One-S7-Stretch-Cordless-Wet-Dry-Vacuum-and-Steam-Mop/560706.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795110121-draftworks_img_65rvm1vag6kj7fdbmgl.jpeg?h=250&w=200",
-      "description": "Cleans and dries hard floors in a single pass, which suits households with pets or kids tracking in messes and want to skip the separate mop-and-vacuum routine, and it's currently $310 (44%) off the $699 list price. Apply coupon code",
-      "badges": [
-        "Amazon USA",
-        "44% OFF",
-        "Free Shipping"
-      ],
-      "expiresInHours": 243,
-      "expiresAt": "2026-12-01T05:00:00.000Z",
-      "publishedAt": "2026-11-20T22:40:41.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Department: gaming",
         "No coupon code required",
         "Source: DealNews Verified RSS"
       ],
@@ -2525,7 +3030,7 @@
         "eBay",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T22:37:20.000Z",
       "publishedAt": "2026-11-20T22:37:20.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2551,7 +3056,7 @@
       "merchantVerified": true,
       "score": 140,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/vSee-Box-V6-Pro-Android-14-Smart-TV-Box-w-Voice-Remote-for-273-free-shipping/22415838.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/vSee-Box-V6-Pro-Android-14-Smart-TV-Box-w-Voice-Remote-for-273-free-shipping/22415838.html?iref=rss-c142",
       "primaryStore": "eBay",
       "imageUrl": "https://d.dlnws.com/64599/1795213784-s-l1600.jpg?h=250&w=250",
       "description": "At eBay, this vSeeBox V6 Pro is $86 off the seller's $359 regular price. Free shipping and 30-day returns with the seller covering return shipping are included. The seller offers lower per-unit pricing when buying multiple units, dropping to $256 each at four or more.",
@@ -2559,19 +3064,19 @@
         "eBay",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2150,
       "expiresAt": "2027-02-18T22:29:50.000Z",
       "publishedAt": "2026-11-20T22:29:50.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": false,
       "specifications": [
         "Retailer: eBay",
         "Category: Streaming Media Players",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for eBay. Click View Deal to confirm current checkout availability."
+      "highlight": "Verified from DealNews Electronics RSS for eBay. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "dn-218e48e56a",
@@ -2593,7 +3098,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2157,
+      "expiresInHours": 2149,
       "expiresAt": "2027-02-18T22:28:51.000Z",
       "publishedAt": "2026-11-20T22:28:51.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2627,7 +3132,7 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2156,
+      "expiresInHours": 2149,
       "expiresAt": "2027-02-18T22:18:40.000Z",
       "publishedAt": "2026-11-20T22:18:40.000Z",
       "availability": "Listed In Stock at Check Time",
@@ -2651,7 +3156,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 144,
+      "score": 156,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359764-dewalt-dcs334b-cordless-jig-saw-20v-brushless-1-in-blade-stroke-length-4-position-orbital-action-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2670,7 +3175,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +2",
+        "Community Votes: +3",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -2686,7 +3191,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 168,
+      "score": 192,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359740-dewalt-dcs438b-cut-off-tool-20v-max-brushless-motor-20000-rpm-3-in-wheel-diameter-cordless-99?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2705,7 +3210,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +4",
+        "Community Votes: +6",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -2721,7 +3226,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 396,
+      "score": 600,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359719-dewalt-dcpr320b-cordless-pruner-1-1-2-in-cut-capacity-20v-max-lithium-ion-curved-shaft-60-spm-79?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2740,7 +3245,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +23",
+        "Community Votes: +40",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -2758,7 +3263,7 @@
       "merchantVerified": true,
       "score": 140,
       "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Apple/Apple-Air-Pods-Max-2/498076.html?iref=rss",
+      "affiliateUrl": "https://www.dealnews.com/products/Apple/Apple-Air-Pods-Max-2/498076.html?iref=rss-c142",
       "primaryStore": "Amazon USA",
       "imageUrl": "https://d.dlnws.com/64599/1774535790-dark-gray-apple-over-ear-headphones-jvyd.jpeg?h=250&w=226",
       "description": "Amazon takes $130 off the Apple AirPods Max 2 headphones, dropping them to $419. It's the lowest price at Amazon since June. Five colors are available. Shipping is free.",
@@ -2766,19 +3271,19 @@
         "Amazon USA",
         "Free Shipping"
       ],
-      "expiresInHours": 2156,
+      "expiresInHours": 2149,
       "expiresAt": "2027-02-18T22:00:31.000Z",
       "publishedAt": "2026-11-20T22:00:31.000Z",
       "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
+      "sourceFeed": "DealNews Electronics RSS",
       "isBlackFriday": false,
       "specifications": [
         "Retailer: Amazon USA",
         "Category: AirPods",
         "No coupon code required",
-        "Source: DealNews Verified RSS"
+        "Source: DealNews Electronics RSS"
       ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
+      "highlight": "Verified from DealNews Electronics RSS for Amazon USA. Click View Deal to confirm current checkout availability."
     },
     {
       "id": "sd-75d0998ec4",
@@ -2790,7 +3295,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 204,
+      "score": 480,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359689-dewalt-dccs623b-pruning-chainsaw-20-v-8-in-blade-brushless-cordless-79?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2809,7 +3314,7 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +7",
+        "Community Votes: +30",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
@@ -2825,7 +3330,7 @@
       "currency": "USD",
       "merchant": "Fastenersinc.net",
       "merchantVerified": true,
-      "score": 168,
+      "score": 180,
       "couponCode": null,
       "affiliateUrl": "https://slickdeals.net/f/20359650-milwaukee-tool-0884-20-m18-compact-blower-bare-tool-79?utm_source=rss&utm_content=def&utm_medium=RSS2",
       "primaryStore": "Fastenersinc.net",
@@ -2844,522 +3349,11 @@
       "isBlackFriday": true,
       "specifications": [
         "Retailer: Fastenersinc.net",
-        "Community Votes: +4",
+        "Community Votes: +5",
         "Direct Store Offer",
         "Source: Slickdeals Black Friday 2026"
       ],
       "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-ad4c53d4fa",
-      "title": "DEWALT DCP580B Planer Brushless Motor 20 V 3.25 in Cutting Width 15000 RPM Cordless",
-      "category": "home",
-      "currentPrice": 129,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Fastenersinc.net",
-      "merchantVerified": true,
-      "score": 228,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359638-dewalt-dcp580b-planer-brushless-motor-20-v-3-25-in-cutting-width-15000-rpm-cordless-129?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/4/5/6/0/3/7/8/300x300/22498644.thumb",
-      "description": "This is a Fastner's Inc. Black Friday deal. They are an authorized retailer for this brand. Price good through 11/30/26. Free shipping on orders over $150.00, otherwise it's about $8.00. No sales taxes collected for most states (excludes CA and possibly OR). https://fastenersinc.ne t/product/...1185911895",
-      "badges": [
-        "Black Friday 2026",
-        "Fastenersinc.net",
-        "Free Shipping"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T21:49:00.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Fastenersinc.net",
-        "Community Votes: +9",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "sd-d3878d5fe7",
-      "title": "Greenworks 40V 21\" Cordless Battery Self-Propelled Lawn Mower 3PC Combo Kit, (1) 5.0Ah Battery (1) 2.0 ah battery and (2) chargers",
-      "category": "energy",
-      "currentPrice": 382.5,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Greenworkstools",
-      "merchantVerified": true,
-      "score": 144,
-      "couponCode": "SDNEWSLETTER15",
-      "affiliateUrl": "https://slickdeals.net/f/20359635-greenworks-40v-21-cordless-battery-self-propelled-lawn-mower-3pc-combo-kit-1-5-0ah-battery-1-2-0-ah-battery-and-2-chargers-382-5?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Greenworkstools",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/1/1/9/9/5/2/5/2/300x300/22498629.thumb",
-      "description": "Use coupon code SDNEWSLETTER15 to get price. Shipping is free https://www.greenworkst ools.com/c...2-chargers",
-      "badges": [
-        "Black Friday 2026",
-        "Greenworkstools"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T21:48:20.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Greenworkstools",
-        "Community Votes: +2",
-        "Coupon Code: SDNEWSLETTER15",
-        "Source: Slickdeals Black Friday 2026"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Greenworkstools. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "dn-07a784cfb3",
-      "title": "Brooks Men's Dash 1/4 Zip 3.0 Running Shirt",
-      "category": "apparel",
-      "currentPrice": 56,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Brooks Running",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Brooks-Mens-Dash-1-4-Zip-3-0-Running-Shirt-for-56-free-shipping/22415792.html?iref=rss",
-      "primaryStore": "Brooks Running",
-      "imageUrl": "https://d.dlnws.com/64599/1795210827-211565-001-mf-dash-quarter-zip-3-mens-long-sleeve-running-shirt_e2_80_8b.avif?h=250&w=250",
-      "description": "Brooks has the Men's Dash 1/4 Zip 3.0 long sleeve at $56, 30% off in select colors. Spending $160 at Brooks also gets a free pair of Dash Arm Sleeves. Shipping is free for members (it's free to join).",
-      "badges": [
-        "Brooks Running",
-        "Free Shipping"
-      ],
-      "expiresInHours": 2156,
-      "expiresAt": "2027-02-18T21:40:34.000Z",
-      "publishedAt": "2026-11-20T21:40:34.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Brooks Running",
-        "Category: Activewear",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Brooks Running. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-7baf6bd1f1",
-      "title": "Brooks Men's Revel Max Road Running Shoes",
-      "category": "apparel",
-      "currentPrice": 100,
-      "originalPrice": 120,
-      "discountPercent": 17,
-      "currency": "USD",
-      "merchant": "Brooks Running",
-      "merchantVerified": true,
-      "score": 220,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Brooks-Mens-Revel-Max-Road-Running-Shoes-for-100-free-shipping/22415791.html?iref=rss",
-      "primaryStore": "Brooks Running",
-      "imageUrl": "https://d.dlnws.com/64599/1795210384-110482-038-l-revel-max-mens-max-cushion-road-running-shoe.avif?h=250&w=250",
-      "description": "Brooks is selling the men's Revel Max road running shoe for $100, which is 17% off the $120 regular price. That price matches its Amazon all-time low of $100. Holiday purchases get free returns through April 1, 2027. Shipping is free for members (it's free to join).",
-      "badges": [
-        "Black Friday 2026",
-        "Brooks Running",
-        "17% OFF"
-      ],
-      "expiresInHours": 2156,
-      "expiresAt": "2027-02-18T21:33:09.000Z",
-      "publishedAt": "2026-11-20T21:33:09.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Brooks Running",
-        "Category: Shoes",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Brooks Running. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-8d862bd4db",
-      "title": "Magnetic Exercise Bike w/ App Training",
-      "category": "lifestyle",
-      "currentPrice": 285,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Magnetic-Exercise-Bike-w-App-Training-for-285-free-shipping/22415781.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795209535-71nxcvobqul.jpg?h=250&w=250",
-      "description": "This Yosuda magnetic exercise bike matches its Amazon all-time low of $285 and sits well below its 90-day average of $348. It offers 100 resistance levels and pairs with a Bluetooth app that tracks speed, distance, and calories. The weight limit is 350 lbs. Shipping is free.",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T21:19:01.000Z",
-      "publishedAt": "2026-11-20T21:19:01.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Exercise & Spin Bikes",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-91509e5f8c",
-      "title": "Milwaukee 48-22-1505D FASTBACK 6-in-1 Folding Utility Knife 2-Pack",
-      "category": "apparel",
-      "currentPrice": 19.49,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Fastenersinc.net",
-      "merchantVerified": true,
-      "score": 336,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359455-milwaukee-48-22-1505d-fastback-6-in-1-folding-utility-knife-2-pack-19-49?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/1/2/8/7/0/4/300x300/22498212.thumb",
-      "description": "Fasteners Inc has a two-pack of the FASTBACK 6-in-1 for $19.49 in the Black Friday Sale (11/20/2026) • $8.74 shipping, or free at $150 • Fasteners doesn't collect sales tax outside CA • Fasteners Inc is a Milwaukee authorized dealer who sell genuine products Shipping's probably a dealbreaker, but if you're already gett",
-      "badges": [
-        "Black Friday 2026",
-        "Fastenersinc.net"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T21:17:09.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Fastenersinc.net",
-        "Community Votes: +18",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "dn-b631c2791e",
-      "title": "Hanes Men's EcoSmart Fleece Full-Zip Hoodie",
-      "category": "apparel",
-      "currentPrice": 11,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 280,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Hanes-Mens-Eco-Smart-Fleece-Full-Zip-Hoodie-for-11-free-w-Prime/22415765.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795208807-817e39xun-l.jpg?h=250&w=250",
-      "description": "At Amazon, this Hanes EcoSmart fleece zip hoodie is 61% off. The fleece is a 50/50 cotton and polyester blend, and sizing runs up to 6X-large. Shipping is free for Prime members.",
-      "badges": [
-        "Editor Pick",
-        "Amazon USA"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T21:06:52.000Z",
-      "publishedAt": "2026-11-20T21:06:52.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Sweatshirts & Hoodies",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-ee0dbdfbfd",
-      "title": "Amazon Prime Visa Credit Card",
-      "category": "lifestyle",
-      "currentPrice": 200,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Amazon-Prime-Visa-Credit-Card-for-200-Amazon-GC-w-Approval/22415764.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795208772-product-trimmed.jpg?h=250&w=250",
-      "description": "Shoppers who are approved for the Amazon Prime Visa get a $200 Amazon Gift Card instantly, up from the normal $150. The card has no annual fee and no foreign transaction fees, and an eligible Prime membership is required for the 5% back rate on Amazon.com and Whole Foods Market purchases. It also pays 2% back at gas stations, restaurants, and local transit, and 1% back on everything else. Shipping is free for Prime members.",
-      "badges": [
-        "Amazon USA"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T21:06:18.000Z",
-      "publishedAt": "2026-11-20T21:06:18.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Credit Cards",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "sd-9d3d3953ed",
-      "title": "Milwaukee Tool 2521-20 M12 FUEL 5-3/8\" Circular Saw - (Bare Tool)",
-      "category": "home",
-      "currentPrice": 89,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Fastenersinc.net",
-      "merchantVerified": true,
-      "score": 504,
-      "couponCode": null,
-      "affiliateUrl": "https://slickdeals.net/f/20359356-milwaukee-tool-2521-20-m12-fuel-5-3-8-circular-saw-bare-tool-89?utm_source=rss&utm_content=def&utm_medium=RSS2",
-      "primaryStore": "Fastenersinc.net",
-      "imageUrl": "https://static.slickdealscdn.com/attachment/3/0/1/2/8/7/0/4/300x300/22498047.thumb",
-      "description": "Fasteners Inc has M12 2521-20 circ saw for $89 in the Black Friday Sale (11/20/2026) • $8.74 shipping, or free at $150 • Fasteners doesn't collect sales tax outside CA • Fasteners Inc is a Milwaukee authorized dealer who sell genuine products Other Black Friday Deals [ fastenersinc.net ] https://fastenersinc.ne t/produ",
-      "badges": [
-        "Black Friday 2026",
-        "Fastenersinc.net"
-      ],
-      "expiresInHours": null,
-      "expiresAt": null,
-      "publishedAt": "2026-11-20T21:02:38.000Z",
-      "availability": "Listed Active at Check Time",
-      "sourceFeed": "Slickdeals Black Friday 2026",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Fastenersinc.net",
-        "Community Votes: +32",
-        "Direct Store Offer",
-        "Source: Slickdeals Black Friday 2026"
-      ],
-      "highlight": "Live community-vetted offer from Slickdeals Black Friday 2026 at Fastenersinc.net. Confirm final price & stock on retailer page."
-    },
-    {
-      "id": "dn-e241ee1e67",
-      "title": "WORX Landroid Vision Cloud WR341 4WD Robotic Lawn Mower w/ Cut to Edge Attachment",
-      "category": "lifestyle",
-      "currentPrice": 1500,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Lowe's",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Worx-Tools/WORX-Landroid-Vision-Cloud-WR341-4-WD-Robotic-Lawn-Mower-w-Cut-to-Edge-Attachment/561513.html?iref=rss",
-      "primaryStore": "Lowe's",
-      "imageUrl": "https://d.dlnws.com/64599/1795208508-product-trimmed.jpg?h=167&w=250",
-      "description": "The WORX Landroid Vision Cloud WR341 4WD Robotic Lawn Mower at Lowe's is $300 less than Home Depot charges. This four-wheel-drive mower weighs 37 to 40 lb with its battery, several pounds more than the two-wheel-drive version, and the 20V battery also fits other WORX Power Share tools. MyLowe's Rewards members get free delivery on this order (it's free to join). Pickup may also be available. This deal ends December 9.",
-      "badges": [
-        "Lowe's"
-      ],
-      "expiresInHours": 459,
-      "expiresAt": "2026-12-10T04:59:00.000Z",
-      "publishedAt": "2026-11-20T21:01:56.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Lowe's",
-        "Category: Outdoor Power Equipment",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Lowe's. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-e5f0d45455",
-      "title": "Meta Oakley Vanguard AI Glasses",
-      "category": "lifestyle",
-      "currentPrice": 424,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Meta-Oakley-Vanguard-AI-Glasses-for-424-free-shipping/22415749.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795208177-51guiykxwol-sx385.jpg?h=250&w=250",
-      "description": "Amazon has the Meta Oakley Vanguard AI Glasses at $424, down from $499. They record 3K video from a centered camera and play audio through open-ear speakers. A compatible Garmin device can feed live workout metrics to the glasses. Shipping is free.",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T20:55:49.000Z",
-      "publishedAt": "2026-11-20T20:55:49.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Wearable Technology",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-681013c24e",
-      "title": "Anker 25,000mAh Laptop Power Bank",
-      "category": "electronics",
-      "currentPrice": 91,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/products/Anker/Anker-25-000-m-Ah-Laptop-Power-Bank/486804.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1738590140-anker-165w-portable-charger-lned.jpeg?h=250&w=250",
-      "description": "This Anker power bank is $44 off Anker's regular price at Amazon. It has three 100W USB-C ports and a 165W total output, so it can charge a laptop and other devices at once. Two built-in cables, one of which retracts, mean fewer cords to pack, and the 100Wh size is carry-on friendly for flights. Shipping is free.",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T20:54:10.000Z",
-      "publishedAt": "2026-11-20T20:54:10.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Laptop Accessories",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-2bd34d4e13",
-      "title": "Lowe's Black Friday Snow Blower Deals: Up to 49% off + free shipping w/ $25",
-      "category": "lifestyle",
-      "currentPrice": 25,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Lowe's",
-      "merchantVerified": true,
-      "score": 220,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Lowes-Black-Friday-Snow-Blower-Deals-Up-to-49-off-free-shipping-w-25/22415747.html?iref=rss",
-      "primaryStore": "Lowe's",
-      "imageUrl": "https://d.dlnws.com/64599/1795207793-product-trimmed.jpg?h=245&w=250",
-      "description": "Lowe's has 14 snow blowers on sale for Black Friday, covering battery and gas models from Toro, EGO, Kobalt, Briggs & Stratton, Litheli, and SKIL. The Toro Power Clear 21",
-      "badges": [
-        "Black Friday 2026",
-        "Lowe's",
-        "Free Shipping"
-      ],
-      "expiresInHours": 963,
-      "expiresAt": "2026-12-31T04:59:00.000Z",
-      "publishedAt": "2026-11-20T20:50:15.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": true,
-      "specifications": [
-        "Retailer: Lowe's",
-        "Category: Outdoor Power Equipment",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Lowe's. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-121a0a5d28",
-      "title": "Medicube Skincare Deals at Amazon for From $10 + free shipping w/ Prime",
-      "category": "lifestyle",
-      "currentPrice": 10,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Medicube-Skincare-Deals-at-Amazon-for-From-10-free-shipping-w-Prime/22415746.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795207779-61adluwksxl.jpg?h=250&w=250",
-      "description": "Medicube skincare offers include Collagen Jelly Cream at $10. Most of the serums, masks, and moisturizers fall between $13 and $15, including the PDRN Pink Peptide Serum at $13. The lineup also includes a 60-count hydrogel eye patch set at $15 and a Gua Sha neck wrinkle cream at $21. Shipping is free for Prime members.",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T20:49:45.000Z",
-      "publishedAt": "2026-11-20T20:49:45.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Skin Care",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
-    },
-    {
-      "id": "dn-98bff4d44e",
-      "title": "Medicube Triple Collagen Toner 4.73-oz.",
-      "category": "lifestyle",
-      "currentPrice": 13,
-      "originalPrice": null,
-      "discountPercent": null,
-      "currency": "USD",
-      "merchant": "Amazon USA",
-      "merchantVerified": true,
-      "score": 140,
-      "couponCode": null,
-      "affiliateUrl": "https://www.dealnews.com/Medicube-Triple-Collagen-Toner-4-73-oz-for-13-free-shipping-w-Prime/22415745.html?iref=rss",
-      "primaryStore": "Amazon USA",
-      "imageUrl": "https://d.dlnws.com/64599/1795207606-51kz2q0dz9l.jpg?h=250&w=250",
-      "description": "At Amazon, this medicube Triple Collagen Toner is 33% off. The $13 sale price is also well below its 90-day average of $19 on Amazon, as well as the all-time price low. Shipping is free for Prime members.",
-      "badges": [
-        "Amazon USA",
-        "Free Shipping"
-      ],
-      "expiresInHours": 2155,
-      "expiresAt": "2027-02-18T20:46:52.000Z",
-      "publishedAt": "2026-11-20T20:46:52.000Z",
-      "availability": "Listed In Stock at Check Time",
-      "sourceFeed": "DealNews Verified RSS",
-      "isBlackFriday": false,
-      "specifications": [
-        "Retailer: Amazon USA",
-        "Category: Skin Care",
-        "No coupon code required",
-        "Source: DealNews Verified RSS"
-      ],
-      "highlight": "Verified from DealNews Verified RSS for Amazon USA. Click View Deal to confirm current checkout availability."
     }
   ]
 }
