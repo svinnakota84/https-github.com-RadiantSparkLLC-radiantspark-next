@@ -60,9 +60,11 @@ try {
   firebaseAppletConfig = null;
 }
 
-const SESSION_SECRET =
-  process.env.LIFESPARK_SESSION_SECRET ||
-  crypto.createHash('sha256').update(`lifespark:${process.cwd()}:session-key`).digest('hex');
+const configuredSessionSecret = process.env.LIFESPARK_SESSION_SECRET?.trim();
+if (process.env.NODE_ENV === 'production' && (!configuredSessionSecret || configuredSessionSecret.length < 32)) {
+  throw new Error('Set LIFESPARK_SESSION_SECRET to a securely generated secret of at least 32 characters before starting production.');
+}
+const SESSION_SECRET = configuredSessionSecret || crypto.randomBytes(32).toString('hex');
 
 const stripeClient = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
