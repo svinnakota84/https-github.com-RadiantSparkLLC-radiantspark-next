@@ -36,6 +36,7 @@ export default function App() {
       return 'lifestyle';
     }
     const hash = window.location.hash.replace('#', '');
+    if (hash === 'legal-shield' || hash === 'usa-legal-shield') return 'usa';
     if (hash === 'india' || hash === 'usa' || hash === 'sparkdeals' || hash === 'brain' || hash === 'lifestyle') return hash as CountryView;
     return 'global';
   });
@@ -121,17 +122,13 @@ export default function App() {
       prev.map((d) => {
         if (d.id === dealId) {
           const isUpvoted = !d.upvoted;
-          const newScore = isUpvoted ? d.score + 1 : d.score - 1;
-          showToast(isUpvoted ? `🔥 Upvoted! Community score: ${newScore}` : 'Vote removed');
-          return {
-            ...d,
-            upvoted: isUpvoted,
-            score: newScore,
-          };
+          const newScore = isUpvoted ? d.score + 1 : Math.max(0, d.score - 1);
+          return { ...d, upvoted: isUpvoted, score: newScore };
         }
         return d;
       })
     );
+    showToast('Deal vote saved to live feed');
   };
 
   const handleRefreshDealsFromSync = () => {
@@ -149,15 +146,16 @@ export default function App() {
   };
 
   const handleOpenLegalShieldSection = () => {
-    if (currentView !== 'india') {
-      setCurrentView('india');
-      setTimeout(() => {
-        const el = document.getElementById('legal-shield');
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
+    const scrollTarget = () => {
       const el = document.getElementById('legal-shield');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
+    };
+    if (currentView === 'india' || currentView === 'usa') {
+      scrollTarget();
+    } else {
+      setCurrentView('usa');
+      window.location.hash = 'usa';
+      setTimeout(scrollTarget, 320);
     }
   };
 
@@ -256,6 +254,7 @@ export default function App() {
               <UsaView
                 onOpenSparkSync={() => setIsSparkSyncOpen(true)}
                 onSwitchToIndia={() => handleNavigateView('india')}
+                onOpenTakedownModal={() => setIsTakedownOpen(true)}
               />
             </motion.div>
           )}

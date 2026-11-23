@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { USA_SERVICES } from '../data/companyData';
+import { UsaLegalShield } from './UsaLegalShield';
 import {
   Zap,
   ArrowUpRight,
@@ -20,9 +21,14 @@ import {
 interface UsaViewProps {
   onOpenSparkSync: () => void;
   onSwitchToIndia: () => void;
+  onOpenTakedownModal?: () => void;
 }
 
-export const UsaView: React.FC<UsaViewProps> = ({ onOpenSparkSync, onSwitchToIndia }) => {
+export const UsaView: React.FC<UsaViewProps> = ({
+  onOpenSparkSync,
+  onSwitchToIndia,
+  onOpenTakedownModal,
+}) => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const toggleFaq = (idx: number) => {
@@ -201,6 +207,22 @@ export const UsaView: React.FC<UsaViewProps> = ({ onOpenSparkSync, onSwitchToInd
           ))}
         </div>
       </section>
+
+      {/* U.S. Legal Shield & Retailer Program Governance */}
+      <UsaLegalShield
+        onOpenTakedownModal={
+          onOpenTakedownModal ||
+          (() => {
+            window.location.hash = 'sparkdeals';
+          })
+        }
+        onSwitchToIndia={() => {
+          onSwitchToIndia();
+          setTimeout(() => {
+            document.getElementById('legal-shield')?.scrollIntoView({ behavior: 'smooth' });
+          }, 320);
+        }}
+      />
 
       {/* FAQ Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -73,7 +73,7 @@ export const BusinessInquiryModal: React.FC<BusinessInquiryModalProps> = ({
     e.preventDefault();
     if (!name || !email || !company) return;
 
-    let serverTicketId = `RFQ-${Math.floor(10000 + Math.random() * 90000)}`;
+    let serverTicketId = `RFQ-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
     try {
       const res = await fetch('/api/inquiries/submit', {
         method: 'POST',
@@ -137,12 +137,9 @@ export const BusinessInquiryModal: React.FC<BusinessInquiryModalProps> = ({
     setMessage('');
   };
 
-  const handleOpenWhatsApp = () => {
-    const text = encodeURIComponent(
-      `Hello Radiant Spark B2B Team,\n\nI have submitted Inquiry ID: ${lastSubmittedId || 'RFQ-DIRECT'}.\n\nName: ${name || 'Enterprise Customer'}\nCompany: ${company || 'Corporate Partner'}\nCategory: ${category}\nEst. Volume: $${volumeUsd.toLocaleString()} USD\n\nPlease share the official quote PDF and dispatch timeline.`
-    );
-    window.open(`https://wa.me/919999999999?text=${text}`, '_blank');
-  };
+  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+    `Radiant Spark B2B Inquiry ${lastSubmittedId || ''} — Name: ${name || 'Customer'}, Company: ${company || 'Partner'}, Category: ${category}, Est. Volume: $${volumeUsd.toLocaleString()} USD`
+  )}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -256,13 +253,15 @@ export const BusinessInquiryModal: React.FC<BusinessInquiryModalProps> = ({
                   </div>
 
                   <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                    <button
-                      onClick={handleOpenWhatsApp}
+                    <a
+                      href={whatsappShareUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all"
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span>Send Instant WhatsApp Alert</span>
-                    </button>
+                      <span>Share RFQ Summary via WhatsApp</span>
+                    </a>
 
                     <button
                       onClick={handleResetForm}

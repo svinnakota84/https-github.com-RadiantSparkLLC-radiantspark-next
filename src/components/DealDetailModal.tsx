@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DealItem } from '../types';
 import {
   Flame,
@@ -40,8 +40,24 @@ export const DealDetailModal: React.FC<DealDetailModalProps> = ({
   onOpenLegalShield,
 }) => {
   const [copiedCode, setCopiedCode] = useState(false);
+  const [hasServerRedirect, setHasServerRedirect] = useState(false);
+
+  useEffect(() => {
+    if (!deal) return;
+    fetch('/api/health', { cache: 'no-store' })
+      .then((r) => {
+        if (r.ok && (r.headers.get('content-type') || '').includes('application/json')) {
+          setHasServerRedirect(true);
+        }
+      })
+      .catch(() => setHasServerRedirect(false));
+  }, [deal?.id]);
 
   if (!deal) return null;
+
+  const outboundHref = hasServerRedirect
+    ? `/api/deals/redirect/${encodeURIComponent(deal.id)}`
+    : deal.directMerchantUrl || deal.affiliateUrl;
 
   const currency = deal.currency || 'USD';
   const hasValidRef =
@@ -173,7 +189,7 @@ export const DealDetailModal: React.FC<DealDetailModalProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
               <a
-                href={deal.affiliateUrl}
+                href={outboundHref}
                 target="_blank"
                 rel="noopener noreferrer sponsored"
                 className="sm:col-span-2 p-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-between font-black text-xs transition-all"
@@ -289,7 +305,7 @@ export const DealDetailModal: React.FC<DealDetailModalProps> = ({
           </button>
 
           <a
-            href={deal.affiliateUrl}
+            href={outboundHref}
             target="_blank"
             rel="noopener noreferrer sponsored"
             className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md"

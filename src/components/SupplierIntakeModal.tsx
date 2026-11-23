@@ -21,14 +21,19 @@ export const SupplierIntakeModal: React.FC<SupplierIntakeModalProps> = ({ isOpen
     countryRegion: 'India',
     supplyCapacity: '',
     moq: '',
+    revenueModel: 'vendor_agency_commission',
+    proposedCommissionPct: '12',
     certifications: '',
     productDescription: '',
     agreedToTerms: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [submittedTicket, setSubmittedTicket] = useState<{
     id: string;
+    agreementDraftId?: string;
+    agreementDigest?: string;
     timestamp: string;
     companyName: string;
   } | null>(null);
@@ -49,14 +54,15 @@ export const SupplierIntakeModal: React.FC<SupplierIntakeModalProps> = ({ isOpen
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
     if (!formData.companyName || !formData.contactName || !formData.email || !formData.phone) {
-      alert('Please fill in all required company contact details.');
+      setFormError('Please fill in all required company contact details.');
       return;
     }
 
     if (!formData.agreedToTerms) {
-      alert('Please check the box to acknowledge the Supplier Onboarding Draft Guidelines.');
+      setFormError('Please check the box to acknowledge the Supplier Onboarding Guidelines.');
       return;
     }
 
@@ -72,14 +78,15 @@ export const SupplierIntakeModal: React.FC<SupplierIntakeModalProps> = ({ isOpen
       const data = await res.json();
 
       setSubmittedTicket({
-        id: data.ticketId || `SUP-${Math.floor(100000 + Math.random() * 900000)}`,
+        id: data.ticketId || `SUP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
+        agreementDraftId: data.agreementDraftId,
+        agreementDigest: data.agreementDigest,
         timestamp: new Date().toLocaleString(),
         companyName: formData.companyName,
       });
     } catch {
-      // Fallback
       setSubmittedTicket({
-        id: `SUP-${Math.floor(100000 + Math.random() * 900000)}`,
+        id: `SUP-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
         timestamp: new Date().toLocaleString(),
         companyName: formData.companyName,
       });
@@ -155,6 +162,18 @@ export const SupplierIntakeModal: React.FC<SupplierIntakeModalProps> = ({ isOpen
                   <span>Procurement Entity:</span>
                   <span className="text-amber-300 font-bold">RDNT Sparkle / Radiant Spark Procurement</span>
                 </div>
+                {submittedTicket.agreementDraftId && (
+                  <div className="flex justify-between pt-1.5 border-t border-slate-800">
+                    <span>Legal Agreement Draft (Ananya Iyer):</span>
+                    <span className="text-emerald-300 font-bold">{submittedTicket.agreementDraftId}</span>
+                  </div>
+                )}
+                {submittedTicket.agreementDigest && (
+                  <div className="flex justify-between">
+                    <span>SHA-256 Verification Hash:</span>
+                    <span className="text-cyan-300">{submittedTicket.agreementDigest}</span>
+                  </div>
+                )}
               </div>
 
               <p className="text-[11px] text-slate-400 leading-relaxed italic">
@@ -317,6 +336,40 @@ export const SupplierIntakeModal: React.FC<SupplierIntakeModalProps> = ({ isOpen
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1 uppercase font-mono text-[10px]">
+                    Commercial Revenue &amp; Settlement Model *
+                  </label>
+                  <select
+                    name="revenueModel"
+                    value={formData.revenueModel}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+                  >
+                    <option value="vendor_agency_commission">3rd-Party Vendor Agency Commission (Stripe Split / Net-15)</option>
+                    <option value="affiliate_cpa">Retail Affiliate CPA / CPS Redirect Payout (Net-30)</option>
+                    <option value="wholesale_supply_margin">Wholesale Bulk Supply (PO + GST Invoice)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1 uppercase font-mono text-[10px]">
+                    Proposed Commission / Margin (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="45"
+                    step="0.5"
+                    name="proposedCommissionPct"
+                    value={formData.proposedCommissionPct}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-400 font-semibold mb-1 uppercase font-mono text-[10px]">
                   Product / Service Specifications &amp; Pricing Quotation
@@ -346,6 +399,12 @@ export const SupplierIntakeModal: React.FC<SupplierIntakeModalProps> = ({ isOpen
                   </span>
                 </label>
               </div>
+
+              {formError && (
+                <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-xs text-rose-200">
+                  {formError}
+                </div>
+              )}
 
               {/* Submit Button */}
               <button

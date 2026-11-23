@@ -314,7 +314,7 @@ export const Header: React.FC<HeaderProps> = ({
                       </div>
                       <div>
                         <strong className="block dark:text-white group-hover:text-purple-500">Privacy &amp; Legal</strong>
-                        <span className="text-[10px] text-slate-400 font-normal">Sec 79 IT Act &amp; FSSAI Shield</span>
+                        <span className="text-[10px] text-slate-400 font-normal">US FTC/Amazon/Best Buy &amp; India Shields</span>
                       </div>
                     </button>
                   </div>
@@ -507,6 +507,18 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
+                onClick={() => handleNavClick('lifestyle')}
+                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-between ${
+                  currentView === 'lifestyle'
+                    ? 'bg-emerald-500 text-slate-950 font-black'
+                    : 'text-emerald-300 bg-emerald-950/40 border border-emerald-500/30'
+                }`}
+              >
+                <span>🌿 Lifestyle &amp; Diet Spark</span>
+                <span>🥗</span>
+              </button>
+
+              <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenBusinessInquiry();
@@ -548,7 +560,7 @@ export const Header: React.FC<HeaderProps> = ({
                   }}
                   className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/40 border border-purple-300 dark:border-purple-500/40 text-purple-800 dark:text-purple-300 text-left font-bold flex items-center gap-1.5 transition-colors"
                 >
-                  <span>🛡️</span> Privacy &amp; Legal
+                  <span>🛡️</span> US &amp; India Legal Shield
                 </button>
               </div>
             </div>

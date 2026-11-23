@@ -72,6 +72,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [votedIds, setVotedIds] = useState<Record<string, boolean>>({});
+  const [isServerFeed, setIsServerFeed] = useState<boolean>(false);
 
   const [feedMeta, setFeedMeta] = useState<{
     status: string;
@@ -135,6 +136,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
       const res = await fetch('/api/deals', { cache: 'no-store' });
       if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
         const data = await res.json();
+        setIsServerFeed(true);
         applyFeedPayload(data, 'Server Scheduled Sync (15m)');
         setIsLoading(false);
         return;
@@ -147,6 +149,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
       const staticRes = await fetch(`./deals-feed.json?t=${Date.now()}`, { cache: 'no-store' });
       if (staticRes.ok) {
         const staticData = await staticRes.json();
+        setIsServerFeed(false);
         applyFeedPayload(staticData, 'Automated Static Feed (15m GitHub Sync)');
         setIsLoading(false);
         return;
@@ -155,15 +158,16 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
       // No static JSON either
     }
 
-    // Only use fallbackDeals if both live API & static JSON failed completely
-    setDealsList(fallbackDeals);
+    // Neither live backend nor static snapshot available — render honest offline notice without fake fixture deals
+    setIsServerFeed(false);
+    setDealsList([]);
     setFeedMeta((prev) => ({
       ...prev,
       status: 'degraded',
       lastCheckedLabel: 'Live backend unavailable',
       isRefreshing: false,
-      modeLabel: 'Fallback Cache',
-      errorMessage: 'Could not reach live deal sync endpoint or static feed snapshot.',
+      modeLabel: 'Feed Unavailable',
+      errorMessage: 'Could not reach live deal sync endpoint (/api/deals) or static snapshot (/deals-feed.json). Click Sync Deals Now to retry.',
     }));
     setIsLoading(false);
   };
@@ -289,19 +293,55 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const trackAndOpenDeal = (deal: DealItem, url: string, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const getOutboundDealUrl = (deal: DealItem) => {
+    if (isServerFeed) {
+      return `/api/deals/redirect/${encodeURIComponent(deal.id)}`;
+    }
+    return deal.directMerchantUrl || deal.affiliateUrl;
+  };
+
+  const trackDealClick = (deal: DealItem) => {
+    // When served from backend, /api/deals/redirect/:id handles atomic ledger logging automatically.
+    if (isServerFeed) return;
     fetch('/api/analytics/event', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'deal_click', label: deal.merchant, dealId: deal.id }),
     }).catch(() => {});
-    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const handleLocalVote = (deal: DealItem, e: React.MouseEvent) => {
+  const handleLocalVote = async (deal: DealItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    setVotedIds((prev) => ({ ...prev, [deal.id]: !prev[deal.id] }));
+    const currentlyVoted = Boolean(votedIds[deal.id] || deal.upvoted);
+    const delta = currentlyVoted ? -1 : 1;
+
+    setVotedIds((prev) => ({ ...prev, [deal.id]: !currentlyVoted }));
+    setDealsList((prev) =>
+      prev.map((d) =>
+        d.id === deal.id
+          ? { ...d, upvoted: !currentlyVoted, score: Math.max(0, d.score + delta) }
+          : d
+      )
+    );
+
+    try {
+      const res = await fetch('/api/deals/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dealId: deal.id, delta }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.score === 'number') {
+          setDealsList((prev) =>
+            prev.map((d) => (d.id === deal.id ? { ...d, score: data.score } : d))
+          );
+        }
+      }
+    } catch {
+      // keep optimistic UI score cleanly
+    }
+
     onVoteDeal(deal.id);
   };
 
@@ -467,13 +507,18 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={(e) => trackAndOpenDeal(deal, deal.affiliateUrl, e)}
+                  <a
+                    href={getOutboundDealUrl(deal)}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      trackDealClick(deal);
+                    }}
                     className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1"
                   >
                     <span>View Deal ↗</span>
-                  </button>
+                  </a>
                 </article>
               );
             })}
@@ -712,36 +757,51 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
 
                 {/* Primary View Deal + Store Links */}
                 <div className="mt-3 pt-3 border-t border-slate-800 space-y-2">
-                  <button
-                    type="button"
-                    onClick={(e) => trackAndOpenDeal(deal, deal.affiliateUrl, e)}
+                  <a
+                    href={getOutboundDealUrl(deal)}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      trackDealClick(deal);
+                    }}
                     className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md transition-all"
                   >
                     <span>View Deal at {deal.merchant}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
+                  </a>
 
                   {(deal.amazonUsaUrl || deal.walmartUrl) && (
                     <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold">
                       {deal.amazonUsaUrl && (
-                        <button
-                          type="button"
-                          onClick={(e) => trackAndOpenDeal(deal, deal.amazonUsaUrl!, e)}
+                        <a
+                          href={deal.amazonUsaUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            trackDealClick(deal);
+                          }}
                           className="flex-1 py-1 px-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 flex items-center justify-center gap-1"
                         >
                           <span>Direct Amazon</span>
                           <ExternalLink className="w-2.5 h-2.5" />
-                        </button>
+                        </a>
                       )}
                       {deal.walmartUrl && (
-                        <button
-                          type="button"
-                          onClick={(e) => trackAndOpenDeal(deal, deal.walmartUrl!, e)}
+                        <a
+                          href={deal.walmartUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            trackDealClick(deal);
+                          }}
                           className="flex-1 py-1 px-2 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/30 flex items-center justify-center gap-1"
                         >
                           <span>Direct Walmart</span>
                           <ExternalLink className="w-2.5 h-2.5" />
-                        </button>
+                        </a>
                       )}
                     </div>
                   )}
@@ -749,7 +809,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
                   <div className="flex items-center justify-between gap-2 pt-0.5 text-[10px] font-mono">
                     <button
                       type="button"
-                      onClick={(e) => handleLocalVote(deal, e)}
+                      onClick={(e) => void handleLocalVote(deal, e)}
                       className={`px-2 py-1 rounded-lg font-bold flex items-center gap-1 border ${
                         isUpvoted
                           ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
@@ -757,10 +817,16 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
                       }`}
                     >
                       <Flame className="w-3 h-3 fill-amber-400 text-amber-400" />
-                      <span>{deal.score + (votedIds[deal.id] ? 1 : 0)}</span>
+                      <span className="tabular-nums">{deal.score}</span>
                     </button>
 
-                    <span className="text-slate-500 truncate">{deal.sourceFeed || 'Verified Feed'}</span>
+                    <span className="text-slate-500 truncate">
+                      {deal.monetizationStatus === 'affiliate_tagged'
+                        ? `Tagged (${deal.affiliateNetwork || 'Affiliate'})`
+                        : deal.directMerchantUrl
+                        ? 'Direct Merchant Link'
+                        : deal.sourceFeed || 'Verified Feed'}
+                    </span>
 
                     <button
                       type="button"

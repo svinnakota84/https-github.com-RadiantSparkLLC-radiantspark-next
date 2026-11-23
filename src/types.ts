@@ -21,6 +21,9 @@ export interface AiEmployee {
   connectedDownstream?: string[];
   handshakeProtocol?: string;
   businessValue?: string;
+  runsCount?: number;
+  lastAction?: string | null;
+  lastDurationMs?: number;
 }
 
 export interface SparkDrinkOrder {
@@ -30,6 +33,8 @@ export interface SparkDrinkOrder {
   buyerName: string;
   businessName: string;
   gstin?: string;
+  gstinValid?: boolean;
+  isIntraState?: boolean;
   city: string;
   state: string;
   product: string;
@@ -41,12 +46,32 @@ export interface SparkDrinkOrder {
   discountAmount: number;
   gstRate: number; // 28%
   gstAmount: number;
+  cgstAmount?: number;
+  sgstAmount?: number;
+  igstAmount?: number;
   grandTotal: number;
+  grandTotalUsd?: number;
+  fxRateInrPerUsd?: number;
   status: 'received' | 'requisitioned' | 'invoiced' | 'dispatched' | 'delivered';
   requisitionId?: string;
   invoiceId?: string;
+  irnHash?: string;
   waybillId?: string;
   vehicleNo?: string;
+  traceId?: string;
+  syncStatus?: string;
+  durationMs?: number;
+  agentTrace?: Array<{
+    step: number;
+    agentId: string;
+    name?: string;
+    agentName?: string;
+    role?: string;
+    department?: string;
+    action: string;
+    durationMs?: number;
+    status: string;
+  }>;
 }
 
 export interface RequisitionSlip {
@@ -129,6 +154,9 @@ export interface DealItem {
   upvoted?: boolean;
   couponCode?: string | null;
   affiliateUrl: string;
+  directMerchantUrl?: string | null;
+  monetizationStatus?: 'affiliate_tagged' | 'direct_merchant_untagged' | 'aggregator_source_only';
+  affiliateNetwork?: string | null;
   amazonUsaUrl?: string;
   amazonIndiaUrl?: string;
   walmartUrl?: string;

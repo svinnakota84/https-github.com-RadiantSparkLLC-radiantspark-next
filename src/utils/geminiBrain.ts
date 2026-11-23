@@ -10,6 +10,14 @@ export interface AiBrainResponse {
   employeeRole: string;
   response: string;
   source: string;
+  available: boolean;
+  liveContext?: {
+    usdInr: number | null;
+    totalStockCases: number;
+    recentOrderCount: number;
+    liveDealsCount: number;
+    pipelineRuns: number;
+  };
 }
 
 export async function askAiBrain(prompt: string, employeeId?: string): Promise<AiBrainResponse> {
@@ -24,55 +32,47 @@ export async function askAiBrain(prompt: string, employeeId?: string): Promise<A
         employeeName: employee.name,
         employeeRole: employee.role,
         systemInstruction: `You are ${employee.name}, ${employee.role} at Radiant Spark Global.
-Provide an intelligent, direct, accurate answer to the user's question.
-If the user asks math (such as 'What is 2 + 2?'), calculate and answer '2 + 2 = 4' directly.
-If the user asks about business operations, Oracle Fusion, solar EV fleets, beverages, diet plans, or deals, provide authentic professional assistance.`,
+${employee.systemPrompt}
+Provide an accurate, grounded operational answer based only on real live metrics provided in context.`,
       }),
     });
 
-    if (res.ok) {
-      const data = await res.json();
+    const data = await res.json().catch(() => null);
+
+    if (res.ok && data) {
       return {
         employeeName: data.employeeName || employee.name,
         employeeRole: data.employeeRole || employee.role,
-        response: data.response || `I have processed your query "${prompt}". How else can I assist?`,
-        source: data.source || 'gemini-3.8-flash',
+        response: data.response || 'Response completed.',
+        source: data.source || 'gemini-4-hydrogen',
+        available: true,
+        liveContext: data.liveContext,
       };
     }
-  } catch {
-    // Client-side fallback if server endpoint is unreachable
-  }
 
-  // Client-side intelligent response handler
-  const trimmed = prompt.trim();
-  if (trimmed.match(/^what\s+is\s+2\s*\+\s*2\??$/i) || trimmed === '2+2' || trimmed === '2 + 2') {
-    return {
-      employeeName: employee.name,
-      employeeRole: employee.role,
-      response: '2 + 2 = 4. How else can I assist your business workforce or operations today?',
-      source: 'gemini-3.8-flash',
-    };
-  }
-
-  // Evaluate basic math expressions directly
-  if (/^[0-9\+\-\*\/\.\s\(\)]+$/.test(trimmed)) {
-    try {
-      const mathAns = new Function(`return (${trimmed})`)();
+    if (res.status === 503 && data) {
+      const ctx = data.liveContext;
+      const snapshot = ctx
+        ? `Live backend context -> USD/INR: ${ctx.usdInr ?? 'N/A'} | Stock: ${ctx.totalStockCases?.toLocaleString() ?? 0} cases | Persisted orders: ${ctx.recentOrderCount ?? 0} | Live SparkDeals: ${ctx.liveDealsCount ?? 0} | Pipeline runs: ${ctx.pipelineRuns ?? 0}.`
+        : '';
       return {
         employeeName: employee.name,
         employeeRole: employee.role,
-        response: `${trimmed} = ${mathAns}.`,
-        source: 'gemini-3.8-flash',
+        response: `${data.error || 'Gemini AI inference is not configured (GEMINI_API_KEY missing on server).'} ${snapshot}`.trim(),
+        source: data.source || 'gemini-unconfigured',
+        available: false,
+        liveContext: ctx,
       };
-    } catch {
-      // ignore
     }
+  } catch {
+    // Network unreachable
   }
 
   return {
     employeeName: employee.name,
     employeeRole: employee.role,
-    response: `Hello! As ${employee.name} (${employee.role}), I have reviewed your request: "${prompt}". All operational systems across U.S. and India hubs are active. How may I assist your business goals?`,
-    source: 'gemini-3.8-flash',
+    response: 'Unable to reach /api/gemini/generate. Please verify the backend Express server is running on port 3000.',
+    source: 'network-error',
+    available: false,
   };
 }

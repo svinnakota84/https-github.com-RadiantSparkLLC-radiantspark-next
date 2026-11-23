@@ -3,219 +3,714 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   AI_EMPLOYEES,
   SPARKLE_DRINKS_PRODUCTS,
-  INITIAL_ORDERS,
 } from '../data/aiEmployeesData';
-import { SparkDrinkOrder, RequisitionSlip, TaxInvoice, ShipmentDispatch } from '../types';
+import { SparkDrinkOrder } from '../types';
 import { askAiBrain } from '../utils/geminiBrain';
 import { dispatchToEnterpriseCloud } from '../utils/cloudSync';
 import { buildWhatsAppInvoiceUrl } from '../utils/translations';
 import { O2cP2pModule } from './O2cP2pModule';
 import {
-  Cpu,
   Zap,
-  CheckCircle2,
-  Truck,
-  FileText,
-  DollarSign,
-  Package,
-  Layers,
-  ArrowRight,
-  Send,
-  Building,
-  ShieldCheck,
   RefreshCw,
-  QrCode,
-  Sparkles,
-  Search,
+  Send,
+  Printer,
+  CheckCircle2,
+  AlertTriangle,
   ExternalLink,
-  ChevronRight,
-  Printer
 } from 'lucide-react';
 
 interface AiBrainViewProps {
   onOpenSparkSync: () => void;
-  onNavigateToView: (view: 'global' | 'india' | 'usa' | 'sparkdeals') => void;
+  onNavigateToView: (view: 'global' | 'india' | 'usa' | 'sparkdeals' | 'lifestyle') => void;
+}
+
+interface TraceStep {
+  step: number;
+  agentId: string;
+  agentName: string;
+  department: string;
+  action: string;
+  durationMs: number;
+  status: string;
+}
+
+interface WarehouseStock {
+  id: string;
+  name: string;
+  role: string;
+  cases: number;
+}
+
+interface SkuStock {
+  id: string;
+  name: string;
+  casePrice: number;
+  inStockCases: number;
+}
+
+interface AgentTelemetry {
+  id: string;
+  runsCount: number;
+  lastAction: string | null;
+  lastDurationMs: number;
+}
+
+interface ChiefDirective {
+  agentId: string;
+  agentName: string;
+  role: string;
+  chiefInstruction: string;
+  actionTaken: string;
+  autoFixed: boolean;
+  status: 'healthy' | 'auto_fixed' | 'action_required';
+  durationMs: number;
+}
+
+interface UsComplianceAuditPayload {
+  entity: string;
+  usRetailerDealCounts: Record<string, number>;
+  amazonUsReady: boolean;
+  walmartReady: boolean;
+  bestBuyReady: boolean;
+  multiMerchantNetworkReady: boolean;
+  ftc16Cfr255Active: boolean;
+  roscaStripeComplianceActive: boolean;
+  dmca512ChannelActive: boolean;
+  writtenSowW9NoticeActive: boolean;
+}
+
+interface ChiefAuditReport {
+  auditId: string;
+  trigger: string;
+  executedAt: string;
+  durationMs: number;
+  summaryNote: string;
+  usComplianceAudit?: UsComplianceAuditPayload;
+  directives: ChiefDirective[];
+}
+
+interface RevenueSummaryPayload {
+  currencyFxUsdInr: number;
+  fxSource: string;
+  realizedRevenue: {
+    totalRealizedUsd: number;
+    totalRealizedInr: number;
+    erpDirectInr: number;
+    erpDirectUsd: number;
+    erpOrdersCount: number;
+    lifestyleSparkUsd: number;
+    lifestyleTransactionsCount: number;
+    activePaidSubscriptions: number;
+    affiliateVerifiedUsd: number;
+    affiliateConversionsCount: number;
+  };
+  sparkdealsFunnel: {
+    totalLiveDeals: number;
+    affiliateTaggedCount: number;
+    untaggedDirectCount: number;
+    aggregatorOnlyCount: number;
+    directMerchantResolvedCount: number;
+    outboundClicksTotal: number;
+    outboundClicksTagged: number;
+    outboundClicksUntagged: number;
+    topMerchantsByClicks: Array<{ merchant: string; clicks: number }>;
+  };
+  monetizationReadiness: {
+    configuredTags: Array<{ network: string; tag: string }>;
+    configuredCount: number;
+    stripeConnected: boolean;
+    paymentLinkConfigured: boolean;
+  };
+  diagnosisReasons: string[];
+  categoryCommissionBenchmarks: Array<{
+    category: string;
+    range: string;
+    program: string;
+    referenceRateCardOnly: boolean;
+  }>;
+  updatedAt: string;
+}
+
+interface SimulationResultPayload {
+  simulationOnly: boolean;
+  notice: string;
+  channel: string;
+  orderValueUsd: number;
+  orderValueInr: number;
+  commissionPct: number;
+  companyGrossRevenueUsd: number;
+  processingFeeUsd: number;
+  taxReserveUsd?: number;
+  vendorPayoutUsd: number;
+  netToCompanyUsd: number;
+  netToCompanyInr: number;
+  settlementMechanism: string;
+  stepByStepFlow: Array<{
+    step: number;
+    actor: string;
+    detail: string;
+    amountLabel: string;
+  }>;
+  legalShieldsApplied: string[];
+}
+
+interface LegalAgreementFramework {
+  id: string;
+  title: string;
+  entity: string;
+  supervisedBy: string;
+  howMoneyArrives: string;
+  keyShields: string[];
+}
+
+interface RevenueAgreementDraft {
+  id: string;
+  partnerName: string;
+  partnerEmail: string;
+  entity: string;
+  agreementType: string;
+  commissionRatePct: number;
+  settlementTerms: string;
+  taxJurisdiction: string;
+  legalShieldClauses: string[];
+  sha256Digest: string;
+  preparedByAgents: string;
+  status: string;
+  createdAt: string;
+}
+
+interface AgreementsPayload {
+  frameworks: LegalAgreementFramework[];
+  agreements: RevenueAgreementDraft[];
+  usRetailerProgramCoverage?: Array<{
+    merchant: string;
+    tagConfigured: boolean;
+    shield: string;
+  }>;
+  activeComplianceControls: {
+    affiliateDisclosureActive: boolean;
+    ftc16Cfr255Active?: boolean;
+    roscaSubscriptionConsentActive?: boolean;
+    dmca512TakedownChannelActive?: boolean;
+    stripePciOffloaded: boolean;
+    writtenContractRequiredNotice: boolean;
+    gstTaxSplitEngineActive: boolean;
+    w9WrittenSowBoundaryActive?: boolean;
+    affiliateTagsConfiguredCount: number;
+  };
 }
 
 export const AiBrainView: React.FC<AiBrainViewProps> = ({
-  onOpenSparkSync,
+  onOpenSparkSync: _onOpenSparkSync,
   onNavigateToView,
 }) => {
-  // Active Filter for 10 AI Employees
+  // Department filter & selected employee
   const [selectedDept, setSelectedDept] = useState<string>('all');
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string>('emp-1');
 
-  // Orders State
-  const [orders, setOrders] = useState<SparkDrinkOrder[]>(INITIAL_ORDERS);
-  const [selectedOrder, setSelectedOrder] = useState<SparkDrinkOrder>(INITIAL_ORDERS[0]);
+  // Server-persisted inventory, orders, FX, and agent stats
+  const [skuInventory, setSkuInventory] = useState<SkuStock[]>(
+    SPARKLE_DRINKS_PRODUCTS.map((p) => ({
+      id: p.id,
+      name: p.name,
+      casePrice: p.casePrice,
+      inStockCases: p.inStockCases,
+    }))
+  );
+  const [warehouses, setWarehouses] = useState<WarehouseStock[]>([]);
+  const [orders, setOrders] = useState<SparkDrinkOrder[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<SparkDrinkOrder | null>(null);
+  const [latestTrace, setLatestTrace] = useState<TraceStep[]>([]);
+  const [agentStats, setAgentStats] = useState<Record<string, AgentTelemetry>>({});
+  const [runsCount, setRunsCount] = useState<number>(0);
+  const [avgLatencyMs, setAvgLatencyMs] = useState<number>(0);
+  const [liveFxInrPerUsd, setLiveFxInrPerUsd] = useState<number | null>(null);
+  const [fxSource, setFxSource] = useState<string>('ECB / Frankfurter');
+  const [oracleConfigured, setOracleConfigured] = useState<boolean>(false);
+  const [geminiConfigured, setGeminiConfigured] = useState<boolean>(false);
+  const [recentTickerRuns, setRecentTickerRuns] = useState<any[]>([]);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
-  // Enterprise Cloud Sync State (Operated under the hood by Marcus Vance)
+  // Chief Agent Audit & Unified Revenue State
+  const [chiefAudit, setChiefAudit] = useState<ChiefAuditReport | null>(null);
+  const [isAuditing, setIsAuditing] = useState<boolean>(false);
+  const [revenueSummary, setRevenueSummary] = useState<RevenueSummaryPayload | null>(null);
+  const [monetizationForm, setMonetizationForm] = useState({
+    amazonUsTag: '',
+    amazonInTag: '',
+    walmartImpactId: '',
+    bestBuyImpactId: '',
+    ebayCampId: '',
+    skimlinksPubId: '',
+    sovrnKey: '',
+  });
+  const [isSavingTags, setIsSavingTags] = useState<boolean>(false);
+  const [tagSaveNotice, setTagSaveNotice] = useState<string | null>(null);
+
+  // Order & Vendor Commission Flow Simulator (Dry-Run)
+  const [simChannel, setSimChannel] = useState<
+    'sparkdeals_affiliate' | 'third_party_vendor' | 'lifestyle_stripe' | 'direct_b2b_erp'
+  >('third_party_vendor');
+  const [simOrderValueUsd, setSimOrderValueUsd] = useState<string>('250');
+  const [simCommissionPct, setSimCommissionPct] = useState<string>('12');
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [simResult, setSimResult] = useState<SimulationResultPayload | null>(null);
+  const [simError, setSimError] = useState<string | null>(null);
+
+  // Legal Shield Frameworks & Partner Revenue Agreements
+  const [agreementsData, setAgreementsData] = useState<AgreementsPayload | null>(null);
+  const [agreementForm, setAgreementForm] = useState({
+    partnerName: '',
+    partnerEmail: '',
+    entity: 'Radiant Spark LLC (USA)' as 'Radiant Spark LLC (USA)' | 'RDNT Sparkle Industries LLP (India)',
+    agreementType: 'vendor_agency_commission' as
+      | 'vendor_agency_commission'
+      | 'affiliate_cpa'
+      | 'wholesale_supply_margin'
+      | 'legal_shield_dpa',
+    commissionRatePct: '12',
+    settlementTerms: 'Net-15 Bank/ACH' as
+      | 'Net-15 Bank/ACH'
+      | 'Net-30 Network Payout'
+      | 'Instant Stripe Split / Wire',
+  });
+  const [isDraftingAgreement, setIsDraftingAgreement] = useState<boolean>(false);
+  const [agreementNotice, setAgreementNotice] = useState<string | null>(null);
+
+  // Cloud Sync status
   const [cloudSyncStatus, setCloudSyncStatus] = useState<{
-    status: 'synced' | 'ready' | 'syncing';
+    status: string;
     traceId: string;
     latencyMs: number;
     lastSyncTime: string;
+    details: string;
   }>({
     status: 'ready',
-    traceId: 'OIC-SYNC-INIT',
-    latencyMs: 18,
-    lastSyncTime: 'Real-time Synchronized'
+    traceId: 'Pending first sync',
+    latencyMs: 0,
+    lastSyncTime: 'Not yet triggered',
+    details: 'Ready to transmit order ledger trace.',
   });
   const [showAdminConsole, setShowAdminConsole] = useState(false);
-  const [whatsappSentNotice, setWhatsappSentNotice] = useState<string | null>(null);
 
-  const handleSendWhatsApp = () => {
-    const url = buildWhatsAppInvoiceUrl(selectedOrder);
-    window.open(url, '_blank');
-    setWhatsappSentNotice(`✅ WhatsApp Business Invoice & Live Tracking Sent to Dealer (+91 98480 22331)`);
-    setTimeout(() => setWhatsappSentNotice(null), 5000);
-  };
-
-  // Order Form State (100% Blank for Customer Intake)
+  // Order intake form state
   const [customerType, setCustomerType] = useState<'dealer' | 'consumer'>('dealer');
   const [buyerName, setBuyerName] = useState('');
   const [businessName, setBusinessName] = useState('');
   const [gstin, setGstin] = useState('');
   const [city, setCity] = useState('Vijayawada');
-  const [selectedProduct, setSelectedProduct] = useState(SPARKLE_DRINKS_PRODUCTS[0]);
+  const [selectedProductId, setSelectedProductId] = useState(SPARKLE_DRINKS_PRODUCTS[0].id);
   const [casesCount, setCasesCount] = useState<number>(200);
 
-  // Automation Pipeline State
+  // Execution state
   const [isAutomating, setIsAutomating] = useState(false);
   const [pipelineStep, setPipelineStep] = useState<number>(0);
-  const [activeDocTab, setActiveDocTab] = useState<'invoice' | 'receipt' | 'amazonLabel' | 'requisition' | 'shipment'>('invoice');
+  const [pipelineError, setPipelineError] = useState<string | null>(null);
+  const [activeDocTab, setActiveDocTab] = useState<
+    'invoice' | 'receipt' | 'amazonLabel' | 'requisition' | 'shipment' | 'trace'
+  >('invoice');
 
-  // AI Chat Console State
+  // Interactive AI Chat state & refs
+  const chatSectionRef = useRef<HTMLElement | null>(null);
+  const chatInputRef = useRef<HTMLInputElement | null>(null);
   const [chatPrompt, setChatPrompt] = useState('');
-  const [chatLog, setChatLog] = useState<Array<{ sender: string; role: string; text: string; source: string }>>([
+  const [chatLog, setChatLog] = useState<
+    Array<{ sender: string; role: string; text: string; source: string }>
+  >([
     {
       sender: 'Maya Chen',
       role: 'Chief AI Operations Orchestrator',
-      text: 'Welcome to the Radiant Spark Global AI Brain. All 10 AI employees are online, monitoring dealer orders, automating factory requisitions, stamping GST invoices, and scheduling refrigerated EV shipments for Sparkle Drinks across India.',
-      source: 'gemini-3.8-flash'
-    }
+      text: 'All 11 operational agents are connected to the live Express order, SparkDeals monetization, inventory, GST, and FX backend. Use the Chief Agent Audit panel below to inspect every agent’s directives or configure your affiliate tags for SparkDeals revenue.',
+      source: 'orchestrator-status',
+    },
   ]);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
-  // Price Calculations
-  const unitPrice = selectedProduct.casePrice;
-  const subtotal = unitPrice * casesCount;
-  const discountPercent = customerType === 'dealer' ? (casesCount >= 500 ? 15 : casesCount >= 200 ? 10 : 5) : 0;
-  const discountAmount = (subtotal * discountPercent) / 100;
-  const taxableAmount = subtotal - discountAmount;
-  const gstRate = 28; // Statutory 28% for carbonated/flavored beverages under HSN 2202
-  const gstAmount = (taxableAmount * gstRate) / 100;
-  const grandTotal = taxableAmount + gstAmount;
-
-  // Filtered employees
-  const filteredEmployees = selectedDept === 'all'
-    ? AI_EMPLOYEES
-    : AI_EMPLOYEES.filter(emp => emp.department.toLowerCase().includes(selectedDept.toLowerCase()));
-
-  // Trigger End-to-End Autonomous Execution
-  const handleTriggerAutomation = () => {
-    setIsAutomating(true);
-    setPipelineStep(1);
-
-    const newOrderId = `ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newReqId = `REQ-DRK-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newInvId = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-    const newWaybillId = `WB-SPK-${Math.floor(1000 + Math.random() * 9000)}`;
-    const vehicles = ['AP-07-EV-8842', 'AP-07-EV-7120', 'AP-16-EV-9901'];
-    const chosenVehicle = vehicles[Math.floor(Math.random() * vehicles.length)];
-
-    const activeBuyerName = buyerName.trim() || 'Valued Customer';
-    const activeBusinessName = businessName.trim() || 'Wholesale Partner';
-    const activeGstin = gstin.trim() || '37AAACP4412K1Z9';
-
-    const createdOrder: SparkDrinkOrder = {
-      id: newOrderId,
-      date: new Date().toISOString().split('T')[0],
-      customerType,
-      buyerName: activeBuyerName,
-      businessName: customerType === 'dealer' ? activeBusinessName : 'Direct Consumer',
-      gstin: customerType === 'dealer' ? activeGstin : undefined,
-      city,
-      state: city === 'Hyderabad' ? 'Telangana' : 'Andhra Pradesh',
-      product: selectedProduct.name,
-      unitPrice,
-      cases: casesCount,
-      totalCans: casesCount * 24,
-      subtotal,
-      discountPercent,
-      discountAmount,
-      gstRate,
-      gstAmount,
-      grandTotal,
-      status: 'received',
-      requisitionId: newReqId,
-      invoiceId: newInvId,
-      waybillId: newWaybillId,
-      vehicleNo: chosenVehicle
-    };
-
-    // Active background dispatch to Oracle OIC & Enterprise Cloud Backbone
-    dispatchToEnterpriseCloud({
-      orderId: newOrderId,
-      buyerName,
-      businessName: customerType === 'dealer' ? businessName : 'Direct Consumer',
-      gstin: customerType === 'dealer' ? gstin : undefined,
-      city,
-      product: selectedProduct.name,
-      cases: casesCount,
-      grandTotal,
-      waybillId: newWaybillId
-    }).then(res => {
-      setCloudSyncStatus({
-        status: 'synced',
-        traceId: res.traceId,
-        latencyMs: res.latencyMs,
-        lastSyncTime: res.timestamp
-      });
-    });
-
-    // Step 1: Order Intake (Arjun Reddy)
-    setTimeout(() => {
-      setPipelineStep(2);
-      createdOrder.status = 'requisitioned';
-    }, 700);
-
-    // Step 2: Requisition Work Order (Rajesh Varma)
-    setTimeout(() => {
-      setPipelineStep(3);
-      createdOrder.status = 'invoiced';
-    }, 1400);
-
-    // Step 3: GST Invoice & Tax Stamping (Elena Rostova)
-    setTimeout(() => {
-      setPipelineStep(4);
-      createdOrder.status = 'dispatched';
-    }, 2100);
-
-    // Step 4: Dispatch Complete (Capt. Vikram Naidu)
-    setTimeout(() => {
-      setIsAutomating(false);
-      setOrders(prev => [createdOrder, ...prev]);
-      setSelectedOrder(createdOrder);
-
-      // Add audit log to AI chat
-      setChatLog(prev => [
-        ...prev,
-        {
-          sender: 'Autonomous Pipeline Loop',
-          role: 'All 10 Agents Synchronized',
-          text: `⚡ Autonomous Order-to-Shipment Complete for ${createdOrder.id}! B2B Dealer Order verified by Arjun Reddy (${casesCount} cases of ${selectedProduct.name}), Factory Requisition ${newReqId} issued by Rajesh Varma, 28% GST E-Invoice ${newInvId} (₹${grandTotal.toLocaleString('en-IN')}) stamped by Elena Rostova, EV Fleet ${chosenVehicle} dispatched to ${city} by Capt. Vikram Naidu, and ERP Ledger synchronized by Marcus Vance!`,
-          source: 'autonomous-brain'
-        }
+  const loadBrainStatus = async () => {
+    try {
+      const [res, monRes, agrRes] = await Promise.all([
+        fetch('/api/brain/status', { cache: 'no-store' }),
+        fetch('/api/monetization/config', { cache: 'no-store' }),
+        fetch('/api/agreements', { cache: 'no-store' }),
       ]);
-    }, 2800);
+      if (!res.ok) throw new Error('Status fetch failed');
+      const data = await res.json();
+      setRunsCount(Number(data.runsCount) || 0);
+      setAvgLatencyMs(Number(data.avgPipelineLatencyMs) || 0);
+      setOracleConfigured(Boolean(data.oracleOicConfigured));
+      setGeminiConfigured(Boolean(data.geminiConfigured));
+      if (data.fxRateUsdInr) setLiveFxInrPerUsd(Number(data.fxRateUsdInr));
+      if (data.fxSource) setFxSource(data.fxSource);
+      if (data.lastChiefAudit) setChiefAudit(data.lastChiefAudit);
+      if (data.revenueSummary) setRevenueSummary(data.revenueSummary);
+
+      if (Array.isArray(data.inventory?.skus)) {
+        setSkuInventory(
+          data.inventory.skus.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            casePrice: s.casePriceInr ?? s.casePrice ?? 1440,
+            inStockCases: s.casesAvailable ?? s.inStockCases ?? 0,
+          }))
+        );
+      }
+      if (Array.isArray(data.inventory?.warehouses)) {
+        setWarehouses(
+          data.inventory.warehouses.map((w: any) => ({
+            id: w.id,
+            name: w.name,
+            role: w.line ?? w.role ?? w.city ?? 'Fulfillment Hub',
+            cases: w.casesAvailable ?? w.cases ?? 0,
+          }))
+        );
+      }
+      if (Array.isArray(data.recentOrders)) {
+        const mappedOrders: SparkDrinkOrder[] = data.recentOrders.map((o: any) => ({
+          ...o,
+          fxRateInrPerUsd: o.fxRateUsed ?? o.fxRateInrPerUsd,
+        }));
+        setOrders(mappedOrders);
+        if (mappedOrders.length > 0 && !selectedOrder) {
+          setSelectedOrder(mappedOrders[0]);
+        }
+        if (mappedOrders[0]?.agentTrace) {
+          setLatestTrace(
+            mappedOrders[0].agentTrace.map((st: any) => ({
+              step: st.step,
+              agentId: st.agentId,
+              agentName: st.name || st.agentName,
+              department: st.role || st.department,
+              action: st.action,
+              durationMs: st.durationMs ?? mappedOrders[0].durationMs ?? 1,
+              status: st.status,
+            }))
+          );
+        }
+      }
+      if (Array.isArray(data.recentRuns)) {
+        setRecentTickerRuns(data.recentRuns);
+      }
+      if (data.agentStats && typeof data.agentStats === 'object') {
+        const mapped: Record<string, AgentTelemetry> = {};
+        for (const [id, st] of Object.entries<any>(data.agentStats)) {
+          mapped[id] = {
+            id,
+            runsCount: Number(st?.runs ?? st?.runsCount) || 0,
+            lastAction: st?.lastAction || null,
+            lastDurationMs: Number(st?.lastDurationMs) || 0,
+          };
+        }
+        setAgentStats(mapped);
+      }
+
+      if (monRes.ok && (monRes.headers.get('content-type') || '').includes('application/json')) {
+        const mCfg = await monRes.json();
+        setMonetizationForm({
+          amazonUsTag: mCfg.amazonUsTag || '',
+          amazonInTag: mCfg.amazonInTag || '',
+          walmartImpactId: mCfg.walmartImpactId || '',
+          bestBuyImpactId: mCfg.bestBuyImpactId || '',
+          ebayCampId: mCfg.ebayCampId || '',
+          skimlinksPubId: mCfg.skimlinksPubId || '',
+          sovrnKey: mCfg.sovrnKey || '',
+        });
+      }
+      if (agrRes.ok && (agrRes.headers.get('content-type') || '').includes('application/json')) {
+        const agrJson = await agrRes.json();
+        setAgreementsData(agrJson);
+      }
+      setStatusError(null);
+    } catch {
+      setStatusError('Could not load /api/brain/status from backend server.');
+    }
   };
 
-  // Chat Submission
+  useEffect(() => {
+    void loadBrainStatus();
+  }, []);
+
+  const handleRunChiefAudit = async () => {
+    if (isAuditing) return;
+    setIsAuditing(true);
+    try {
+      const res = await fetch('/api/brain/chief-audit', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data?.success) {
+        setChiefAudit(data.audit);
+        if (data.revenueSummary) setRevenueSummary(data.revenueSummary);
+        await loadBrainStatus();
+      }
+    } finally {
+      setIsAuditing(false);
+    }
+  };
+
+  const handleSaveMonetizationTags = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSavingTags) return;
+    setIsSavingTags(true);
+    setTagSaveNotice(null);
+    try {
+      const res = await fetch('/api/monetization/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(monetizationForm),
+      });
+      const data = await res.json();
+      if (res.ok && data?.success) {
+        if (data.summary) setRevenueSummary(data.summary);
+        if (data.audit) setChiefAudit(data.audit);
+        setTagSaveNotice(data.message || 'Affiliate tags saved and applied across all deals.');
+        await loadBrainStatus();
+      } else {
+        setTagSaveNotice(data?.error || 'Could not save affiliate tags.');
+      }
+    } catch {
+      setTagSaveNotice('Network error saving affiliate partner configuration.');
+    } finally {
+      setIsSavingTags(false);
+    }
+  };
+
+  const handleRunCommissionSimulation = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (isSimulating) return;
+    setIsSimulating(true);
+    setSimError(null);
+    try {
+      const res = await fetch('/api/revenue/simulate-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: simChannel,
+          orderValueUsd: Number(simOrderValueUsd) || 199,
+          commissionPct: Number(simCommissionPct) || 12,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSimError(data?.error || 'Could not simulate revenue flow.');
+      } else {
+        setSimResult(data);
+      }
+    } catch {
+      setSimError('Network error running revenue flow simulation.');
+    } finally {
+      setIsSimulating(false);
+    }
+  };
+
+  const handleDraftAgreement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isDraftingAgreement) return;
+    setIsDraftingAgreement(true);
+    setAgreementNotice(null);
+    try {
+      const res = await fetch('/api/agreements/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...agreementForm,
+          commissionRatePct: Number(agreementForm.commissionRatePct) || 12,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.success) {
+        setAgreementNotice(data?.error || 'Could not draft agreement.');
+      } else {
+        setAgreementNotice(
+          `Drafted ${data.agreement.id} (${data.agreement.sha256Digest.slice(0, 12)}…) — ${data.disclaimer}`
+        );
+        setAgreementForm((p) => ({ ...p, partnerName: '', partnerEmail: '' }));
+        await loadBrainStatus();
+      }
+    } catch {
+      setAgreementNotice('Network error generating commercial agreement draft.');
+    } finally {
+      setIsDraftingAgreement(false);
+    }
+  };
+
+  const selectedProductMeta =
+    SPARKLE_DRINKS_PRODUCTS.find((p) => p.id === selectedProductId) || SPARKLE_DRINKS_PRODUCTS[0];
+  const activeSkuStock =
+    skuInventory.find((s) => s.id === selectedProductId)?.inStockCases ??
+    selectedProductMeta.inStockCases;
+  const totalAvailableCases = skuInventory.reduce((acc, s) => acc + s.inStockCases, 0);
+
+  // Live INR & USD calculation matching server.ts logic
+  const unitPrice = selectedProductMeta.casePrice;
+  const subtotal = unitPrice * casesCount;
+  const discountPercent =
+    customerType === 'dealer' ? (casesCount >= 500 ? 15 : casesCount >= 200 ? 10 : 5) : 0;
+  const discountAmount = Number(((subtotal * discountPercent) / 100).toFixed(2));
+  const taxableAmount = Number((subtotal - discountAmount).toFixed(2));
+  const isIntraState = ['Vijayawada', 'Visakhapatnam', 'Guntur', 'Tirupati'].includes(city);
+  const gstRate = 28;
+  const gstAmount = Number(((taxableAmount * gstRate) / 100).toFixed(2));
+  const grandTotal = Number((taxableAmount + gstAmount).toFixed(2));
+  const fxRateUsed = liveFxInrPerUsd || 92.68;
+  const grandTotalUsd = Number((grandTotal / fxRateUsed).toFixed(2));
+
+  const departmentFilters = [
+    { id: 'all', label: 'All 11 Agents' },
+    { id: 'executive', label: 'Executive, Revenue & Legal' },
+    { id: 'affiliate', label: 'SparkDeals Monetization' },
+    { id: 'commercial', label: 'B2B & D2C Orders' },
+    { id: 'manufacturing', label: 'Factory & Procurement' },
+    { id: 'finance', label: 'Finance & GST' },
+    { id: 'logistics', label: 'Cold-Chain & Cloud' },
+  ];
+
+  const filteredEmployees = AI_EMPLOYEES.filter((emp) => {
+    if (selectedDept === 'all') return true;
+    const dept = emp.department.toLowerCase();
+    if (selectedDept === 'executive') return dept.includes('executive') || dept.includes('legal') || dept.includes('business intelligence');
+    if (selectedDept === 'affiliate') return dept.includes('affiliate');
+    if (selectedDept === 'commercial') return dept.includes('wholesale') || dept.includes('consumer');
+    if (selectedDept === 'manufacturing') return dept.includes('manufacturing') || dept.includes('supply chain');
+    if (selectedDept === 'finance') return dept.includes('finance');
+    if (selectedDept === 'logistics') return dept.includes('logistics') || dept.includes('cloud');
+    return true;
+  });
+
+  // Trigger real 11-Agent Server Pipeline Orchestration
+  const handleTriggerAutomation = async () => {
+    if (isAutomating) return;
+    setPipelineError(null);
+    setIsAutomating(true);
+    setPipelineStep(1);
+    setCloudSyncStatus((prev) => ({ ...prev, status: 'syncing' }));
+
+    const timer2 = setTimeout(() => setPipelineStep(2), 250);
+    const timer3 = setTimeout(() => setPipelineStep(3), 500);
+
+    try {
+      const res = await fetch('/api/brain/orchestrate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerType,
+          buyerName: buyerName.trim() || undefined,
+          businessName: businessName.trim() || undefined,
+          gstin: customerType === 'dealer' ? gstin.trim() : undefined,
+          city,
+          productId: selectedProductId,
+          casesCount,
+        }),
+      });
+
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+
+      const data = await res.json();
+      if (!res.ok || !data?.success) {
+        setPipelineError(data?.error || 'Order pipeline returned an error.');
+        setPipelineStep(0);
+        setIsAutomating(false);
+        return;
+      }
+
+      setPipelineStep(4);
+      const createdOrder: SparkDrinkOrder = {
+        ...data.order,
+        fxRateInrPerUsd: data.order.fxRateUsed ?? data.fxRateUsdInr,
+      };
+      setSelectedOrder(createdOrder);
+      setOrders((prev) => [createdOrder, ...prev].slice(0, 25));
+      if (Array.isArray(data.agentTrace)) {
+        setLatestTrace(
+          data.agentTrace.map((st: any) => ({
+            step: st.step,
+            agentId: st.agentId,
+            agentName: st.name || st.agentName,
+            department: st.role || st.department,
+            action: st.action,
+            durationMs: data.durationMs ?? 1,
+            status: st.status,
+          }))
+        );
+      }
+      if (Array.isArray(data.inventory?.skus)) {
+        setSkuInventory(
+          data.inventory.skus.map((s: any) => ({
+            id: s.id,
+            name: s.name,
+            casePrice: s.casePriceInr ?? 1440,
+            inStockCases: s.casesAvailable ?? 0,
+          }))
+        );
+      }
+      if (Array.isArray(data.inventory?.warehouses)) {
+        setWarehouses(
+          data.inventory.warehouses.map((w: any) => ({
+            id: w.id,
+            name: w.name,
+            role: w.line ?? w.city ?? 'Hub',
+            cases: w.casesAvailable ?? 0,
+          }))
+        );
+      }
+      if (typeof data.statusSummary?.runsCount === 'number') {
+        setRunsCount(data.statusSummary.runsCount);
+      }
+
+      setCloudSyncStatus({
+        status: createdOrder.syncStatus || 'local_ledger',
+        traceId: createdOrder.traceId || 'TRACE-OK',
+        latencyMs: data.durationMs ?? 0,
+        lastSyncTime: new Date().toISOString(),
+        details: 'Order, GST invoice & inventory persisted atomically.',
+      });
+
+      void loadBrainStatus();
+
+      setChatLog((prev) => [
+        ...prev,
+        {
+          sender: '11-Agent Orchestrator',
+          role: `All 11 Agents Completed (${data.durationMs ?? 1}ms)`,
+          text: `Executed ${createdOrder.id} (${createdOrder.cases} cases of ${createdOrder.product} to ${createdOrder.city}). Requisition: ${createdOrder.requisitionId}, Invoice: ${createdOrder.invoiceId} (₹${createdOrder.grandTotal.toLocaleString('en-IN')} ≈ $${createdOrder.grandTotalUsd?.toFixed(2)} USD @ ₹${createdOrder.fxRateInrPerUsd?.toFixed(2)}), Waybill: ${createdOrder.waybillId}.`,
+          source: 'pipeline-orchestrator',
+        },
+      ]);
+    } catch {
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      setPipelineError('Network error reaching /api/brain/orchestrate. Ensure server is running.');
+      setPipelineStep(0);
+    } finally {
+      setIsAutomating(false);
+    }
+  };
+
+  const handleManualCloudSync = async () => {
+    setCloudSyncStatus((prev) => ({ ...prev, status: 'syncing' }));
+    const res = await dispatchToEnterpriseCloud(
+      selectedOrder
+        ? { ...selectedOrder }
+        : { type: 'heartbeat_sync', skuInventoryCount: totalAvailableCases }
+    );
+    setCloudSyncStatus({
+      status: res.status,
+      traceId: res.traceId,
+      latencyMs: res.latencyMs,
+      lastSyncTime: res.timestamp,
+      details: res.details,
+    });
+  };
+
+  const handleConsultAgent = (empId: string, empName: string) => {
+    setSelectedEmployeeId(empId);
+    setChatPrompt(`As ${empName}, summarize your live responsibilities and current stock/FX context.`);
+    chatSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => chatInputRef.current?.focus(), 300);
+  };
+
   const handleSendChat = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!chatPrompt.trim() || isChatLoading) return;
@@ -224,28 +719,26 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
     setChatPrompt('');
     setIsChatLoading(true);
 
-    const targetEmp = AI_EMPLOYEES.find(e => e.id === selectedEmployeeId);
-
-    setChatLog(prev => [
+    setChatLog((prev) => [
       ...prev,
       {
-        sender: 'You (Business Executive)',
-        role: 'Authorized Commander',
+        sender: 'You (Operator)',
+        role: 'Business Commander',
         text: userText,
-        source: 'user'
-      }
+        source: 'user',
+      },
     ]);
 
     const result = await askAiBrain(userText, selectedEmployeeId);
 
-    setChatLog(prev => [
+    setChatLog((prev) => [
       ...prev,
       {
         sender: result.employeeName,
         role: result.employeeRole,
         text: result.response,
-        source: result.source
-      }
+        source: result.source,
+      },
     ]);
 
     setIsChatLoading(false);
@@ -253,13 +746,10 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
 
   return (
     <div className="space-y-12 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-in fade-in duration-300">
-      
       {/* ============================================================== */}
-      {/* SECTION 1: AI BRAIN CONTROL COCKPIT HEADER                      */}
+      {/* SECTION 1: AI WORKFORCE COCKPIT HEADER (REAL SERVER TELEMETRY)  */}
       {/* ============================================================== */}
       <section className="relative p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a1226] to-slate-950 border border-cyan-500/50 shadow-2xl overflow-hidden">
-        
-        {/* Ambient Neural Backlight */}
         <div className="absolute top-0 right-1/4 w-[400px] h-[300px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-[400px] h-[300px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -271,85 +761,712 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
                 </span>
-                <span>GLOBAL AUTONOMOUS AI BRAIN · 10 AI EMPLOYEES</span>
+                <span>11 CONNECTED AI EMPLOYEES · LIVE REVENUE &amp; SERVER TELEMETRY</span>
               </div>
               <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                Radiant Brain <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-300 bg-clip-text text-transparent">10X OS</span>
+                Radiant Brain{' '}
+                <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-300 bg-clip-text text-transparent">
+                  Operations OS
+                </span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                Autonomous multi-agent intelligence taking care of global business operations: customer &amp; dealer order intake, factory batch requisitions, instant GST invoicing, and refrigerated EV cold-chain dispatch for <strong className="text-amber-300">Sparkle Drinks</strong>.
+                Autonomous 11-agent execution engine: Chief Agent Maya Chen supervises SparkDeals affiliate link resolution, Lifestyle Spark checkout, customer &amp; dealer orders, SKU inventory, deterministic 28% GST invoicing with live FX, and real revenue accounting.
               </p>
             </div>
 
-            {/* Quick KPI Cards */}
+            {/* Real Measured Server KPI Cards (Zero fake % boosts or static SLAs) */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
               <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-inner">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Active AI Workforce</span>
-                <span className="text-xl sm:text-2xl font-black text-white font-mono flex items-center gap-1.5 mt-0.5">
+                <span className="text-[10px] font-mono text-slate-400 uppercase block">
+                  Connected Workforce
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-white font-mono flex items-center gap-1.5 mt-0.5 tabular-nums">
                   <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  10 / 10
+                  11 / 11
                 </span>
               </div>
               <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-inner">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Productivity Boost</span>
-                <span className="text-xl sm:text-2xl font-black text-cyan-400 font-mono mt-0.5 block">
-                  +420%
+                <span className="text-[10px] font-mono text-slate-400 uppercase block">
+                  Live USD / INR ({fxSource})
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-cyan-400 font-mono mt-0.5 block tabular-nums">
+                  ₹{fxRateUsed.toFixed(2)}
                 </span>
               </div>
               <div className="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-inner col-span-2 sm:col-span-1">
-                <span className="text-[10px] font-mono text-slate-400 uppercase block">Order-to-Ship Time</span>
-                <span className="text-xl sm:text-2xl font-black text-amber-300 font-mono mt-0.5 block">
-                  1.4s Auto
+                <span className="text-[10px] font-mono text-slate-400 uppercase block">
+                  Realized Revenue (USD)
+                </span>
+                <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono mt-0.5 block tabular-nums">
+                  ${(revenueSummary?.realizedRevenue.totalRealizedUsd ?? 0).toFixed(2)}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Real-time Agent Activity Feed Ticker */}
+          {statusError && (
+            <div className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-xs text-rose-200 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{statusError}</span>
+            </div>
+          )}
+
+          {/* Real Agent Activity Feed Ticker */}
           <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800/80 text-xs text-slate-300 overflow-x-auto">
             <span className="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono font-bold text-[10px] shrink-0 border border-cyan-500/30">
-              LIVE BRAIN TICKER
+              EXECUTION FEED
             </span>
-            <div className="flex items-center gap-6 whitespace-nowrap text-[11px] font-mono">
-              <span className="text-emerald-400">⚡ Maya Chen synced US &amp; India ledgers</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-cyan-300">📦 Arjun Reddy onboarded Vijayawada Supermarket Network</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-amber-300">🏭 Rajesh Varma allocated batch REQ-DRK-8841</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-blue-300">🧾 Elena Rostova generated GST Invoice INV-2026-0812</span>
-              <span className="text-slate-600">·</span>
-              <span className="text-purple-300">🚚 Capt. Vikram Naidu dispatched EV Van AP-07-EV-8842</span>
-            </div>
+            {recentTickerRuns.length > 0 ? (
+              <div className="flex items-center gap-6 whitespace-nowrap text-[11px] font-mono">
+                {recentTickerRuns.slice(0, 4).map((run) => (
+                  <span key={run.traceId || run.orderId} className="text-emerald-300">
+                    {run.orderId} · {run.cases} cs ({run.buyer}) — ₹{Number(run.grandTotalInr ?? 0).toLocaleString('en-IN')} ({run.durationMs}ms)
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="text-[11px] font-mono text-slate-400">
+                Pipeline operational ({runsCount} orders, {avgLatencyMs > 0 ? `${avgLatencyMs}ms avg` : 'ready'}). Chief Agent audit last ran {chiefAudit ? new Date(chiefAudit.executedAt).toLocaleTimeString() : 'at boot'}.
+              </span>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Enterprise Order-to-Cash & Procure-to-Pay Closed-Loop Matrix */}
-      <O2cP2pModule />
-
       {/* ============================================================== */}
-      {/* SECTION 2: THE 10 AI EMPLOYEES DIRECTORY                        */}
+      {/* SECTION 1.5: CHIEF AGENT REVENUE DIAGNOSIS & AUTONOMOUS FIXES   */}
       {/* ============================================================== */}
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <section className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-emerald-500/40 shadow-2xl space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
-            <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest block mb-1">
-              AUTONOMOUS WORKFORCE DIRECTORY
+            <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest block mb-1">
+              COMPANY REVENUE LEDGER &amp; CHIEF AGENT AUTONOMOUS AUDIT
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              10 Specialized AI Employees
+              Realistic Revenue &amp; SparkDeals Affiliate Attribution
             </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-3xl">
+              {chiefAudit?.summaryNote ||
+                'Chief Agent Maya Chen continuously checks all 11 agents, resolves direct merchant URLs for SparkDeals, and reconciles Stripe subscriptions, affiliate postbacks, and B2B/D2C ERP invoices with zero fake revenue.'}
+            </p>
           </div>
-          <p className="text-xs text-slate-400 max-w-md">
-            Each employee possesses autonomous reasoning, domain prompts, and direct API actions to run global operations 24/7.
-          </p>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => void handleRunChiefAudit()}
+              disabled={isAuditing}
+              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isAuditing ? 'animate-spin' : ''}`} />
+              <span>{isAuditing ? 'Chief Agent Auditing...' : 'Chief Agent: Audit & Auto-Fix All 11'}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigateToView('sparkdeals')}
+              className="px-3.5 py-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 font-bold text-xs"
+            >
+              Open SparkDeals ↗
+            </button>
+          </div>
         </div>
 
-        {/* 10 AI Employees Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {AI_EMPLOYEES.map((emp) => {
+        {/* 3 Real Revenue Streams Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs font-mono">
+          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase block">1. SparkDeals Affiliate Payouts</span>
+            <strong className="text-xl text-amber-400 font-black block tabular-nums">
+              ${(revenueSummary?.realizedRevenue.affiliateVerifiedUsd ?? 0).toFixed(2)} USD
+            </strong>
+            <span className="text-[10px] text-slate-400 block">
+              {revenueSummary?.realizedRevenue.affiliateConversionsCount ?? 0} verified postbacks ·{' '}
+              <strong className="text-cyan-300">{revenueSummary?.sparkdealsFunnel.outboundClicksTotal ?? 0}</strong> redirect clicks
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase block">2. Lifestyle Spark Stripe</span>
+            <strong className="text-xl text-emerald-400 font-black block tabular-nums">
+              ${(revenueSummary?.realizedRevenue.lifestyleSparkUsd ?? 0).toFixed(2)} USD
+            </strong>
+            <span className="text-[10px] text-slate-400 block">
+              {revenueSummary?.realizedRevenue.lifestyleTransactionsCount ?? 0} paid Stripe sessions ({revenueSummary?.monetizationReadiness.stripeConnected ? 'Stripe Live' : 'Stripe Key Needed'})
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-slate-400 uppercase block">3. Beverage / B2B ERP Sales</span>
+            <strong className="text-xl text-cyan-300 font-black block tabular-nums">
+              ₹{(revenueSummary?.realizedRevenue.erpDirectInr ?? 0).toLocaleString('en-IN')}
+            </strong>
+            <span className="text-[10px] text-slate-400 block">
+              ≈ ${(revenueSummary?.realizedRevenue.erpDirectUsd ?? 0).toFixed(2)} USD · {revenueSummary?.realizedRevenue.erpOrdersCount ?? 0} ERP orders
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-slate-950 border border-cyan-500/30 space-y-1">
+            <span className="text-[10px] text-cyan-400 uppercase block">SparkDeals Direct Resolution</span>
+            <strong className="text-xl text-white font-black block tabular-nums">
+              {revenueSummary?.sparkdealsFunnel.directMerchantResolvedCount ?? 0} / {revenueSummary?.sparkdealsFunnel.totalLiveDeals ?? 0} Deals
+            </strong>
+            <span className="text-[10px] text-slate-400 block">
+              {revenueSummary?.sparkdealsFunnel.affiliateTaggedCount ?? 0} affiliate-tagged · {revenueSummary?.sparkdealsFunnel.aggregatorOnlyCount ?? 0} aggregator-only
+            </span>
+          </div>
+        </div>
+
+        {/* Realistic Diagnosis of Why $0 Is Realized (if any gap exists) */}
+        {revenueSummary && revenueSummary.diagnosisReasons.length > 0 && (
+          <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-500/40 space-y-2 text-xs">
+            <strong className="text-amber-300 font-mono uppercase tracking-wider text-[11px] block">
+              Honest Revenue Blockers Found by Chief Agent Maya Chen &amp; Kavya Nair (emp-11):
+            </strong>
+            <ul className="space-y-1.5 text-slate-200 list-disc pl-5">
+              {revenueSummary.diagnosisReasons.map((reason, idx) => (
+                <li key={idx}>{reason}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Configure Real Affiliate Tags Without Code Edits */}
+        <form onSubmit={handleSaveMonetizationTags} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">
+                Activate SparkDeals Affiliate Partner Tags (Zero Code Changes)
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Save your official Associate / Publisher IDs once; emp-11 (Kavya Nair) immediately tags Amazon.com, Walmart, Best Buy, Target, Home Depot, Newegg, Costco &amp; eBay links via /api/deals/redirect/:id.
+              </p>
+            </div>
+            <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-[10px] font-mono text-cyan-300">
+              {revenueSummary?.monetizationReadiness.configuredCount ?? 0} Active Tag(s)
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">Amazon US Associate Tag</span>
+              <input
+                type="text"
+                value={monetizationForm.amazonUsTag}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, amazonUsTag: e.target.value }))}
+                placeholder="e.g. radiantspark-20"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">Amazon India Tag</span>
+              <input
+                type="text"
+                value={monetizationForm.amazonInTag}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, amazonInTag: e.target.value }))}
+                placeholder="e.g. radiantspark-21"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">Walmart Creator / Impact ID</span>
+              <input
+                type="text"
+                value={monetizationForm.walmartImpactId}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, walmartImpactId: e.target.value }))}
+                placeholder="Impact Publisher ID"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">Best Buy Impact ID (mpid)</span>
+              <input
+                type="text"
+                value={monetizationForm.bestBuyImpactId}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, bestBuyImpactId: e.target.value }))}
+                placeholder="Best Buy Impact mpid"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">eBay Partner Campaign ID</span>
+              <input
+                type="text"
+                value={monetizationForm.ebayCampId}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, ebayCampId: e.target.value }))}
+                placeholder="10-digit EPN campid"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">Skimlinks Publisher ID (Target / HD / Newegg)</span>
+              <input
+                type="text"
+                value={monetizationForm.skimlinksPubId}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, skimlinksPubId: e.target.value }))}
+                placeholder="e.g. 12345X67890"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+            <label className="space-y-1 block sm:col-span-2">
+              <span className="text-[10px] text-slate-400">Sovrn //Commerce Key (Multi-Merchant Fallback)</span>
+              <input
+                type="text"
+                value={monetizationForm.sovrnKey}
+                onChange={(e) => setMonetizationForm((p) => ({ ...p, sovrnKey: e.target.value }))}
+                placeholder="Sovrn API Key"
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <button
+              type="submit"
+              disabled={isSavingTags}
+              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs disabled:opacity-50"
+            >
+              {isSavingTags ? 'Applying Across Live Feed...' : 'Save Partner IDs & Auto-Tag Deals'}
+            </button>
+            {tagSaveNotice && (
+              <span className="text-xs font-mono text-emerald-300">{tagSaveNotice}</span>
+            )}
+          </div>
+        </form>
+
+        {/* Order & 3rd-Party Vendor Commission Flow Simulator (Strict Dry-Run) */}
+        <div className="p-5 rounded-2xl bg-slate-950 border border-cyan-500/30 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">
+                Order &amp; 3rd-Party Vendor Commission Flow Simulator (Dry-Run Test)
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Test exactly how a customer order splits commission, card fees, tax reserves &amp; vendor payouts without mutating real ledger revenue.
+              </p>
+            </div>
+            <span className="px-2.5 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-[10px] font-mono font-bold text-cyan-300 shrink-0">
+              DRY-RUN · $0.00 FAKE REVENUE ADDED
+            </span>
+          </div>
+
+          <form onSubmit={handleRunCommissionSimulation} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs font-mono items-end">
+            <label className="space-y-1 block sm:col-span-2">
+              <span className="text-[10px] text-slate-400">Revenue Channel</span>
+              <select
+                value={simChannel}
+                onChange={(e) => {
+                  const ch = e.target.value as typeof simChannel;
+                  setSimChannel(ch);
+                  if (ch === 'sparkdeals_affiliate') setSimCommissionPct('4');
+                  else if (ch === 'third_party_vendor') setSimCommissionPct('12');
+                  else if (ch === 'lifestyle_stripe') {
+                    setSimOrderValueUsd('149.99');
+                    setSimCommissionPct('100');
+                  } else setSimCommissionPct('22');
+                }}
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              >
+                <option value="sparkdeals_affiliate">1. SparkDeals Affiliate Click -&gt; Merchant CPA (%)</option>
+                <option value="third_party_vendor">2. 3rd-Party Vendor / Supplier Agency Order (%)</option>
+                <option value="lifestyle_stripe">3. Lifestyle Spark Direct Stripe Subscription ($9.99 / $49.99 / $149.99)</option>
+                <option value="direct_b2b_erp">4. Direct B2B / Beverage ERP Order (28% GST + Margin)</option>
+              </select>
+            </label>
+
+            <label className="space-y-1 block">
+              <span className="text-[10px] text-slate-400">Customer Order (USD)</span>
+              <input
+                type="number"
+                min="1"
+                max="500000"
+                step="0.01"
+                value={simOrderValueUsd}
+                onChange={(e) => setSimOrderValueUsd(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+              />
+            </label>
+
+            <div className="flex gap-2 items-end">
+              <label className="space-y-1 block flex-1">
+                <span className="text-[10px] text-slate-400">Rate (%)</span>
+                <input
+                  type="number"
+                  min="0.5"
+                  max="100"
+                  step="0.5"
+                  value={simCommissionPct}
+                  onChange={(e) => setSimCommissionPct(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:outline-none focus:border-cyan-400"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={isSimulating}
+                className="px-3.5 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs shrink-0 disabled:opacity-50"
+              >
+                {isSimulating ? 'Testing...' : 'Test Flow'}
+              </button>
+            </div>
+          </form>
+
+          {simError && (
+            <div className="p-3 rounded-xl bg-rose-950/50 border border-rose-500/40 text-xs text-rose-200">
+              {simError}
+            </div>
+          )}
+
+          {simResult && (
+            <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3 text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono">
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">Buyer Order</span>
+                  <strong className="text-white text-sm">${simResult.orderValueUsd.toFixed(2)}</strong>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/30">
+                  <span className="text-[10px] text-emerald-400 block">Company Gross Fee</span>
+                  <strong className="text-emerald-300 text-sm">+${simResult.companyGrossRevenueUsd.toFixed(2)}</strong>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">Vendor / COGS Share</span>
+                  <strong className="text-cyan-300 text-sm">${simResult.vendorPayoutUsd.toFixed(2)}</strong>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-950 border border-amber-500/30">
+                  <span className="text-[10px] text-amber-300 block">Net Company Proceeds</span>
+                  <strong className="text-amber-300 text-sm">
+                    ${simResult.netToCompanyUsd.toFixed(2)} (₹{simResult.netToCompanyInr.toLocaleString('en-IN')})
+                  </strong>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-300">
+                <strong className="text-cyan-300">Settlement Mechanism:</strong> {simResult.settlementMechanism}
+              </div>
+
+              <div className="space-y-1.5">
+                {simResult.stepByStepFlow.map((s) => (
+                  <div
+                    key={s.step}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-950 border border-slate-800/80"
+                  >
+                    <div className="text-[11px] text-slate-300">
+                      <span className="text-cyan-400 font-mono font-bold mr-1.5">Step {s.step} · {s.actor}:</span>
+                      <span>{s.detail}</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-mono text-[10px] font-bold shrink-0">
+                      {s.amountLabel}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {simResult.legalShieldsApplied.map((shield, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-[10px] font-mono text-amber-300"
+                  >
+                    Shield: {shield}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Legal Shield Frameworks & Partner Revenue Agreements (Ananya Iyer + Arjun Reddy) */}
+        <div className="p-5 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">
+                Legal Shield Frameworks &amp; Vendor / Supplier Revenue Agreements
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Prepared by Ananya Iyer (emp-9), Arjun Reddy (emp-2) &amp; Kavya Nair (emp-11). Generates SHA-256 checksummed counsel-ready agreement drafts requiring written executive countersignature.
+              </p>
+            </div>
+            {agreementsData && (
+              <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono shrink-0">
+                <span className="text-emerald-300">
+                  FTC 16 CFR 255 · ROSCA · DMCA § 512 · Stripe SAQ-A
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onNavigateToView('usa')}
+                  className="px-2.5 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/40 font-bold"
+                >
+                  Open U.S. Legal Shield ↗
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* U.S. Operations, Merchant Coverage & Legal Shield Readiness */}
+          {(chiefAudit?.usComplianceAudit || agreementsData?.usRetailerProgramCoverage) && (
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-cyan-500/30 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="text-xs font-extrabold text-cyan-300">
+                  U.S. Operations, Merchant Coverage &amp; Legal Shield Readiness ({chiefAudit?.usComplianceAudit?.entity || 'Radiant Spark LLC'})
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px] font-mono text-slate-300">
+                  <span>Amazon 6h Price Gate: Active</span>
+                  <span>·</span>
+                  <span>W-9 / Written SOW Boundary: Enforced</span>
+                </div>
+              </div>
+
+              {chiefAudit?.usComplianceAudit?.usRetailerDealCounts && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-[11px] font-mono">
+                  {Object.entries(chiefAudit.usComplianceAudit.usRetailerDealCounts).map(([store, count]) => (
+                    <div key={store} className="p-2 rounded-lg bg-slate-950 border border-slate-800">
+                      <span className="text-[10px] text-slate-400 block truncate" title={store}>{store}</span>
+                      <strong className="text-white tabular-nums">{count} deals</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {agreementsData?.usRetailerProgramCoverage && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+                  {agreementsData.usRetailerProgramCoverage.map((row) => (
+                    <div key={row.merchant} className="p-3 rounded-lg bg-slate-950 border border-slate-800 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <strong className="text-white text-[11px]">{row.merchant}</strong>
+                        <span
+                          className={`text-[10px] font-mono font-bold ${
+                            row.tagConfigured ? 'text-emerald-400' : 'text-amber-300'
+                          }`}
+                        >
+                          {row.tagConfigured ? 'TAG ACTIVE' : 'TAG PENDING'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-snug">{row.shield}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {agreementsData?.frameworks && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              {agreementsData.frameworks.map((fw) => (
+                <div key={fw.id} className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <strong className="text-white text-xs">{fw.title}</strong>
+                    <span className="text-[10px] font-mono text-amber-300 shrink-0">{fw.entity}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">{fw.howMoneyArrives}</p>
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {fw.keyShields.map((sh, i) => (
+                      <span key={i} className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] text-slate-300">
+                        {sh}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Create Draft Revenue Agreement Form */}
+          <form onSubmit={handleDraftAgreement} className="p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-3">
+            <div className="text-xs font-bold text-amber-300">
+              Generate Vendor / Supplier Commission Agreement Draft (SHA-256 Checksummed)
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+              <input
+                type="text"
+                required
+                placeholder="Partner / Supplier Company Name *"
+                value={agreementForm.partnerName}
+                onChange={(e) => setAgreementForm((p) => ({ ...p, partnerName: e.target.value }))}
+                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+              />
+              <input
+                type="email"
+                required
+                placeholder="Partner Contact Email *"
+                value={agreementForm.partnerEmail}
+                onChange={(e) => setAgreementForm((p) => ({ ...p, partnerEmail: e.target.value }))}
+                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+              />
+              <select
+                value={agreementForm.entity}
+                onChange={(e) =>
+                  setAgreementForm((p) => ({ ...p, entity: e.target.value as typeof agreementForm.entity }))
+                }
+                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+              >
+                <option value="Radiant Spark LLC (USA)">Radiant Spark LLC (USA)</option>
+                <option value="RDNT Sparkle Industries LLP (India)">RDNT Sparkle Industries LLP (India)</option>
+              </select>
+              <select
+                value={agreementForm.agreementType}
+                onChange={(e) =>
+                  setAgreementForm((p) => ({ ...p, agreementType: e.target.value as typeof agreementForm.agreementType }))
+                }
+                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+              >
+                <option value="vendor_agency_commission">Vendor Agency Commission MSA</option>
+                <option value="affiliate_cpa">Affiliate CPA / CPS Partner Terms</option>
+                <option value="wholesale_supply_margin">Wholesale Supply &amp; Distribution</option>
+                <option value="legal_shield_dpa">Intermediary &amp; Data Protection DPA</option>
+              </select>
+              <input
+                type="number"
+                min="0.5"
+                max="50"
+                step="0.5"
+                placeholder="Commission %"
+                value={agreementForm.commissionRatePct}
+                onChange={(e) => setAgreementForm((p) => ({ ...p, commissionRatePct: e.target.value }))}
+                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+              />
+              <select
+                value={agreementForm.settlementTerms}
+                onChange={(e) =>
+                  setAgreementForm((p) => ({ ...p, settlementTerms: e.target.value as typeof agreementForm.settlementTerms }))
+                }
+                className="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-amber-400"
+              >
+                <option value="Net-15 Bank/ACH">Net-15 Bank / ACH / NEFT</option>
+                <option value="Net-30 Network Payout">Net-30 Network Payout</option>
+                <option value="Instant Stripe Split / Wire">Instant Stripe Split / Wire</option>
+              </select>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <button
+                type="submit"
+                disabled={isDraftingAgreement}
+                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs disabled:opacity-50"
+              >
+                {isDraftingAgreement ? 'Generating SHA-256 Draft...' : 'Draft Revenue Agreement & Legal Shield'}
+              </button>
+              {agreementNotice && (
+                <span className="text-[11px] font-mono text-emerald-300">{agreementNotice}</span>
+              )}
+            </div>
+          </form>
+
+          {agreementsData && agreementsData.agreements.length > 0 && (
+            <div className="space-y-2">
+              <div className="text-[10px] font-mono text-slate-400 uppercase">
+                Persisted Commercial Agreement Drafts ({agreementsData.agreements.length})
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs font-mono">
+                {agreementsData.agreements.slice(0, 6).map((agr) => (
+                  <div key={agr.id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+                    <div className="flex justify-between gap-2">
+                      <strong className="text-white">{agr.partnerName}</strong>
+                      <span className="text-amber-300">{agr.commissionRatePct}% · {agr.settlementTerms}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      {agr.id} · {agr.entity} · {agr.taxJurisdiction}
+                    </div>
+                    <div className="text-[10px] text-cyan-300">
+                      SHA-256: {agr.sha256Digest} · {agr.status}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Chief Agent Directives Matrix Across All 11 Agents */}
+        {chiefAudit && chiefAudit.directives?.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              <span className="text-cyan-300 font-bold">
+                CHIEF AGENT DIRECTIVES LOG ({chiefAudit.auditId} · {chiefAudit.durationMs}ms · {chiefAudit.trigger})
+              </span>
+              <span className="text-slate-400">
+                Checked {new Date(chiefAudit.executedAt).toLocaleString()}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+              {chiefAudit.directives.map((d) => (
+                <div
+                  key={d.agentId}
+                  className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <strong className="text-white text-xs">
+                      {d.agentName} <span className="text-slate-400 font-normal">({d.role})</span>
+                    </strong>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                        d.status === 'action_required'
+                          ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
+                          : d.status === 'auto_fixed'
+                          ? 'bg-cyan-500/15 text-cyan-300 border-cyan-500/40'
+                          : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                      }`}
+                    >
+                      {d.status === 'action_required'
+                        ? 'NEEDS CREDENTIAL'
+                        : d.status === 'auto_fixed'
+                        ? 'AUTO-FIXED'
+                        : 'VERIFIED'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400">
+                    <strong className="text-slate-300">Directive:</strong> {d.chiefInstruction}
+                  </p>
+                  <p className="text-[11px] text-emerald-300/90 font-mono">{d.actionTaken}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Enterprise Order-to-Cash & Procure-to-Pay Matrix (Connected to Live Server Inventory) */}
+      <O2cP2pModule
+        skuInventory={skuInventory}
+        warehouses={warehouses}
+        liveFxInrPerUsd={fxRateUsed}
+        onPipelineComplete={() => void loadBrainStatus()}
+      />
+
+      {/* ============================================================== */}
+      {/* SECTION 2: THE 11 AI EMPLOYEES DIRECTORY (INTERACTIVE FILTER)   */}
+      {/* ============================================================== */}
+      <section className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div>
+            <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest block mb-1">
+              OPERATIONAL WORKFORCE DIRECTORY
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              11 Specialized AI Employees
+            </h2>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {departmentFilters.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setSelectedDept(f.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all ${
+                  selectedDept === f.id
+                    ? 'bg-cyan-500 text-slate-950'
+                    : 'bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 11 AI Employees Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredEmployees.map((emp) => {
             const isSelected = selectedEmployeeId === emp.id;
+            const telemetry = agentStats[emp.id];
+            const completedCount = telemetry?.runsCount ?? emp.tasksCompleted;
+            const liveTask = telemetry?.lastAction || emp.currentTask;
             return (
               <div
                 key={emp.id}
@@ -365,30 +1482,32 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                     <span className="text-2xl p-2 rounded-xl bg-slate-950 border border-slate-800">
                       {emp.avatar}
                     </span>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                      GEMINI AI AGENT
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded-full tabular-nums">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                      {completedCount} RUNS
                     </span>
                   </div>
 
                   <div>
                     <h3 className="text-sm font-bold text-white tracking-tight">{emp.name}</h3>
-                    <p className="text-[11px] font-semibold text-cyan-400 leading-snug mt-0.5">{emp.role}</p>
+                    <p className="text-[11px] font-semibold text-cyan-400 leading-snug mt-0.5">
+                      {emp.role}
+                    </p>
                     <p className="text-[10px] text-slate-400 font-mono mt-1">{emp.department}</p>
                   </div>
 
                   <div className="p-2 rounded-xl bg-slate-950 border border-slate-800/80 text-[10px] text-slate-300 leading-relaxed">
-                    <span className="text-slate-500 font-bold block mb-0.5">CURRENT TASK:</span>
-                    {emp.currentTask}
+                    <span className="text-slate-500 font-bold block mb-0.5">
+                      {telemetry?.lastAction ? 'LAST EXECUTED STEP:' : 'ROLE SCOPE:'}
+                    </span>
+                    <span className="line-clamp-3">{liveTask}</span>
                   </div>
                 </div>
 
                 <div className="pt-3 mt-3 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                  <span className="font-mono text-slate-400">
-                    Operational Task Engine Active
-                  </span>
+                  <span className="font-mono text-slate-400">{emp.accuracy}</span>
                   <span className="text-cyan-400 font-bold flex items-center gap-0.5">
-                    Select <span>→</span>
+                    Inspect <span>→</span>
                   </span>
                 </div>
               </div>
@@ -399,18 +1518,19 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
         {/* Selected AI Employee Inter-Agent Connectivity Inspector */}
         {(() => {
           const emp = AI_EMPLOYEES.find((e) => e.id === selectedEmployeeId) || AI_EMPLOYEES[0];
+          const telemetry = agentStats[emp.id];
           return (
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border-2 border-cyan-500/50 shadow-2xl space-y-5 animate-in fade-in duration-200">
+            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border-2 border-cyan-500/50 shadow-2xl space-y-5">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
                 <div className="flex items-center gap-3.5">
                   <span className="text-3xl sm:text-4xl p-3 rounded-2xl bg-slate-950 border border-slate-800 shadow-inner">
                     {emp.avatar}
                   </span>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-xl font-black text-white">{emp.name}</h3>
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/30">
-                        GEMINI 3.8 AI ENGINE
+                        {geminiConfigured ? 'GEMINI 4 HYDROGEN ACTIVE' : 'RULE ENGINE + GEMINI READY'}
                       </span>
                     </div>
                     <p className="text-xs sm:text-sm font-bold text-cyan-300 mt-0.5">{emp.role}</p>
@@ -419,87 +1539,88 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-                  <span className="px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
-                    Tasks Completed: <strong className="text-cyan-400 font-bold">{emp.tasksCompleted.toLocaleString()}</strong>
+                  <span className="px-3.5 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 tabular-nums">
+                    Recorded Runs:{' '}
+                    <strong className="text-cyan-400 font-bold">
+                      {telemetry?.runsCount ?? 0}
+                    </strong>
                   </span>
                   <span className="px-3.5 py-1.5 rounded-xl bg-purple-950/60 border border-purple-500/40 text-purple-200 font-bold">
-                    Protocol: {emp.handshakeProtocol || 'AUTONOMOUS_REST_v1'}
+                    Protocol: {emp.handshakeProtocol}
                   </span>
                 </div>
               </div>
 
-              {/* Real-time Connectivity Flow: Upstream -> Current Agent -> Downstream */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                {/* Upstream Feeds */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-2">
-                  <div className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>⬆️ Upstream Data Feeds (Triggers)</span>
+                  <div className="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-wider">
+                    Upstream Inputs
                   </div>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {emp.connectedUpstream?.map((upName) => (
-                      <span key={upName} className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 font-bold text-[11px]">
+                      <span
+                        key={upName}
+                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 font-bold text-[11px]"
+                      >
                         {upName}
                       </span>
                     )) || <span className="text-slate-500 italic">Root Orchestrator</span>}
                   </div>
                   <p className="text-[11px] text-slate-400 pt-1 leading-relaxed">
-                    Provides verified input payloads, GSTINs, and order requisitions directly to {emp.name}.
+                    Passes structured order, stock, or compliance payloads into {emp.name}.
                   </p>
                 </div>
 
-                {/* Business Value & Effect */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-cyan-500/30 space-y-2">
-                  <div className="text-[10px] font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>⚡ Real-Time Business Effect &amp; ROI</span>
+                  <div className="text-[10px] font-mono font-bold text-cyan-300 uppercase tracking-wider">
+                    Verified Agent Responsibility
                   </div>
                   <p className="text-[11px] text-slate-200 leading-relaxed font-sans">
-                    {emp.businessValue || 'Runs 24/7 autonomous execution with zero manual intervention.'}
+                    {emp.businessValue}
                   </p>
                 </div>
 
-                {/* Downstream Handshakes */}
                 <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 space-y-2">
-                  <div className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>⬇️ Downstream Handshakes (Next Action)</span>
+                  <div className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                    Downstream Handshake
                   </div>
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {emp.connectedDownstream?.map((downName) => (
-                      <span key={downName} className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 font-bold text-[11px]">
+                      <span
+                        key={downName}
+                        className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 font-bold text-[11px]"
+                      >
                         {downName}
                       </span>
-                    )) || <span className="text-slate-500 italic">Terminal Action</span>}
+                    )) || <span className="text-slate-500 italic">Terminal Step</span>}
                   </div>
                   <p className="text-[11px] text-slate-400 pt-1 leading-relaxed">
-                    {emp.name} automatically triggers these downstream agents within &lt;12ms of execution.
+                    Sequentially triggers downstream pipeline steps during server execution.
                   </p>
                 </div>
               </div>
 
-              {/* Skills Badges & Direct Prompt Action */}
               <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">Specialized Skills:</span>
+                  <span className="text-[10px] font-mono text-slate-400 font-bold uppercase tracking-wider">
+                    Capabilities:
+                  </span>
                   {emp.skills.map((skill) => (
-                    <span key={skill} className="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-mono">
-                      ✓ {skill}
+                    <span
+                      key={skill}
+                      className="px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-mono"
+                    >
+                      {skill}
                     </span>
                   ))}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    const chatInput = document.getElementById('brain-chat-input');
-                    if (chatInput) {
-                      (chatInput as HTMLInputElement).value = `How do you connect with downstream agents during an active wholesale order?`;
-                    }
-                    const chatSec = document.getElementById('brain-chat');
-                    if (chatSec) chatSec.scrollIntoView({ behavior: 'smooth' });
-                  }}
+                  onClick={() => handleConsultAgent(emp.id, emp.name)}
                   className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-lg transition-all flex items-center gap-1.5 self-start sm:self-auto"
                 >
-                  <span>💬 Consult {emp.name}</span>
-                  <span>↗</span>
+                  <span>Consult {emp.name} ↗</span>
                 </button>
               </div>
             </div>
@@ -507,163 +1628,39 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
         })()}
       </section>
 
-      {/* CLOSED-LOOP WORKFORCE HANDSHAKE ARCHITECTURE MATRIX */}
-      <section className="space-y-4">
-        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border-2 border-purple-500/40 shadow-2xl space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40 text-xs font-mono font-bold mb-1">
-                <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
-                <span>AWARD-WINNING CLOSED-LOOP WORKFORCE ARCHITECTURE</span>
-              </div>
-              <h3 className="text-2xl font-black text-white">
-                Real-Time Inter-Agent Handshake &amp; Workflow Connectivity
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                All 10 AI Employees function as an integrated, closed-loop neural network—eliminating manual paperwork, billing reconciliation delays, and dispatch bottlenecks.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="px-3.5 py-1.5 rounded-xl bg-slate-950 border border-purple-500/40 text-purple-300 text-xs font-mono font-bold">
-                ⚡ 10 Agents · 100% Closed-Loop
-              </span>
-            </div>
-          </div>
-
-          {/* 10 Step Sequential Flow Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 text-xs font-mono">
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-purple-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-purple-300 text-xs">1. Maya Chen</strong>
-                <span className="text-[9px] text-slate-500">ORCHESTRATE</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Harmonizes global operations &amp; balances cross-border ledgers.</p>
-              <span className="text-[9px] text-purple-400 block pt-1">➔ Triggers Arjun &amp; Sarah</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-blue-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-blue-300 text-xs">2. Arjun Reddy</strong>
-                <span className="text-[9px] text-slate-500">INTAKE</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Validates dealer GSTIN &amp; applies volume tier discounts.</p>
-              <span className="text-[9px] text-blue-400 block pt-1">➔ Triggers Rajesh Varma</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-amber-300 text-xs">3. Rajesh Varma</strong>
-                <span className="text-[9px] text-slate-500">BOTTLING</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Issues factory work order REQ-DRK-8841 at Vizag plant.</p>
-              <span className="text-[9px] text-amber-400 block pt-1">➔ Triggers Elena &amp; Priya</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-emerald-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-emerald-300 text-xs">4. Elena Rostova</strong>
-                <span className="text-[9px] text-slate-500">INVOICING</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Stamps 28% GST E-Invoice with IRN &amp; QR verification.</p>
-              <span className="text-[9px] text-emerald-400 block pt-1">➔ Triggers Capt. Vikram</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-cyan-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-cyan-300 text-xs">5. Capt. Vikram</strong>
-                <span className="text-[9px] text-slate-500">DISPATCH</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Dispatches Tata Ace EV Reefer at active 3.2°C cold-chain.</p>
-              <span className="text-[9px] text-cyan-400 block pt-1">➔ Triggers Marcus Vance</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-teal-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-teal-300 text-xs">6. Priya Sharma</strong>
-                <span className="text-[9px] text-slate-500">PROCURE</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Monitors aluminum cans &amp; botanical syrup safety stock.</p>
-              <span className="text-[9px] text-teal-400 block pt-1">➔ Triggers Plant Reorders</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-indigo-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-indigo-300 text-xs">7. Marcus Vance</strong>
-                <span className="text-[9px] text-slate-500">CLOUD IT</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Streams transactions to Oracle Fusion ERP &amp; Amazon FBA.</p>
-              <span className="text-[9px] text-indigo-400 block pt-1">➔ Triggers David Sterling</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-yellow-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-yellow-300 text-xs">8. Ananya Iyer</strong>
-                <span className="text-[9px] text-slate-500">COMPLIANCE</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Audits Section 79 IT Act &amp; FSSAI Lic #10126999000142.</p>
-              <span className="text-[9px] text-yellow-400 block pt-1">➔ Legal Shield Safe</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-pink-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-pink-300 text-xs">9. Sarah Jenkins</strong>
-                <span className="text-[9px] text-slate-500">D2C CX</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Notifies consumer buyers with live GPS &amp; reorder links.</p>
-              <span className="text-[9px] text-pink-400 block pt-1">➔ High Retention</span>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-slate-950 border border-violet-500/30 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <strong className="text-violet-300 text-xs">10. David Sterling</strong>
-                <span className="text-[9px] text-slate-500">GROWTH</span>
-              </div>
-              <p className="text-[11px] text-slate-300 font-sans">Forecasts wholesale reorders &amp; global expansion margins.</p>
-              <span className="text-[9px] text-violet-400 block pt-1">➔ Feeds Maya Chen</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ============================================================== */}
-      {/* SECTION 3: SPARKLE DRINKS AUTOMATED ORDER-TO-SHIPMENT ENGINE    */}
+      {/* SECTION 3: LIVE 10-AGENT ORDER-TO-DISPATCH EXECUTION ENGINE     */}
       {/* ============================================================== */}
       <section className="space-y-6 pt-4">
         <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-amber-500/40 shadow-2xl space-y-8">
-          
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold mb-2">
-                <span>⚡</span>
-                <span>END-TO-END AUTONOMOUS PIPELINE · SPARKLE DRINKS INDIA</span>
+                <Zap className="w-3.5 h-3.5" />
+                <span>END-TO-END 11-AGENT ORDER EXECUTION · PERSISTENT INVENTORY</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Order Intake ➔ Requisition ➔ Tax Invoice ➔ EV Shipment
+                Order Intake -&gt; Requisition -&gt; 28% GST Invoice -&gt; Dispatch
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 mt-1">
-                Experience how all 10 AI employees process customer and dealer purchase orders without manual paperwork.
+                Every submission executes all 11 agents sequentially on the backend server, deducts real SKU stock, computes intra/inter-state GST + USD FX equivalent, and persists to the ledger.
               </p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-slate-400">Division:</span>
-              <span className="px-3 py-1 rounded-xl bg-slate-950 text-amber-300 font-bold text-xs border border-amber-500/30">
-                RDNT Sparkle Drinks &amp; Logistics (AP)
+              <span className="px-3 py-1 rounded-xl bg-slate-950 text-amber-300 font-bold text-xs border border-amber-500/30 font-mono">
+                HSN 22021010 · FSSAI #10126999000142
               </span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* Left Column: Interactive Order Intake Form */}
+            {/* Left Column: Customer & Dealer Intake Form */}
             <div className="lg:col-span-5 space-y-5 p-6 rounded-2xl bg-slate-950 border border-slate-800 shadow-xl">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <span>📝</span>
-                <span>Customer &amp; Dealer Order Creator</span>
+              <h3 className="text-base font-bold text-white">
+                Customer &amp; Dealer Order Entry
               </h3>
 
-              {/* Customer Type Selector */}
               <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-slate-900 border border-slate-800">
                 <button
                   type="button"
@@ -677,7 +1674,7 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  🏢 Wholesale Dealer (B2B)
+                  Wholesale Dealer (B2B)
                 </button>
                 <button
                   type="button"
@@ -691,15 +1688,16 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                       : 'text-slate-400 hover:text-white'
                   }`}
                 >
-                  🛒 Direct Consumer (D2C)
+                  Direct Consumer (D2C)
                 </button>
               </div>
 
-              {/* Form Inputs */}
               <div className="space-y-3 text-xs">
                 <div>
                   <label className="text-slate-400 font-semibold block mb-1">
-                    {customerType === 'dealer' ? 'Distributor / Dealer Business Name' : 'Consumer Full Name'}
+                    {customerType === 'dealer'
+                      ? 'Distributor / Dealer Business Name'
+                      : 'Consumer Full Name'}
                   </label>
                   <input
                     type="text"
@@ -708,19 +1706,25 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                       if (customerType === 'dealer') setBusinessName(e.target.value);
                       else setBuyerName(e.target.value);
                     }}
-                    placeholder={customerType === 'dealer' ? "Enter Distributor / Dealer Business Name..." : "Enter Consumer Full Name..."}
+                    placeholder={
+                      customerType === 'dealer'
+                        ? 'Enter Distributor / Dealer Business Name...'
+                        : 'Enter Consumer Full Name...'
+                    }
                     className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-medium focus:outline-none focus:border-amber-400 placeholder:text-slate-500"
                   />
                 </div>
 
                 {customerType === 'dealer' && (
                   <div>
-                    <label className="text-slate-400 font-semibold block mb-1">Dealer GSTIN (Republic of India)</label>
+                    <label className="text-slate-400 font-semibold block mb-1">
+                      Dealer GSTIN (15-char India Tax ID)
+                    </label>
                     <input
                       type="text"
                       value={gstin}
-                      onChange={(e) => setGstin(e.target.value)}
-                      placeholder="Enter 15-Digit GSTIN (e.g. 37AAACP4412K1Z9)..."
+                      onChange={(e) => setGstin(e.target.value.toUpperCase())}
+                      placeholder="e.g. 37AAACA8891J1ZP"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-cyan-300 font-mono font-bold focus:outline-none focus:border-cyan-400 placeholder:text-slate-500"
                     />
                   </div>
@@ -728,7 +1732,9 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-slate-400 font-semibold block mb-1">Delivery Destination</label>
+                    <label className="text-slate-400 font-semibold block mb-1">
+                      Delivery City ({isIntraState ? 'Intra-State' : 'Inter-State'})
+                    </label>
                     <select
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
@@ -745,87 +1751,88 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                   </div>
 
                   <div>
-                    <label className="text-slate-400 font-semibold block mb-1">Quantity (Cases of 24)</label>
+                    <label className="text-slate-400 font-semibold block mb-1">
+                      Quantity (Cases of 24)
+                    </label>
                     <input
                       type="number"
-                      min={customerType === 'dealer' ? 50 : 1}
-                      max={5000}
-                      step={customerType === 'dealer' ? 50 : 1}
+                      min={1}
+                      max={activeSkuStock}
                       value={casesCount}
-                      onChange={(e) => setCasesCount(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                      onChange={(e) =>
+                        setCasesCount(Math.max(1, parseInt(e.target.value, 10) || 1))
+                      }
+                      className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono font-bold focus:outline-none focus:border-amber-400 tabular-nums"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-slate-400 font-semibold block mb-1">Sparkle Drinks Product Flavor</label>
+                  <label className="text-slate-400 font-semibold block mb-1">
+                    Sparkle Drinks SKU ({activeSkuStock.toLocaleString('en-IN')} cs available)
+                  </label>
                   <select
-                    value={selectedProduct.id}
-                    onChange={(e) => {
-                      const prod = SPARKLE_DRINKS_PRODUCTS.find(p => p.id === e.target.value);
-                      if (prod) setSelectedProduct(prod);
-                    }}
+                    value={selectedProductId}
+                    onChange={(e) => setSelectedProductId(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-amber-300 font-semibold focus:outline-none focus:border-amber-400"
                   >
-                    {SPARKLE_DRINKS_PRODUCTS.map(p => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} (₹{p.casePrice}/case)
-                      </option>
-                    ))}
+                    {SPARKLE_DRINKS_PRODUCTS.map((p) => {
+                      const liveCount =
+                        skuInventory.find((s) => s.id === p.id)?.inStockCases ?? p.inStockCases;
+                      return (
+                        <option key={p.id} value={p.id}>
+                          {p.name} (₹{p.casePrice}/cs · {liveCount.toLocaleString('en-IN')} avail)
+                        </option>
+                      );
+                    })}
                   </select>
-                  <span className="text-[10px] text-slate-500 mt-1 block">
-                    {selectedProduct.tagline} · {selectedProduct.fssaiLicense}
-                  </span>
                 </div>
 
-                {/* Real-Time On-Hand Quantity Check & Stock Matrix */}
+                {/* Live Persistent Server Stock Breakdown */}
                 <div className="p-4 rounded-2xl bg-cyan-950/30 border border-cyan-500/40 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      Live On-Hand Inventory Check (Priya Sharma &amp; Rajesh Varma)
+                    <span className="text-[11px] font-mono font-bold text-cyan-300 uppercase tracking-wider">
+                      Server Warehouse Inventory
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
-                      Available: 29,450 Cases
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold tabular-nums">
+                      Total: {totalAvailableCases.toLocaleString('en-IN')} Cases
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-center">
-                    <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800">
-                      <span className="text-slate-400 block text-[9px]">🏭 Vizag Plant</span>
-                      <strong className="text-white text-xs block">18,450 cs</strong>
-                      <span className="text-emerald-400 text-[9px]">Active Line #3</span>
+                  {warehouses.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2 text-[10px] font-mono text-center">
+                      {warehouses.map((wh) => (
+                        <div key={wh.id} className="p-2 rounded-xl bg-slate-900/90 border border-slate-800">
+                          <span className="text-slate-400 block text-[9px] truncate">{wh.name}</span>
+                          <strong className="text-white text-xs block tabular-nums">
+                            {wh.cases.toLocaleString('en-IN')} cs
+                          </strong>
+                          <span className="text-cyan-400 text-[9px] truncate block">{wh.role}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800">
-                      <span className="text-slate-400 block text-[9px]">🏬 Vijayawada Depot</span>
-                      <strong className="text-cyan-300 text-xs block">6,200 cs</strong>
-                      <span className="text-cyan-400 text-[9px]">Cross-Dock Hub</span>
-                    </div>
-                    <div className="p-2 rounded-xl bg-slate-900/90 border border-slate-800">
-                      <span className="text-slate-400 block text-[9px]">📦 Amazon FBA (HYD1)</span>
-                      <strong className="text-amber-300 text-xs block">4,800 cs</strong>
-                      <span className="text-amber-400 text-[9px]">Prime 1-Day Stock</span>
-                    </div>
-                  </div>
+                  )}
 
                   <div className="p-2.5 rounded-xl bg-slate-900/80 border border-cyan-500/30 flex items-center justify-between text-xs font-mono">
-                    <span className="text-slate-300">
-                      Stock Check for <strong className="text-white">{casesCount} Cases</strong>:
-                    </span>
-                    <span className="text-emerald-400 font-bold flex items-center gap-1">
-                      <span>✓ In Stock &amp; Ready to Ship</span>
-                      <span className="text-[10px] text-slate-400">({(29450 - casesCount).toLocaleString('en-IN')} cs buffer)</span>
-                    </span>
+                    <span className="text-slate-300">SKU Check ({casesCount} cs):</span>
+                    {casesCount <= activeSkuStock ? (
+                      <span className="text-emerald-400 font-bold tabular-nums">
+                        In Stock ({(activeSkuStock - casesCount).toLocaleString('en-IN')} remaining)
+                      </span>
+                    ) : (
+                      <span className="text-rose-400 font-bold">Exceeds SKU Stock</span>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Live Cost Breakdown */}
-              <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5 text-xs font-mono">
+              {/* Live Cost Breakdown (INR + USD Spot FX) */}
+              <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5 text-xs font-mono tabular-nums">
                 <div className="flex justify-between text-slate-400">
                   <span>Cases Ordered:</span>
-                  <span className="text-white font-bold">{casesCount} cases ({casesCount * 24} cans)</span>
+                  <span className="text-white font-bold">
+                    {casesCount} cases ({(casesCount * 24).toLocaleString('en-IN')} cans)
+                  </span>
                 </div>
                 <div className="flex justify-between text-slate-400">
                   <span>Subtotal:</span>
@@ -833,688 +1840,466 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                 </div>
                 {discountPercent > 0 && (
                   <div className="flex justify-between text-emerald-400">
-                    <span>Wholesale Tier Discount ({discountPercent}%):</span>
+                    <span>Volume Tier Discount ({discountPercent}%):</span>
                     <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-slate-400">
-                  <span>GST Rate (HSN 2202 @ 28%):</span>
+                  <span>
+                    {isIntraState ? 'CGST 14% + SGST 14%' : 'IGST 28% (Inter-State)'}:
+                  </span>
                   <span>₹{gstAmount.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="pt-2 border-t border-slate-800 flex justify-between text-sm font-bold text-white">
-                  <span>Grand Total:</span>
+                  <span>Grand Total (INR):</span>
                   <span className="text-amber-400">₹{grandTotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between text-[11px] text-cyan-300">
+                  <span>Live USD Spot Equivalent (@ ₹{fxRateUsed.toFixed(2)}):</span>
+                  <span className="font-bold">${grandTotalUsd.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD</span>
                 </div>
               </div>
 
-              {/* Big Launch Automation Button */}
+              {pipelineError && (
+                <div className="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 text-xs text-rose-200">
+                  {pipelineError}
+                </div>
+              )}
+
               <button
                 type="button"
-                disabled={isAutomating}
-                onClick={handleTriggerAutomation}
-                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50"
+                disabled={isAutomating || casesCount > activeSkuStock}
+                onClick={() => void handleTriggerAutomation()}
+                className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
               >
                 {isAutomating ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin text-slate-950" />
-                    <span>Executing All 10 AI Agents...</span>
+                    <span>Executing All 11 AI Agents on Server...</span>
                   </>
                 ) : (
                   <>
                     <Zap className="w-4 h-4 fill-slate-950 text-slate-950" />
-                    <span>⚡ Run Autonomous AI Pipeline</span>
+                    <span>Execute 11-Agent Order Pipeline</span>
                   </>
                 )}
               </button>
             </div>
 
-            {/* Right Column: Visual Automation Stepper & Generated Document Center */}
+            {/* Right Column: Execution Stepper & Persisted Documents */}
             <div className="lg:col-span-7 space-y-6">
-              
-              {/* Stepper Progress Bar */}
               <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
                 <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-3">
-                  Autonomous Processing Stages (Executed by Specialized AI Employees):
+                  11-Agent Execution Pipeline Stages:
                 </span>
-                
+
                 <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                  {/* Step 1 */}
-                  <div className={`p-2.5 rounded-xl border transition-all ${
-                    pipelineStep >= 1 ? 'bg-amber-500/20 border-amber-500 text-amber-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                  }`}>
-                    <span className="text-base block mb-0.5">👨‍💼</span>
-                    <strong className="block text-[11px]">1. Order Intake</strong>
-                    <span className="text-[9px] font-mono text-slate-400">Arjun Reddy</span>
+                  <div
+                    className={`p-2.5 rounded-xl border transition-all ${
+                      pipelineStep >= 1
+                        ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <strong className="block text-[11px]">1. Intake &amp; GSTIN</strong>
+                    <span className="text-[9px] font-mono text-slate-400">Maya · Arjun</span>
                   </div>
-
-                  {/* Step 2 */}
-                  <div className={`p-2.5 rounded-xl border transition-all ${
-                    pipelineStep >= 2 ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                  }`}>
-                    <span className="text-base block mb-0.5">👨‍🔬</span>
-                    <strong className="block text-[11px]">2. Requisition</strong>
-                    <span className="text-[9px] font-mono text-slate-400">Rajesh Varma</span>
+                  <div
+                    className={`p-2.5 rounded-xl border transition-all ${
+                      pipelineStep >= 2
+                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <strong className="block text-[11px]">2. Stock &amp; Batch</strong>
+                    <span className="text-[9px] font-mono text-slate-400">Rajesh · Priya</span>
                   </div>
-
-                  {/* Step 3 */}
-                  <div className={`p-2.5 rounded-xl border transition-all ${
-                    pipelineStep >= 3 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                  }`}>
-                    <span className="text-base block mb-0.5">👩‍⚖️</span>
-                    <strong className="block text-[11px]">3. Tax Invoice</strong>
-                    <span className="text-[9px] font-mono text-slate-400">Elena Rostova</span>
+                  <div
+                    className={`p-2.5 rounded-xl border transition-all ${
+                      pipelineStep >= 3
+                        ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <strong className="block text-[11px]">3. GST &amp; Audit</strong>
+                    <span className="text-[9px] font-mono text-slate-400">Elena · Ananya</span>
                   </div>
-
-                  {/* Step 4 */}
-                  <div className={`p-2.5 rounded-xl border transition-all ${
-                    pipelineStep >= 4 ? 'bg-purple-500/20 border-purple-500 text-purple-300' : 'bg-slate-900 border-slate-800 text-slate-500'
-                  }`}>
-                    <span className="text-base block mb-0.5">👨‍✈️</span>
-                    <strong className="block text-[11px]">4. EV Dispatch</strong>
-                    <span className="text-[9px] font-mono text-slate-400">Capt. Vikram</span>
+                  <div
+                    className={`p-2.5 rounded-xl border transition-all ${
+                      pipelineStep >= 4
+                        ? 'bg-purple-500/20 border-purple-500 text-purple-300'
+                        : 'bg-slate-900 border-slate-800 text-slate-500'
+                    }`}
+                  >
+                    <strong className="block text-[11px]">4. Waybill &amp; Rev</strong>
+                    <span className="text-[9px] font-mono text-slate-400">Vikram · David · Kavya</span>
                   </div>
                 </div>
               </div>
 
-              {/* Document Tabs */}
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setActiveDocTab('invoice')}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        activeDocTab === 'invoice'
-                          ? 'bg-amber-500 text-slate-950 shadow-md'
-                          : 'text-slate-400 hover:text-white bg-slate-900'
-                      }`}
-                    >
-                      <span>📄</span>
-                      <span>GST Tax Invoice</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveDocTab('receipt')}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        activeDocTab === 'receipt'
-                          ? 'bg-emerald-500 text-slate-950 shadow-md'
-                          : 'text-slate-400 hover:text-white bg-slate-900'
-                      }`}
-                    >
-                      <span>🧾</span>
-                      <span>Customer Receipt &amp; GRN</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveDocTab('amazonLabel')}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        activeDocTab === 'amazonLabel'
-                          ? 'bg-orange-500 text-slate-950 shadow-md'
-                          : 'text-slate-400 hover:text-white bg-slate-900'
-                      }`}
-                    >
-                      <span>📦</span>
-                      <span>Amazon Shipping Label</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveDocTab('requisition')}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        activeDocTab === 'requisition'
-                          ? 'bg-cyan-500 text-slate-950 shadow-md'
-                          : 'text-slate-400 hover:text-white bg-slate-900'
-                      }`}
-                    >
-                      <span>📋</span>
-                      <span>Factory Requisition</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveDocTab('shipment')}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        activeDocTab === 'shipment'
-                          ? 'bg-purple-500 text-slate-950 shadow-md'
-                          : 'text-slate-400 hover:text-white bg-slate-900'
-                      }`}
-                    >
-                      <span>🚚</span>
-                      <span>Waybill &amp; Cold-Chain</span>
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
-                    <button
-                      type="button"
-                      onClick={handleSendWhatsApp}
-                      className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95"
-                      title="Send Invoice & Tracking link directly to dealer phone via WhatsApp"
-                    >
-                      <span className="text-sm">📲</span>
-                      <span>Send WhatsApp Invoice</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => window.print()}
-                      className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs flex items-center gap-1 shadow-sm"
-                      title="Print Document Slip"
-                    >
-                      <Printer className="w-3.5 h-3.5" />
-                      <span>Print Slip</span>
-                    </button>
-                  </div>
+              {!selectedOrder ? (
+                <div className="p-8 rounded-2xl bg-slate-950 border border-slate-800 text-center space-y-3">
+                  <CheckCircle2 className="w-8 h-8 text-cyan-400 mx-auto" />
+                  <h4 className="text-base font-bold text-white">No Order Selected Yet</h4>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto">
+                    Submit an order using the form on the left to generate a real 28% GST Tax Invoice, Factory Requisition Slip, Cold-Chain Waybill, and 11-Agent Execution Trace.
+                  </p>
                 </div>
-
-                {/* Real-time WhatsApp Dispatch Notification Banner */}
-                {whatsappSentNotice && (
-                  <div className="p-3 rounded-xl bg-emerald-950/90 border border-emerald-500/80 text-emerald-300 font-mono text-xs font-bold flex items-center justify-between shadow-xl animate-in slide-in-from-top-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">💬</span>
-                      <span>{whatsappSentNotice}</span>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-3 gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {[
+                        { id: 'invoice', label: 'GST Tax Invoice' },
+                        { id: 'receipt', label: 'Customer Receipt' },
+                        { id: 'amazonLabel', label: 'Dispatch Label' },
+                        { id: 'requisition', label: 'Factory Requisition' },
+                        { id: 'shipment', label: 'Waybill' },
+                        { id: 'trace', label: `11-Agent Trace (${latestTrace.length})` },
+                      ].map((tab) => (
+                        <button
+                          key={tab.id}
+                          type="button"
+                          onClick={() => setActiveDocTab(tab.id as any)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                            activeDocTab === tab.id
+                              ? 'bg-amber-500 text-slate-950 shadow-md'
+                              : 'text-slate-400 hover:text-white bg-slate-900'
+                          }`}
+                        >
+                          {tab.label}
+                        </button>
+                      ))}
                     </div>
-                    <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded font-bold">WHATSAPP API OK</span>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      <a
+                        href={buildWhatsAppInvoiceUrl(selectedOrder)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg flex items-center gap-1.5"
+                      >
+                        <span>Share WhatsApp Summary</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 text-xs flex items-center gap-1"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Print</span>
+                      </button>
+                    </div>
                   </div>
-                )}
 
-                {/* TAB 1: FORMAL GST TAX INVOICE */}
-                {activeDocTab === 'invoice' && (
-                  <div className="p-6 rounded-2xl bg-white text-slate-950 space-y-4 shadow-2xl font-sans text-xs">
-                    {/* Invoice Header */}
-                    <div className="flex justify-between items-start border-b border-slate-200 pb-4">
-                      <div>
-                        <span className="text-[10px] font-mono uppercase tracking-widest text-blue-600 font-extrabold block">
-                          TAX INVOICE · E-INVOICE SYSTEM
-                        </span>
-                        <h4 className="text-xl font-black text-slate-900 mt-0.5">RDNT Sparkle Industries LLP</h4>
-                        <p className="text-[11px] text-slate-600">
-                          Industrial Division: Sparkle Drinks &amp; Logistics<br />
-                          Autonagar Commercial Corridor, Guntur, Andhra Pradesh — 522001<br />
-                          <strong>GSTIN:</strong> 37AAAFR9824K1Z5 · <strong>FSSAI:</strong> #10126999000142
-                        </p>
-                      </div>
+                  {/* TAB 1: GST TAX INVOICE */}
+                  {activeDocTab === 'invoice' && (
+                    <div className="p-6 rounded-2xl bg-white text-slate-950 space-y-4 shadow-2xl font-sans text-xs">
+                      <div className="flex justify-between items-start border-b border-slate-200 pb-4">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-blue-600 font-extrabold block">
+                            TAX INVOICE · HSN 22021010
+                          </span>
+                          <h4 className="text-xl font-black text-slate-900 mt-0.5">
+                            RDNT Sparkle Industries LLP
+                          </h4>
+                          <p className="text-[11px] text-slate-600">
+                            Sparkle Drinks &amp; Logistics · Guntur, Andhra Pradesh<br />
+                            <strong>FSSAI Central Lic:</strong> #10126999000142
+                          </p>
+                        </div>
 
-                      <div className="text-right">
-                        <span className="px-2.5 py-1 rounded bg-amber-100 text-amber-900 font-mono font-bold text-xs inline-block mb-1">
-                          {selectedOrder.invoiceId || 'INV-2026-0812'}
-                        </span>
-                        <p className="text-[11px] text-slate-600">
-                          Date: <strong>{selectedOrder.date}</strong><br />
-                          Payment Terms: <strong>Net 30 Days</strong><br />
-                          Place of Supply: <strong>{selectedOrder.state} (State Code: 37)</strong>
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Buyer & Consignee */}
-                    <div className="grid grid-cols-2 gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px]">
-                      <div>
-                        <span className="text-slate-500 font-bold block mb-0.5 uppercase">Billed To (Customer / Dealer):</span>
-                        <strong className="text-slate-900 text-xs block">{selectedOrder.businessName}</strong>
-                        <p className="text-slate-600">
-                          Attn: {selectedOrder.buyerName}<br />
-                          City: {selectedOrder.city}, {selectedOrder.state}<br />
-                          GSTIN: {selectedOrder.gstin || 'Unregistered Consumer (B2C)'}
-                        </p>
-                      </div>
-
-                      <div className="border-l border-slate-200 pl-4">
-                        <span className="text-slate-500 font-bold block mb-0.5 uppercase">Dispatch Details:</span>
-                        <p className="text-slate-600">
-                          Waybill No: <strong>{selectedOrder.waybillId || 'WB-SPK-9941'}</strong><br />
-                          Carrier: <strong>Sparkle EV Fleet ({selectedOrder.vehicleNo || 'AP-07-EV-8842'})</strong><br />
-                          Authorized By: <strong>Elena Rostova (AI Financial Specialist)</strong>
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Line Items Table */}
-                    <table className="w-full text-left border-collapse text-[11px]">
-                      <thead>
-                        <tr className="border-b-2 border-slate-900 text-slate-800">
-                          <th className="py-2">Item Description</th>
-                          <th className="py-2">HSN Code</th>
-                          <th className="py-2 text-right">Cases</th>
-                          <th className="py-2 text-right">Rate/Case</th>
-                          <th className="py-2 text-right">Taxable Value</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200">
-                        <tr>
-                          <td className="py-2.5">
-                            <strong className="text-slate-900 block">{selectedOrder.product}</strong>
-                            <span className="text-[10px] text-slate-500">24 x 330ml Aluminum Cans ({selectedOrder.cases * 24} units)</span>
-                          </td>
-                          <td className="py-2.5 font-mono">22021010</td>
-                          <td className="py-2.5 text-right font-mono font-bold">{selectedOrder.cases}</td>
-                          <td className="py-2.5 text-right font-mono">₹{selectedOrder.unitPrice.toLocaleString('en-IN')}</td>
-                          <td className="py-2.5 text-right font-mono font-bold">₹{selectedOrder.subtotal.toLocaleString('en-IN')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-
-                    {/* Tax & Total Summary */}
-                    <div className="flex justify-between items-end pt-2 border-t border-slate-200">
-                      <div className="space-y-1 text-[10px] text-slate-500 max-w-sm">
-                        <p><strong>Statutory Declaration:</strong> Invoice generated autonomously in compliance with Section 31 of CGST Act, 2017 and Section 79 of Information Technology Act, 2000.</p>
-                        <div className="flex items-center gap-2 pt-1 font-mono text-[9px] text-emerald-700">
-                          <span>✓ Cryptographically Signed &amp; Stamped by AI Financial Agent</span>
+                        <div className="text-right">
+                          <span className="px-2.5 py-1 rounded bg-amber-100 text-amber-900 font-mono font-bold text-xs inline-block mb-1">
+                            {selectedOrder.invoiceId}
+                          </span>
+                          <p className="text-[11px] text-slate-600">
+                            Order: <strong>{selectedOrder.id}</strong><br />
+                            Date: <strong>{selectedOrder.date}</strong><br />
+                            Supply: <strong>{selectedOrder.state}</strong>
+                          </p>
                         </div>
                       </div>
 
-                      <div className="w-64 space-y-1 font-mono text-right text-[11px]">
-                        <div className="flex justify-between text-slate-600">
-                          <span>Subtotal:</span>
-                          <span>₹{selectedOrder.subtotal.toLocaleString('en-IN')}</span>
+                      <div className="grid grid-cols-2 gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px]">
+                        <div>
+                          <span className="text-slate-500 font-bold block mb-0.5 uppercase">
+                            Billed To:
+                          </span>
+                          <strong className="text-slate-900 text-xs block">
+                            {selectedOrder.businessName}
+                          </strong>
+                          <p className="text-slate-600">
+                            Attn: {selectedOrder.buyerName}<br />
+                            City: {selectedOrder.city}, {selectedOrder.state}<br />
+                            GSTIN: {selectedOrder.gstin || 'Unregistered B2C'}{' '}
+                            {selectedOrder.gstin ? (selectedOrder.gstinValid ? '(Valid Format)' : '(Format Check Failed)') : ''}
+                          </p>
                         </div>
-                        {selectedOrder.discountAmount > 0 && (
-                          <div className="flex justify-between text-emerald-700">
-                            <span>Tier Discount ({selectedOrder.discountPercent}%):</span>
-                            <span>-₹{selectedOrder.discountAmount.toLocaleString('en-IN')}</span>
+
+                        <div className="border-l border-slate-200 pl-4">
+                          <span className="text-slate-500 font-bold block mb-0.5 uppercase">
+                            Dispatch &amp; Trace:
+                          </span>
+                          <p className="text-slate-600">
+                            Waybill: <strong>{selectedOrder.waybillId}</strong><br />
+                            Vehicle Ref: <strong>{selectedOrder.vehicleNo}</strong><br />
+                            IRN Hash: <strong className="font-mono text-[10px]">{selectedOrder.irnHash || 'SHA256'}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-end pt-2 border-t border-slate-200">
+                        <div className="space-y-1 text-[10px] text-slate-500 max-w-xs">
+                          <p>
+                            {selectedOrder.product} — {selectedOrder.cases} cases ({selectedOrder.totalCans} cans)
+                          </p>
+                          <p className="font-mono text-emerald-700">
+                            FX Reference: $1 = ₹{selectedOrder.fxRateInrPerUsd?.toFixed(2) || fxRateUsed.toFixed(2)}
+                          </p>
+                        </div>
+
+                        <div className="w-64 space-y-1 font-mono text-right text-[11px] tabular-nums">
+                          <div className="flex justify-between text-slate-600">
+                            <span>Subtotal:</span>
+                            <span>₹{selectedOrder.subtotal.toLocaleString('en-IN')}</span>
                           </div>
-                        )}
-                        <div className="flex justify-between text-slate-600">
-                          <span>CGST (14%):</span>
-                          <span>₹{(selectedOrder.gstAmount / 2).toLocaleString('en-IN')}</span>
+                          {selectedOrder.discountAmount > 0 && (
+                            <div className="flex justify-between text-emerald-700">
+                              <span>Discount ({selectedOrder.discountPercent}%):</span>
+                              <span>-₹{selectedOrder.discountAmount.toLocaleString('en-IN')}</span>
+                            </div>
+                          )}
+                          {selectedOrder.isIntraState !== false ? (
+                            <>
+                              <div className="flex justify-between text-slate-600">
+                                <span>CGST (14%):</span>
+                                <span>₹{(selectedOrder.cgstAmount ?? selectedOrder.gstAmount / 2).toLocaleString('en-IN')}</span>
+                              </div>
+                              <div className="flex justify-between text-slate-600">
+                                <span>SGST (14%):</span>
+                                <span>₹{(selectedOrder.sgstAmount ?? selectedOrder.gstAmount / 2).toLocaleString('en-IN')}</span>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex justify-between text-slate-600">
+                              <span>IGST (28% Inter-State):</span>
+                              <span>₹{(selectedOrder.igstAmount ?? selectedOrder.gstAmount).toLocaleString('en-IN')}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-sm font-black text-slate-900 border-t border-slate-900 pt-1.5">
+                            <span>Total (INR):</span>
+                            <span className="text-blue-700">₹{selectedOrder.grandTotal.toLocaleString('en-IN')}</span>
+                          </div>
+                          {selectedOrder.grandTotalUsd && (
+                            <div className="flex justify-between text-[11px] font-bold text-slate-600">
+                              <span>USD Equivalent:</span>
+                              <span>${selectedOrder.grandTotalUsd.toFixed(2)} USD</span>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex justify-between text-slate-600">
-                          <span>SGST (14%):</span>
-                          <span>₹{(selectedOrder.gstAmount / 2).toLocaleString('en-IN')}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: RECEIPT */}
+                  {activeDocTab === 'receipt' && (
+                    <div className="p-6 rounded-2xl bg-white text-slate-950 space-y-4 shadow-2xl font-sans text-xs">
+                      <div className="flex justify-between items-start border-b border-slate-200 pb-3">
+                        <div>
+                          <h4 className="text-lg font-black text-slate-900">CUSTOMER ORDER RECEIPT</h4>
+                          <p className="text-[11px] text-slate-600">
+                            RDNT Sparkle Industries LLP · {selectedOrder.id}
+                          </p>
                         </div>
-                        <div className="flex justify-between text-sm font-black text-slate-900 border-t border-slate-900 pt-1.5">
-                          <span>Total Amount:</span>
-                          <span className="text-blue-700">₹{selectedOrder.grandTotal.toLocaleString('en-IN')}</span>
+                        <div className="text-right font-mono text-[11px]">
+                          <strong className="text-emerald-700 block">{selectedOrder.invoiceId}</strong>
+                          <span>{selectedOrder.date}</span>
                         </div>
                       </div>
+                      <p className="text-slate-700">
+                        Consignee: <strong>{selectedOrder.buyerName}</strong> ({selectedOrder.businessName}) · {selectedOrder.city}, {selectedOrder.state}
+                      </p>
+                      <p className="text-slate-700 font-mono">
+                        {selectedOrder.cases} Cases of {selectedOrder.product} — Total Paid / Invoiced: <strong>₹{selectedOrder.grandTotal.toLocaleString('en-IN')}</strong>
+                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* TAB: CUSTOMER PURCHASE RECEIPT & GOODS RECEIPT NOTE (GRN) */}
-                {activeDocTab === 'receipt' && (
-                  <div className="p-6 rounded-2xl bg-white text-slate-950 space-y-4 shadow-2xl font-sans text-xs border-2 border-emerald-500/50">
-                    <div className="flex justify-between items-start border-b border-slate-200 pb-3">
-                      <div>
-                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono font-bold text-[10px] uppercase">
-                          <span>✓ GOODS RECEIPT &amp; PURCHASE RECEIPT</span>
-                        </div>
-                        <h4 className="text-xl font-black text-slate-900 mt-1">CUSTOMER OFFICIAL RECEIPT</h4>
-                        <p className="text-[11px] text-slate-600">
-                          RDNT Sparkle Industries LLP · Finished Goods Inventory &amp; Distribution
-                        </p>
+                  {/* TAB 3: SHIPPING LABEL */}
+                  {activeDocTab === 'amazonLabel' && (
+                    <div className="max-w-md mx-auto p-6 rounded-2xl bg-white text-slate-950 space-y-4 shadow-2xl font-mono text-xs border-4 border-slate-950">
+                      <div className="flex justify-between items-center border-b-4 border-slate-950 pb-2">
+                        <strong className="text-base font-black">RDNT DISPATCH LABEL</strong>
+                        <span className="font-bold">{selectedOrder.waybillId}</span>
                       </div>
-                      <div className="text-right font-mono text-[11px]">
-                        <strong className="text-emerald-700 block text-xs">RCP-2026-{(selectedOrder.id || '9041').replace('ORD-', '')}</strong>
-                        <span className="text-slate-500">Receipt Date: {selectedOrder.date}</span>
-                        <span className="text-slate-500 block">Payment: {selectedOrder.customerType === 'dealer' ? 'Net-30 Commercial Transfer' : 'Amazon Pay / UPI Verified'}</span>
+                      <div className="border-b-2 border-slate-950 pb-3 leading-snug">
+                        <span className="text-[9px] uppercase text-slate-500 font-bold block">SHIP TO:</span>
+                        <strong className="text-sm text-slate-950 block font-sans font-black">
+                          {selectedOrder.buyerName}
+                        </strong>
+                        <span className="text-xs font-bold block font-sans">{selectedOrder.businessName}</span>
+                        <span className="text-xs block font-sans">
+                          {selectedOrder.city}, {selectedOrder.state}
+                        </span>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px]">
-                      <div>
-                        <span className="text-slate-500 font-bold block uppercase text-[10px]">Customer / Consignee:</span>
-                        <strong className="text-slate-900 block">{selectedOrder.buyerName}</strong>
-                        <span className="text-slate-600 block">{selectedOrder.businessName}</span>
-                        <span className="text-slate-600 block">{selectedOrder.city}, {selectedOrder.state}</span>
+                      <div className="text-[11px] flex justify-between">
+                        <span>Cases: <strong>{selectedOrder.cases}</strong></span>
+                        <span>Weight Est: <strong>{Math.round(selectedOrder.cases * 6.2)} KG</strong></span>
                       </div>
-                      <div>
-                        <span className="text-slate-500 font-bold block uppercase text-[10px]">On-Hand Inventory Check &amp; Receipt:</span>
-                        <span className="text-slate-700 block">Warehouse Picked: <strong>Loading Bay 3 (Cold-Store)</strong></span>
-                        <span className="text-slate-700 block">On-Hand Stock Deducted: <strong className="text-emerald-700">{selectedOrder.cases} Cases ({selectedOrder.cases * 24} Cans)</strong></span>
-                        <span className="text-slate-700 block">Quality Signoff: <strong>Priya Sharma &amp; Rajesh Varma</strong></span>
+                      <div className="text-[10px] text-slate-600 pt-1">
+                        Order Ref: {selectedOrder.id} · Vehicle: {selectedOrder.vehicleNo}
                       </div>
                     </div>
+                  )}
 
-                    <table className="w-full text-left border-collapse text-[11px]">
-                      <thead>
-                        <tr className="border-b-2 border-slate-900 text-slate-800">
-                          <th className="py-2">Item Description</th>
-                          <th className="py-2 text-center">Cases</th>
-                          <th className="py-2 text-right">Unit Price</th>
-                          <th className="py-2 text-right">Discount</th>
-                          <th className="py-2 text-right">Total Paid (incl. 28% GST)</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-200 font-mono">
-                        <tr>
-                          <td className="py-2 font-sans">
-                            <strong className="text-slate-900 block">{selectedOrder.product}</strong>
-                            <span className="text-[10px] text-slate-500">HSN 2202 · FSSAI Central Lic #10126999000142</span>
-                          </td>
-                          <td className="py-2 text-center font-bold">{selectedOrder.cases}</td>
-                          <td className="py-2 text-right">₹{selectedOrder.unitPrice.toLocaleString('en-IN')}</td>
-                          <td className="py-2 text-right text-emerald-700">-₹{selectedOrder.discountAmount.toLocaleString('en-IN')}</td>
-                          <td className="py-2 text-right font-bold text-slate-900">₹{selectedOrder.grandTotal.toLocaleString('en-IN')}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-
-                    <div className="flex justify-between items-center pt-3 border-t border-slate-200">
-                      <div className="text-[10px] text-slate-500">
-                        <span>Thank you for choosing Sparkle Drinks. Keep refrigerated at 2°C - 4°C.</span><br />
-                        <span className="font-mono text-emerald-700">Digital Seal: SHA-256 Verified by Elena Rostova &amp; Arjun Reddy</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] text-slate-500 block">AMOUNT RECEIVED (INR)</span>
-                        <span className="text-xl font-black text-slate-900 font-mono">₹{selectedOrder.grandTotal.toLocaleString('en-IN')}</span>
-                      </div>
+                  {/* TAB 4: REQUISITION */}
+                  {activeDocTab === 'requisition' && (
+                    <div className="p-6 rounded-2xl bg-slate-950 border border-cyan-500/40 text-slate-200 space-y-3 text-xs">
+                      <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase">
+                        WORK REQUISITION · {selectedOrder.requisitionId}
+                      </span>
+                      <h4 className="text-base font-bold text-white">{selectedOrder.product}</h4>
+                      <p className="text-slate-300">
+                        Allocated {selectedOrder.cases} Cases ({selectedOrder.totalCans} Aluminum Cans) from Guntur / Vizag stock by Rajesh Varma &amp; Priya Sharma.
+                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* TAB: AMAZON-STYLE CUSTOMER DISPATCH & SHIPPING LABEL */}
-                {activeDocTab === 'amazonLabel' && (
-                  <div className="max-w-md mx-auto p-6 rounded-2xl bg-white text-slate-950 space-y-4 shadow-2xl font-mono text-xs border-4 border-slate-950">
-                    {/* Header */}
-                    <div className="flex justify-between items-center border-b-4 border-slate-950 pb-2">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xl font-black tracking-tighter text-slate-950">amazon</span>
-                        <span className="text-xs font-bold px-1.5 py-0.5 bg-slate-950 text-white rounded">FBA / PRIME</span>
-                      </div>
-                      <div className="text-right leading-tight">
-                        <span className="text-sm font-black text-slate-950 block">PRIORITY 1-DAY</span>
-                        <span className="text-[10px] text-slate-600">DELIVERY BY 8:00 PM</span>
-                      </div>
+                  {/* TAB 5: WAYBILL */}
+                  {activeDocTab === 'shipment' && (
+                    <div className="p-6 rounded-2xl bg-slate-950 border border-purple-500/40 text-slate-200 space-y-3 text-xs">
+                      <span className="text-[10px] font-mono text-purple-400 font-bold uppercase">
+                        CONSIGNMENT WAYBILL · {selectedOrder.waybillId}
+                      </span>
+                      <h4 className="text-base font-bold text-white">
+                        Carrier Vehicle {selectedOrder.vehicleNo} -&gt; {selectedOrder.city}, {selectedOrder.state}
+                      </h4>
+                      <p className="text-slate-300">
+                        Managed by Capt. Vikram Naidu · Cold-Chain target 2°C–4°C.
+                      </p>
                     </div>
+                  )}
 
-                    {/* Ship To */}
-                    <div className="border-b-2 border-slate-950 pb-3 leading-snug">
-                      <span className="text-[9px] uppercase text-slate-500 font-bold block">SHIP TO:</span>
-                      <strong className="text-sm text-slate-950 block font-sans font-black">{selectedOrder.buyerName}</strong>
-                      <span className="text-xs font-bold block font-sans">{selectedOrder.businessName}</span>
-                      <span className="text-xs block font-sans">Plot #42, Commercial Sector / Customer Address</span>
-                      <span className="text-xs block font-sans">{selectedOrder.city}, {selectedOrder.state} - 520001</span>
-                      <span className="text-[11px] block text-slate-700 mt-1">TEL: +91 98480 22331</span>
-                    </div>
-
-                    {/* Carrier & Route */}
-                    <div className="grid grid-cols-2 gap-2 border-b-2 border-slate-950 pb-2 text-[11px]">
-                      <div>
-                        <span className="text-[9px] text-slate-500 uppercase block">SORT HUB / GATE:</span>
-                        <strong className="text-sm font-black text-slate-950">HYD1 - BAY 04</strong>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[9px] text-slate-500 uppercase block">PACKAGE WEIGHT:</span>
-                        <strong className="text-sm font-black text-slate-950">{Math.round(selectedOrder.cases * 6.2)} KG</strong>
-                      </div>
-                    </div>
-
-                    {/* 1D Barcode Simulation */}
-                    <div className="py-2 text-center space-y-1">
-                      <div className="h-14 w-full flex items-center justify-center gap-[2px] bg-white px-2">
-                        {Array.from({ length: 44 }).map((_, i) => (
+                  {/* TAB 6: 11-AGENT EXECUTION TRACE */}
+                  {activeDocTab === 'trace' && (
+                    <div className="p-4 rounded-2xl bg-slate-950 border border-cyan-500/40 space-y-2 text-xs font-mono max-h-96 overflow-y-auto">
+                      {latestTrace.length === 0 ? (
+                        <p className="text-slate-400">Run an order pipeline to inspect the 11-step agent trace.</p>
+                      ) : (
+                        latestTrace.map((st) => (
                           <div
-                            key={i}
-                            className="h-full bg-slate-950"
-                            style={{
-                              width: (i % 5 === 0 ? '4px' : i % 3 === 0 ? '2px' : '1px'),
-                              marginRight: (i % 7 === 0 ? '3px' : '1px')
-                            }}
-                          />
-                        ))}
-                      </div>
-                      <div className="font-mono text-xs font-black tracking-widest text-slate-950">
-                        TRACKING: TBA3091829012-{selectedOrder.id.replace('ORD-', '')}
-                      </div>
+                            key={`${st.step}-${st.agentId}`}
+                            className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-3"
+                          >
+                            <div>
+                              <strong className="text-cyan-300 block">
+                                Step {st.step}: {st.agentName} ({st.department})
+                              </strong>
+                              <span className="text-slate-300 text-[11px] font-sans">{st.action}</span>
+                            </div>
+                            <span className="text-emerald-400 shrink-0 tabular-nums">
+                              {st.durationMs}ms
+                            </span>
+                          </div>
+                        ))
+                      )}
                     </div>
+                  )}
+                </div>
+              )}
 
-                    {/* Cold Chain Badge & Dispatch Info */}
-                    <div className="p-2.5 bg-slate-100 rounded border border-slate-300 text-[10px] space-y-1">
-                      <div className="flex justify-between items-center font-bold">
-                        <span className="text-blue-700">❄️ COLD-CHAIN CARGO: 2°C - 4°C</span>
-                        <span className="text-emerald-700">REEFER EV TRANSIT</span>
-                      </div>
-                      <div className="text-slate-600 font-sans">
-                        Contents: {selectedOrder.cases} Cases of {selectedOrder.product} ({selectedOrder.cases * 24} Aluminum Cans)
-                      </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex justify-between items-center text-[9px] text-slate-500 pt-1">
-                      <span>ORIGIN: RDNT GUNTUR FC</span>
-                      <span>DISPATCH: CAPT. VIKRAM NAIDU</span>
-                    </div>
+              {/* Recent Persisted Orders Selector */}
+              {orders.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase block">
+                    Recent Persisted Orders ({orders.length}):
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {orders.slice(0, 6).map((ord) => (
+                      <button
+                        key={ord.id}
+                        type="button"
+                        onClick={() => setSelectedOrder(ord)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-mono border transition-all ${
+                          selectedOrder?.id === ord.id
+                            ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
+                            : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                        }`}
+                      >
+                        {ord.id} · {ord.cases}cs · ₹{ord.grandTotal.toLocaleString('en-IN')}
+                      </button>
+                    ))}
                   </div>
-                )}
-
-                {/* TAB 4: FACTORY WORK REQUISITION */}
-                {activeDocTab === 'requisition' && (
-                  <div className="p-6 rounded-2xl bg-slate-950 border border-cyan-500/40 text-slate-200 space-y-4 shadow-xl text-xs">
-                    <div className="flex justify-between items-start border-b border-slate-800 pb-3">
-                      <div>
-                        <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider">
-                          RDNT MANUFACTURING WORK REQUISITION
-                        </span>
-                        <h4 className="text-base font-bold text-white mt-0.5">
-                          Requisition {selectedOrder.requisitionId || 'REQ-DRK-8841'}
-                        </h4>
-                        <p className="text-[11px] text-slate-400">
-                          Factory: <strong>Guntur Central Cold-Storage &amp; Bottling Facility</strong> · FSSAI #10126999000142
-                        </p>
-                      </div>
-                      <span className="px-3 py-1 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 font-mono text-[11px]">
-                        STATUS: ALLOCATED &amp; PACKED
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Allocated Raw Materials &amp; Batch:</span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
-                        <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                          <strong className="text-white block">Finished Beverage Stock:</strong>
-                          <span className="text-slate-300">{selectedOrder.cases} Cases ({selectedOrder.cases * 24} Aluminum Cans)</span>
-                          <span className="text-cyan-400 font-mono text-[10px] block mt-1">Batch ID: #DRK-OCT26-B9</span>
-                        </div>
-                        <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                          <strong className="text-white block">Packaging Materials:</strong>
-                          <span className="text-slate-300">{selectedOrder.cases} Heavy Duty Recycled Corrugated Master Cartons</span>
-                          <span className="text-emerald-400 font-mono text-[10px] block mt-1">FSSAI Packaging Certified</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-[11px] text-cyan-200">
-                      <strong>AI Production Audit:</strong> Generated by Rajesh Varma. Warehouse inventory decremented, quality inspection cleared, and batch staged at Loading Bay 3.
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 3: LOGISTICS WAYBILL & DISPATCH */}
-                {activeDocTab === 'shipment' && (
-                  <div className="p-6 rounded-2xl bg-slate-950 border border-purple-500/40 text-slate-200 space-y-4 shadow-xl text-xs">
-                    <div className="flex justify-between items-start border-b border-slate-800 pb-3">
-                      <div>
-                        <span className="text-[10px] font-mono text-purple-400 font-bold uppercase tracking-wider">
-                          SPARKLE DISTRIBUTION FLEET · CONSIGNMENT WAYBILL
-                        </span>
-                        <h4 className="text-base font-bold text-white mt-0.5">
-                          Waybill #{selectedOrder.waybillId || 'WB-SPK-9941'}
-                        </h4>
-                        <p className="text-[11px] text-slate-400">
-                          Carrier Fleet: <strong>Spark EV Refrigerated Commercial Van</strong> ({selectedOrder.vehicleNo || 'AP-07-EV-8842'})
-                        </p>
-                      </div>
-                      <span className="px-3 py-1 rounded-xl bg-purple-950/80 border border-purple-500/40 text-purple-300 font-mono text-[11px]">
-                        🟢 EN ROUTE TO {selectedOrder.city.toUpperCase()}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
-                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                        <span className="text-slate-500 block">Origin Hub:</span>
-                        <strong className="text-white">Guntur Central Depot</strong>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                        <span className="text-slate-500 block">Destination:</span>
-                        <strong className="text-purple-300">{selectedOrder.city}, {selectedOrder.state}</strong>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                        <span className="text-slate-500 block">Cargo Temp Sensor:</span>
-                        <strong className="text-emerald-400 font-mono">4.2°C (Optimal Cold-Chain)</strong>
-                      </div>
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-purple-950/30 border border-purple-500/30 text-[11px] text-purple-200">
-                      <strong>Fleet Telematics:</strong> Managed by Capt. Vikram Naidu. Solar-charged transit vehicle en route via NH-16 corridor. ETA: 2 hours 15 mins.
-                    </div>
-                  </div>
-                )}
-              </div>
-
+                </div>
+              )}
             </div>
-
           </div>
         </div>
       </section>
 
       {/* ============================================================== */}
-      {/* SECTION 3.5: ENTERPRISE CLOUD BACKBONE & SECURITY ASSURANCE    */}
+      {/* SECTION 3.5: ENTERPRISE ERP SYNC & LEDGER STATUS               */}
       {/* ============================================================== */}
       <section className="space-y-4">
         <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-purple-500/30 shadow-2xl space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold mb-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>ENTERPRISE BACKBONE · ORACLE CLOUD &amp; HIGH-AVAILABILITY ERP</span>
+                <span>
+                  {oracleConfigured
+                    ? 'ORACLE OIC WEBHOOK CONNECTED'
+                    : 'PERSISTENT SERVER LEDGER + OPTIONAL ORACLE OIC WEBHOOK'}
+                </span>
               </div>
               <h3 className="text-2xl font-black text-white">
-                Enterprise Cloud Integration &amp; Logistics Backbone
+                Enterprise Ledger &amp; Webhook Synchronization
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                Operated by <strong className="text-white">Marcus Vance (Enterprise Systems Engineer)</strong>. All customer, dealer, and factory events are securely processed with 256-bit cryptographic validation across our multi-region enterprise cloud infrastructure.
+                {oracleConfigured
+                  ? 'Dispatches verified orders and GST invoices directly to the configured ORACLE_OIC_WEBHOOK_URL.'
+                  : 'Persists all order transactions, SKU stock deductions, and SHA-256 IRN signatures into durable server JSON storage. Set ORACLE_OIC_WEBHOOK_URL to stream externally.'}
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="px-3.5 py-1.5 rounded-xl bg-slate-950 border border-emerald-500/40 text-emerald-400 text-xs font-mono font-bold flex items-center gap-2 shadow-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>ERP Synchronizer: Online ({cloudSyncStatus.latencyMs}ms)</span>
-              </span>
-            </div>
+            <button
+              type="button"
+              onClick={() => void handleManualCloudSync()}
+              className="self-start sm:self-auto px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg transition-all"
+            >
+              Sync Ledger Trace Now
+            </button>
           </div>
 
-          {/* 4 Professional Enterprise Pillars (Customer Facing, Trust-Building) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            {/* Pillar 1: Oracle Cloud Infrastructure */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-purple-500/30 space-y-2">
-              <div className="flex items-center gap-2 text-purple-300 font-bold text-sm">
-                <span>🏛️</span>
-                <span>Oracle Cloud ERP</span>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Autonomous ledger synchronization connecting US technology operations with RDNT Sparkle Industries manufacturing plants.
-              </p>
-              <div className="pt-2 border-t border-slate-800 text-[10px] font-mono text-purple-300 flex items-center justify-between">
-                <span>Autonomous DB</span>
-                <span className="text-emerald-400 font-bold">✓ Active</span>
-              </div>
-            </div>
-
-            {/* Pillar 2: Google Cloud Platform */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-blue-500/30 space-y-2">
-              <div className="flex items-center gap-2 text-blue-300 font-bold text-sm">
-                <span>⚡</span>
-                <span>Sub-Second Edge</span>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                High-concurrency dealer intake microservices powering instant order routing and real-time inventory reconciliation.
-              </p>
-              <div className="pt-2 border-t border-slate-800 text-[10px] font-mono text-blue-300 flex items-center justify-between">
-                <span>Multi-Region Edge</span>
-                <span className="text-emerald-400 font-bold">✓ 99.99% SLA</span>
-              </div>
-            </div>
-
-            {/* Pillar 3: Amazon Logistics & FBA */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-amber-500/30 space-y-2">
-              <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
-                <span>📦</span>
-                <span>Amazon FBA &amp; Fleet</span>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Direct integration with Amazon fulfillment hubs and regional refrigerated electric logistics with automated Code-128 tracking.
-              </p>
-              <div className="pt-2 border-t border-slate-800 text-[10px] font-mono text-amber-300 flex items-center justify-between">
-                <span>Prime Sort Center</span>
-                <span className="text-emerald-400 font-bold">✓ HYD1 Linked</span>
-              </div>
-            </div>
-
-            {/* Pillar 4: Statutory Legal Shield */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-emerald-500/30 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-300 font-bold text-sm">
-                <span>🛡️</span>
-                <span>Statutory Compliance</span>
-              </div>
-              <p className="text-[11px] text-slate-400 leading-relaxed">
-                Statutory 28% GST invoicing with IRN hash generation and FSSAI Central Food Safety License #10126999000142 audit readiness.
-              </p>
-              <div className="pt-2 border-t border-slate-800 text-[10px] font-mono text-emerald-300 flex items-center justify-between">
-                <span>FSSAI &amp; GSTN</span>
-                <span className="text-emerald-400 font-bold">✓ Verified</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Discreet Admin / Enterprise Operator Console Toggle */}
-          <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="text-[11px] font-mono text-slate-400 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              <span>Last Background ERP Sync: <strong className="text-white">{cloudSyncStatus.lastSyncTime}</strong></span>
-              <span className="text-slate-600">·</span>
-              <span className="text-slate-400">Trace: <strong className="text-cyan-400">{cloudSyncStatus.traceId}</strong></span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono">
+            <div className="text-slate-400">
+              Status: <strong className="text-emerald-300">{cloudSyncStatus.status}</strong> · Trace:{' '}
+              <strong className="text-cyan-300">{cloudSyncStatus.traceId}</strong> · Latency:{' '}
+              <strong className="text-white tabular-nums">{cloudSyncStatus.latencyMs}ms</strong>
             </div>
 
             <button
               type="button"
               onClick={() => setShowAdminConsole(!showAdminConsole)}
-              className="text-[11px] font-mono text-slate-400 hover:text-purple-300 flex items-center gap-1.5 self-start sm:self-auto py-1.5 px-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-purple-500/50 transition-colors"
+              className="text-[11px] font-mono text-slate-300 hover:text-white py-1.5 px-3 rounded-lg bg-slate-950 border border-slate-800"
             >
-              <span>{showAdminConsole ? '▲ Hide IT Console' : '🔒 Enterprise IT Console (Marcus Vance)'}</span>
+              {showAdminConsole ? 'Hide Schema & Details' : 'View Oracle Schema & Config'}
             </button>
           </div>
 
-          {/* Collapsible IT / Admin Console (Kept clean & isolated for business operators) */}
           {showAdminConsole && (
-            <div className="p-5 rounded-2xl bg-slate-950 border border-purple-500/40 space-y-4 animate-in fade-in duration-200">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                <div>
-                  <span className="text-xs font-mono font-bold text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>⚙️</span> Enterprise IT Gateway Status (Restricted Operator View)
-                  </span>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Active background link connects dealer orders and inventory balances directly to your cloud pipeline.
-                  </p>
-                </div>
+            <div className="p-5 rounded-2xl bg-slate-950 border border-purple-500/40 space-y-3 text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <span className="text-slate-300">{cloudSyncStatus.details}</span>
                 <a
                   href="/oracle_schema.sql"
                   download="oracle_schema.sql"
-                  className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold transition-colors inline-flex items-center gap-1.5 self-start sm:self-auto shadow-md"
+                  className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold inline-flex items-center gap-1.5 self-start sm:self-auto"
                 >
-                  <span>💾 Download oracle_schema.sql</span>
+                  Download oracle_schema.sql
                 </a>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
-                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Oracle Cloud Region</span>
-                  <strong className="text-white text-xs">us-ashburn-1</strong>
-                  <span className="text-emerald-400 text-[10px] block mt-0.5">OIC Connected</span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Dispatcher Pipeline</span>
-                  <strong className="text-cyan-300 text-xs">Automated Real-Time</strong>
-                  <span className="text-slate-400 text-[10px] block mt-0.5">Multi-Cloud Bridge</span>
-                </div>
-                <div className="p-3 rounded-xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Last Transaction Trace</span>
-                  <strong className="text-amber-300 text-xs truncate block">{cloudSyncStatus.traceId}</strong>
-                  <span className="text-emerald-400 text-[10px] block mt-0.5">{cloudSyncStatus.latencyMs}ms Latency</span>
-                </div>
               </div>
             </div>
           )}
@@ -1522,9 +2307,9 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
       </section>
 
       {/* ============================================================== */}
-      {/* SECTION 4: INTERACTIVE AI BRAIN CHAT & COMMAND CONSOLE         */}
+      {/* SECTION 4: INTERACTIVE AI BRAIN CHAT CONSOLE (GEMINI 4)        */}
       {/* ============================================================== */}
-      <section className="space-y-4">
+      <section ref={chatSectionRef} id="brain-chat" className="space-y-4">
         <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/90 border border-cyan-500/40 shadow-2xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
             <div className="flex items-center gap-3">
@@ -1532,9 +2317,11 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                 🧠
               </span>
               <div>
-                <h3 className="text-lg font-bold text-white">Ask the AI Brain or Direct Any of the 10 Employees</h3>
+                <h3 className="text-lg font-bold text-white">
+                  Consult Any of the 11 AI Employees
+                </h3>
                 <p className="text-xs text-slate-400">
-                  Powered by Gemini 3.8 Flash. Inquire about wholesale orders, production batch requisitions, or worldwide expansion.
+                  Powered by Gemini 4 Hydrogen ({geminiConfigured ? 'Live API Key Active' : 'Requires GEMINI_API_KEY for generative inference — still reports real backend metrics'}).
                 </p>
               </div>
             </div>
@@ -1546,7 +2333,7 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
                 onChange={(e) => setSelectedEmployeeId(e.target.value)}
                 className="px-3 py-1.5 rounded-xl bg-slate-950 border border-cyan-500/40 text-cyan-300 font-semibold text-xs focus:outline-none"
               >
-                {AI_EMPLOYEES.map(emp => (
+                {AI_EMPLOYEES.map((emp) => (
                   <option key={emp.id} value={emp.id}>
                     {emp.avatar} {emp.name} ({emp.role.split(' ')[0]})
                   </option>
@@ -1555,7 +2342,6 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
             </div>
           </div>
 
-          {/* Chat Messages Window */}
           <div className="space-y-3 max-h-[360px] overflow-y-auto p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
             {chatLog.map((msg, idx) => (
               <div
@@ -1568,7 +2354,7 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
               >
                 <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
                   <span className="font-bold text-white flex items-center gap-1.5">
-                    {msg.source === 'user' ? '👤' : '🤖'} {msg.sender}
+                    {msg.sender}
                     <span className="text-slate-500 font-normal">({msg.role})</span>
                   </span>
                   <span className="px-2 py-0.5 rounded bg-slate-950 text-[9px] text-cyan-400 border border-slate-800">
@@ -1581,18 +2367,19 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
             {isChatLoading && (
               <div className="p-3 rounded-2xl bg-slate-900/50 border border-cyan-500/30 text-xs text-cyan-300 animate-pulse flex items-center gap-2">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>AI Brain is analyzing operational data...</span>
+                <span>Consulting Gemini 4 Hydrogen with live server context...</span>
               </div>
             )}
           </div>
 
-          {/* Chat Input Bar */}
           <form onSubmit={handleSendChat} className="flex gap-2">
             <input
+              ref={chatInputRef}
+              id="brain-chat-input"
               type="text"
               value={chatPrompt}
               onChange={(e) => setChatPrompt(e.target.value)}
-              placeholder="Ask about dealer orders, Sparkle Drinks bottling schedule, GST breakdown, or EV fleet routes..."
+              placeholder="Ask about dealer orders, live USD/INR FX rates, SKU inventory, or GST breakdown..."
               className="flex-1 px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white text-xs placeholder:text-slate-500 focus:outline-none focus:border-cyan-400"
             />
             <button
@@ -1606,7 +2393,6 @@ export const AiBrainView: React.FC<AiBrainViewProps> = ({
           </form>
         </div>
       </section>
-
     </div>
   );
 };

@@ -32,17 +32,43 @@ interface OwnerOverview {
   affiliateTagsConfigured: boolean;
 }
 
+interface RevenueSummaryPayload {
+  realizedRevenue: {
+    totalRealizedUsd: number;
+    erpDirectUsd: number;
+    erpDirectInr: number;
+    lifestyleSparkUsd: number;
+    affiliateVerifiedUsd: number;
+    affiliateConversionsCount: number;
+  };
+  monetizationReadiness: {
+    stripeConnected: boolean;
+    configuredCount: number;
+  };
+  sparkdealsFunnel: {
+    totalLiveDeals: number;
+    affiliateTaggedCount: number;
+    untaggedDirectCount: number;
+    aggregatorOnlyCount: number;
+    outboundClicksTotal: number;
+  };
+  diagnosisReasons: string[];
+}
+
 export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<'leads' | 'suppliers' | 'sparkdeals' | 'analytics' | 'setup'>('leads');
   const [healthData, setHealthData] = useState<HealthSummary | null>(null);
   const [overview, setOverview] = useState<OwnerOverview | null>(null);
+  const [revSummary, setRevSummary] = useState<RevenueSummaryPayload | null>(null);
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
+  const [runningAudit, setRunningAudit] = useState(false);
 
   const loadDashboardData = async () => {
     try {
-      const [hRes, oRes] = await Promise.all([
+      const [hRes, oRes, rRes] = await Promise.all([
         fetch('/api/health', { cache: 'no-store' }),
         fetch('/api/owner/overview', { cache: 'no-store' }),
+        fetch('/api/revenue/summary', { cache: 'no-store' }),
       ]);
       if (hRes.ok && (hRes.headers.get('content-type') || '').includes('application/json')) {
         setHealthData(await hRes.json());
@@ -50,8 +76,32 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
       if (oRes.ok && (oRes.headers.get('content-type') || '').includes('application/json')) {
         setOverview(await oRes.json());
       }
+      if (rRes.ok && (rRes.headers.get('content-type') || '').includes('application/json')) {
+        setRevSummary(await rRes.json());
+      }
     } catch {
       // Fallback on static deploy
+    }
+  };
+
+  const handleChiefAuditNow = async () => {
+    setRunningAudit(true);
+    setSyncNotice('Dispatching Chief Agent Maya Chen across all 11 AI employees...');
+    try {
+      const res = await fetch('/api/brain/chief-audit', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data?.success) {
+        setSyncNotice(
+          `Chief Audit #${data.audit?.auditNumber ?? ''} complete: ${data.audit?.directives?.length ?? 11} agents checked & synced.`
+        );
+        await loadDashboardData();
+      } else {
+        setSyncNotice(data?.error || 'Audit failed on server.');
+      }
+    } catch {
+      setSyncNotice('Chief Agent audit requires live server runtime.');
+    } finally {
+      setRunningAudit(false);
     }
   };
 
@@ -274,9 +324,13 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                  <span className="text-slate-400 text-[10px] block">ACTIVE DEALS COUNT</span>
-                  <strong className="text-white text-sm block">{healthData?.dealsCount ?? 0} Live Offers</strong>
-                  <span className="text-slate-500 text-[9px]">Deduplicated &amp; Non-Expired</span>
+                  <span className="text-slate-400 text-[10px] block">ACTIVE DEALS &amp; TAGGING</span>
+                  <strong className="text-white text-sm block">
+                    {revSummary?.sparkdealsFunnel?.affiliateTaggedCount ?? 0} / {healthData?.dealsCount ?? 0} Tagged
+                  </strong>
+                  <span className="text-slate-500 text-[9px]">
+                    {revSummary?.sparkdealsFunnel?.untaggedDirectCount ?? 0} Direct Untagged · {revSummary?.sparkdealsFunnel?.outboundClicksTotal ?? 0} Redirect Clicks
+                  </span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
@@ -284,44 +338,76 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
                   <strong className="text-amber-300 text-xs block truncate">
                     {healthData?.lastRefresh ? new Date(healthData.lastRefresh).toLocaleTimeString() : 'Pending'}
                   </strong>
-                  <span className="text-slate-500 text-[9px]">Automated refresh</span>
+                  <span className="text-slate-500 text-[9px]">Auto Chief Agent audit synced</span>
                 </div>
               </div>
+
+              {revSummary?.diagnosisReasons && revSummary.diagnosisReasons.length > 0 && (
+                <div className="p-4 rounded-2xl bg-amber-950/25 border border-amber-500/30 space-y-1.5 text-[11px]">
+                  <strong className="text-amber-300 font-mono uppercase block">
+                    Kavya Nair (Agent #11) Monetization Check
+                  </strong>
+                  {revSummary.diagnosisReasons.map((reason, idx) => (
+                    <p key={idx} className="text-slate-200 leading-relaxed">• {reason}</p>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'analytics' && (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex items-center justify-between">
+              <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-sm font-extrabold text-white">Recorded Conversion &amp; Outbound Counters</h4>
+                  <h4 className="text-sm font-extrabold text-white">Verified Revenue &amp; Conversion Counters</h4>
                   <p className="text-[11px] text-slate-400">
-                    Actual server event counters only — outbound clicks do not represent earned affiliate commission revenue
+                    Actual Stripe webhooks, ERP invoices &amp; redirect counters only — $0 fake commissions
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono text-xs font-bold border border-emerald-500/40">
-                  ZERO ESTIMATED METRICS
-                </span>
+                <button
+                  type="button"
+                  disabled={runningAudit}
+                  onClick={() => void handleChiefAuditNow()}
+                  className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${runningAudit ? 'animate-spin' : ''}`} />
+                  <span>{runningAudit ? 'Auditing 11 Agents...' : 'Chief Agent Audit All 11'}</span>
+                </button>
               </div>
+
+              {syncNotice && (
+                <div className="p-3 rounded-xl bg-slate-900 border border-cyan-500/40 text-cyan-300 font-mono text-xs">
+                  {syncNotice}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-center text-[11px]">
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Logged Inquiries</span>
-                  <strong className="text-blue-400 text-2xl block mt-1">
-                    {overview?.analytics?.inquirySubmissions ?? inquiries.length}
+                  <span className="text-slate-400 text-[10px] block">ERP + Stripe Verified</span>
+                  <strong className="text-emerald-400 text-2xl block mt-1">
+                    ${(revSummary?.realizedRevenue?.totalRealizedUsd ?? 0).toFixed(2)}
                   </strong>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">
+                    Lifestyle Stripe: ${(revSummary?.realizedRevenue?.lifestyleSparkUsd ?? 0).toFixed(2)}
+                  </span>
                 </div>
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Outbound Deal Clicks</span>
+                  <span className="text-slate-400 text-[10px] block">Verified Affiliate Payouts</span>
                   <strong className="text-cyan-300 text-2xl block mt-1">
-                    {overview?.analytics?.dealClicks ?? 0}
+                    ${(revSummary?.realizedRevenue?.affiliateVerifiedUsd ?? 0).toFixed(2)}
                   </strong>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">
+                    {revSummary?.sparkdealsFunnel?.outboundClicksTotal ?? overview?.analytics?.dealClicks ?? 0} redirect clicks
+                  </span>
                 </div>
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
-                  <span className="text-slate-400 text-[10px] block">Supplier Applications</span>
+                  <span className="text-slate-400 text-[10px] block">Inquiries &amp; Suppliers</span>
                   <strong className="text-purple-300 text-2xl block mt-1">
-                    {overview?.analytics?.supplierSubmissions ?? suppliers.length}
+                    {(overview?.analytics?.inquirySubmissions ?? inquiries.length) + (overview?.analytics?.supplierSubmissions ?? suppliers.length)}
                   </strong>
+                  <span className="text-slate-500 text-[10px] block mt-0.5">
+                    {inquiries.length} RFQs · {suppliers.length} Suppliers
+                  </span>
                 </div>
               </div>
             </div>
@@ -330,15 +416,15 @@ export const OwnerDashboardModal: React.FC<OwnerDashboardModalProps> = ({ isOpen
           {activeTab === 'setup' && (
             <div className="space-y-3 font-mono text-[11px]">
               <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                <strong className="text-purple-300 block">1. Official Affiliate Tags &amp; Retailer API Keys</strong>
+                <strong className="text-purple-300 block">1. Affiliate Partner Tags (Zero-Code via AI Brain Dashboard)</strong>
                 <p className="text-slate-300 font-sans">
-                  Configure <code className="text-cyan-300">AMAZON_AFFILIATE_TAG</code> and <code className="text-cyan-300">AMAZON_INDIA_TAG</code> in environment variables (or GitHub Actions secrets for static sync) to attach official affiliate attribution server-side.
+                  Save <code className="text-cyan-300">AMAZON_AFFILIATE_TAG</code>, <code className="text-cyan-300">AMAZON_INDIA_TAG</code>, <code className="text-cyan-300">WALMART_IMPACT_ID</code>, <code className="text-cyan-300">EBAY_CAMPAIGN_ID</code>, or <code className="text-cyan-300">SKIMLINKS_PUBLISHER_ID</code> either in environment variables or directly in the <strong>AI Workforce (#brain) → Activate Affiliate Partner Tags</strong> panel for automatic server-side attribution by Kavya Nair (Agent #11).
                 </p>
               </div>
               <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1">
-                <strong className="text-purple-300 block">2. Outbound SMTP Credentials (Optional)</strong>
+                <strong className="text-purple-300 block">2. Global Stripe Checkout &amp; Outbound SMTP</strong>
                 <p className="text-slate-300 font-sans">
-                  Set <code className="text-cyan-300">SMTP_HOST</code>, <code className="text-cyan-300">SMTP_USER</code>, and <code className="text-cyan-300">SMTP_PASS</code> in server environment variables to send email alerts on new leads.
+                  Stripe Status: <strong className={revSummary?.monetizationReadiness?.stripeConnected ? 'text-emerald-400' : 'text-amber-300'}>{revSummary?.monetizationReadiness?.stripeConnected ? 'LIVE SECRET KEY ACTIVE' : 'STRIPE_SECRET_KEY unset'}</strong>. Configure <code className="text-cyan-300">STRIPE_SECRET_KEY</code> and optional <code className="text-cyan-300">SMTP_*</code> credentials in server environment variables.
                 </p>
               </div>
             </div>

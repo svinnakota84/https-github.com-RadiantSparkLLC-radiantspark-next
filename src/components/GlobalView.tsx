@@ -139,28 +139,28 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
         </div>
       </section>
 
-      {/* WEBULL & LIVETRADES REAL-TIME MARKETS & TRADING TERMINAL */}
+      {/* LIVE GLOBAL MARKETS & CROSS-BORDER FX BENCHMARK TERMINAL */}
       <section id="live-markets" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24 space-y-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-950/80 text-blue-300 border border-blue-500/40 text-xs font-mono font-bold mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold mb-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>EXTERNAL MARKET RESEARCH</span>
+              <span>LIVE PUBLIC MARKET &amp; ECB FX FEED</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Markets &amp; event research
+              Live Market Benchmarks &amp; FX Settlement Desk
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-              Provider connections are not active. Visit external providers for their own market information and eligibility terms.
+              Real-time reference exchange rates (Frankfurter ECB / ER-API), US &amp; India equities, and digital asset spot prices for customers and cross-border B2B suppliers.
             </p>
           </div>
 
           <div className="flex items-center gap-2 font-mono text-xs">
-            <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-400">
-              No market stream connected
+            <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-emerald-300">
+              Live API Connected
             </span>
-            <span className="px-3 py-1.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 font-bold">
-              No order execution
+            <span className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold">
+              Read-Only Reference (No Execution)
             </span>
           </div>
         </div>

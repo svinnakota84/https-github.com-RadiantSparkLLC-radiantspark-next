@@ -119,8 +119,11 @@
     </main>
 
     <!-- Footer Disclosure -->
-    <footer class="p-4 rounded-2xl bg-slate-950 border border-slate-900 text-center text-[11px] text-slate-400 font-mono">
-      <span id="affiliate-disclosure">Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers.</span>
+    <footer class="p-4 rounded-2xl bg-slate-950 border border-slate-900 text-center text-[11px] text-slate-400 font-mono space-y-1.5">
+      <div id="affiliate-disclosure">Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers.</div>
+      <div>
+        U.S. Merchant Boundary (<a href="./index.html#usa-legal-shield" class="text-cyan-300 underline hover:text-cyan-200">U.S. Legal Shield</a>): Radiant Spark LLC is an independent referral publisher for Amazon.com, Walmart, Best Buy, Target, Home Depot, Newegg, Costco &amp; eBay—all orders, checkout, returns &amp; warranties are governed directly by each retailer.
+      </div>
     </footer>
 
   </div>
@@ -129,6 +132,11 @@
     let dealsData = [];
     let currentStore = 'all';
     let feedIsStale = false;
+    let isServerFeed = false;
+
+    function getOutboundHref(d) {
+      return isServerFeed ? '/api/deals/redirect/' + encodeURIComponent(d.id) : (d.directMerchantUrl || d.affiliateUrl);
+    }
 
     function esc(s) {
       return String(s || '')
@@ -218,7 +226,7 @@
                 ${hasRef ? `<span class="text-xs text-slate-500 line-through">${fmtPrice(d.originalPrice, curr)}</span>` : ''}
               </div>
             </div>
-            <a href="${esc(d.affiliateUrl)}" target="_blank" rel="noopener noreferrer sponsored" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center">View Deal ↗</a>
+            <a href="${esc(getOutboundHref(d))}" target="_blank" rel="noopener noreferrer sponsored" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center">View Deal ↗</a>
           </article>
         `;
       }).join('');
@@ -229,6 +237,7 @@
         const res = await fetch('/api/deals', { cache: 'no-store' });
         if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
           const data = await res.json();
+          isServerFeed = true;
           applyPayload(data, 'Server 15m Sync Active');
           return;
         }
@@ -238,6 +247,7 @@
         const staticRes = await fetch('./deals-feed.json?t=' + Date.now(), { cache: 'no-store' });
         if (staticRes.ok) {
           const staticData = await staticRes.json();
+          isServerFeed = false;
           applyPayload(staticData, 'Automated Static Sync');
           return;
         }
@@ -360,7 +370,7 @@
           </div>
 
           <div class="mt-4 pt-3 border-t border-slate-800 space-y-1.5">
-            <a href="${esc(d.affiliateUrl)}" target="_blank" rel="noopener noreferrer sponsored" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center transition-all">
+            <a href="${esc(getOutboundHref(d))}" target="_blank" rel="noopener noreferrer sponsored" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center transition-all">
               View Deal at ${esc(d.merchant)} ↗
             </a>
           </div>

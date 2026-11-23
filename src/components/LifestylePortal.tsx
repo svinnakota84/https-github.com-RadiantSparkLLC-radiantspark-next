@@ -64,6 +64,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
   const [activeTab, setActiveTab] = useState<ActiveTab>('diet');
   const [showLiveSiteEmbed, setShowLiveSiteEmbed] = useState(true);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyConfig['code']>('USD');
+  const [liveFxRates, setLiveFxRates] = useState<Record<string, number> | undefined>(undefined);
   const [backendPlans, setBackendPlans] = useState(LIFESTYLE_PLAN_TIERS);
   const [stripeBackendState, setStripeBackendState] = useState<{
     loaded: boolean;
@@ -288,6 +289,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
       const data = res.data;
       if (res.ok && data && Array.isArray(data.plans) && data.plans.length > 0) {
         setBackendPlans(data.plans);
+        if (data.fxRates) setLiveFxRates(data.fxRates);
         setStripeBackendState((s) => ({
           ...s,
           loaded: true,
@@ -1656,7 +1658,7 @@ export const LifestylePortal: React.FC<LifestylePortalProps> = ({ onOpenStripeMo
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {backendPlans.map((tier) => {
-              const formatted = formatLocalizedCurrency(tier.priceUsd, selectedCurrency);
+              const formatted = formatLocalizedCurrency(tier.priceUsd, selectedCurrency, liveFxRates);
               return (
                 <div
                   key={tier.id}

@@ -64,6 +64,8 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
     staticHostDetected: false,
   });
 
+  const [liveFxRates, setLiveFxRates] = useState<Record<string, number> | undefined>(undefined);
+
   useEffect(() => {
     if (defaultName && !customerName) setCustomerName(defaultName);
     if (defaultEmail && !customerEmail) setCustomerEmail(defaultEmail);
@@ -89,13 +91,18 @@ export const StripeSubscriptionModal: React.FC<StripeSubscriptionModalProps> = (
         }));
       }
     });
-  }, [isOpen]);
+    safeFetchJson(`/api/stripe/plans?currency=${encodeURIComponent(currency)}`).then((planRes) => {
+      if (planRes.ok && planRes.data?.fxRates) {
+        setLiveFxRates(planRes.data.fxRates);
+      }
+    });
+  }, [isOpen, currency]);
 
   if (!isOpen) return null;
 
   const selectedCurrencyCfg =
     SUPPORTED_CURRENCIES.find((c) => c.code === currency) || SUPPORTED_CURRENCIES[0];
-  const formattedLocal = formatLocalizedCurrency(priceUsd, currency);
+  const formattedLocal = formatLocalizedCurrency(priceUsd, currency, liveFxRates);
   const intervalLabel =
     billingInterval === 'year'
       ? '/ year'

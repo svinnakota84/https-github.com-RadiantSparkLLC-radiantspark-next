@@ -238,7 +238,15 @@ export const IndiaView: React.FC<IndiaViewProps> = ({
       </section>
 
       {/* 2. The India Legal Shield Component */}
-      <IndiaLegalShield onOpenTakedownModal={onOpenTakedownModal} />
+      <IndiaLegalShield
+        onOpenTakedownModal={onOpenTakedownModal}
+        onSwitchToUsaLegalShield={() => {
+          onSwitchToUsa();
+          setTimeout(() => {
+            document.getElementById('legal-shield')?.scrollIntoView({ behavior: 'smooth' });
+          }, 320);
+        }}
+      />
 
       {/* FAQ Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

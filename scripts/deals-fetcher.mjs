@@ -142,34 +142,231 @@ function mapCategory(rawCategory = '', title = '') {
   return 'lifestyle';
 }
 
-function extractDirectMerchantLinks(htmlOrText = '', affiliateUrl = '', merchant = '') {
-  const urls = htmlOrText.match(/https?:\/\/[^\s"'<>]+/g) || [];
-  let amazonUsaUrl;
-  let amazonIndiaUrl;
-  let walmartUrl;
+const AGGREGATOR_HOSTS = ['dealnews.com', 'slickdeals.net', 'slickdeals.com', 'feedburner.com'];
 
-  for (const raw of urls) {
-    try {
-      const u = new URL(raw);
-      if (u.hostname.includes('amazon.com') && !amazonUsaUrl) {
-        if (process.env.AMAZON_AFFILIATE_TAG && !u.searchParams.has('tag')) {
-          u.searchParams.set('tag', process.env.AMAZON_AFFILIATE_TAG);
-        }
-        amazonUsaUrl = u.toString();
-      } else if (u.hostname.includes('amazon.in') && !amazonIndiaUrl) {
-        if (process.env.AMAZON_INDIA_TAG && !u.searchParams.has('tag')) {
-          u.searchParams.set('tag', process.env.AMAZON_INDIA_TAG);
-        }
-        amazonIndiaUrl = u.toString();
-      } else if (u.hostname.includes('walmart.com') && !walmartUrl) {
-        walmartUrl = u.toString();
+const DIRECT_RETAILER_DOMAINS = [
+  'amazon.com',
+  'amazon.in',
+  'amzn.to',
+  'walmart.com',
+  'bestbuy.com',
+  'target.com',
+  'homedepot.com',
+  'lowes.com',
+  'costco.com',
+  'newegg.com',
+  'ebay.com',
+  'bhphotovideo.com',
+  'adorama.com',
+  'samsung.com',
+  'apple.com',
+  'lenovo.com',
+  'dell.com',
+  'hp.com',
+  'woot.com',
+  'flipkart.com',
+  'staples.com',
+  'officedepot.com',
+  'macys.com',
+  'kohls.com',
+  'nike.com',
+  'adidas.com',
+  'lego.com',
+];
+
+function unwrapCandidateUrl(rawUrl) {
+  try {
+    const cleaned = decodeEntities(String(rawUrl || '').trim())
+      .replace(/\u200B|%E2%80%8B/gi, '');
+    if (!cleaned || cleaned.includes('...')) return null;
+    let current = new URL(cleaned);
+    // Unwrap nested redirect params commonly embedded in Slickdeals / DealNews HTML links
+    for (let depth = 0; depth < 3; depth++) {
+      const nested =
+        current.searchParams.get('u2') ||
+        current.searchParams.get('mpre') ||
+        current.searchParams.get('url') ||
+        current.searchParams.get('u') ||
+        current.searchParams.get('dest') ||
+        current.searchParams.get('rd');
+      if (nested && /^https?:\/\//i.test(nested) && !nested.includes('...')) {
+        current = new URL(nested.replace(/\u200B|%E2%80%8B/gi, ''));
+      } else {
+        break;
       }
-    } catch {
-      // ignore invalid URL fragment
+    }
+    const host = current.hostname.toLowerCase();
+    const parts = host.split('.').filter(Boolean);
+    if (parts.length < 2) return null;
+    if (parts[0] === 'www' && parts.length < 3) return null;
+    const tld = parts[parts.length - 1];
+    if (!/^[a-z]{2,6}$/i.test(tld)) return null;
+    return current;
+  } catch {
+    return null;
+  }
+}
+
+function isAggregatorHost(hostname = '') {
+  const h = hostname.toLowerCase();
+  return AGGREGATOR_HOSTS.some((agg) => h === agg || h.endsWith(`.${agg}`));
+}
+
+function isDirectRetailerHost(hostname = '') {
+  const h = hostname.toLowerCase();
+  return DIRECT_RETAILER_DOMAINS.some((dom) => h === dom || h.endsWith(`.${dom}`));
+}
+
+export function getEnvMonetizationConfig() {
+  return {
+    amazonUsTag: (process.env.AMAZON_AFFILIATE_TAG || '').trim(),
+    amazonInTag: (process.env.AMAZON_INDIA_TAG || '').trim(),
+    walmartImpactId: (process.env.WALMART_IMPACT_ID || '').trim(),
+    bestBuyImpactId: (process.env.BESTBUY_IMPACT_ID || '').trim(),
+    ebayCampId: (process.env.EBAY_CAMPAIGN_ID || '').trim(),
+    skimlinksPubId: (process.env.SKIMLINKS_PUBLISHER_ID || '').trim(),
+    sovrnKey: (process.env.SOVRN_API_KEY || '').trim(),
+  };
+}
+
+export function applyAffiliateTagToUrl(rawUrl, cfg = getEnvMonetizationConfig()) {
+  const parsed = unwrapCandidateUrl(rawUrl);
+  if (!parsed || (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')) {
+    return {
+      url: String(rawUrl || ''),
+      isDirectMerchant: false,
+      isTagged: false,
+      network: null,
+    };
+  }
+
+  const host = parsed.hostname.toLowerCase();
+  const isAgg = isAggregatorHost(host);
+  let isTagged = false;
+  let network = null;
+
+  if (host.includes('amazon.com')) {
+    if (cfg.amazonUsTag) {
+      parsed.searchParams.set('tag', cfg.amazonUsTag);
+      isTagged = true;
+      network = 'Amazon Associates US';
+    }
+  } else if (host.includes('amazon.in')) {
+    if (cfg.amazonInTag) {
+      parsed.searchParams.set('tag', cfg.amazonInTag);
+      isTagged = true;
+      network = 'Amazon Associates IN';
+    }
+  } else if (host.includes('walmart.com')) {
+    if (cfg.walmartImpactId) {
+      parsed.searchParams.set('wmlspartner', cfg.walmartImpactId);
+      isTagged = true;
+      network = 'Walmart Creator / Impact';
+    }
+  } else if (host.includes('bestbuy.com')) {
+    if (cfg.bestBuyImpactId) {
+      parsed.searchParams.set('irgwc', '1');
+      parsed.searchParams.set('mpid', cfg.bestBuyImpactId);
+      isTagged = true;
+      network = 'Best Buy Affiliate / Impact';
+    }
+  } else if (host.includes('ebay.com')) {
+    if (cfg.ebayCampId) {
+      parsed.searchParams.set('mkcid', '1');
+      parsed.searchParams.set('campid', cfg.ebayCampId);
+      isTagged = true;
+      network = 'eBay Partner Network';
     }
   }
 
-  return { amazonUsaUrl, amazonIndiaUrl, walmartUrl };
+  if (!isAgg) {
+    if (!parsed.searchParams.has('utm_source')) {
+      parsed.searchParams.set('utm_source', 'radiantspark');
+      parsed.searchParams.set('utm_medium', 'sparkdeals');
+    }
+
+    // Universal sub-affiliate wrapper when retailer doesn't have an explicit 1P tag configured
+    if (!isTagged && cfg.skimlinksPubId) {
+      const wrapped = `https://go.redirectingat.com/?id=${encodeURIComponent(cfg.skimlinksPubId)}&url=${encodeURIComponent(parsed.toString())}`;
+      return {
+        url: wrapped,
+        isDirectMerchant: true,
+        isTagged: true,
+        network: 'Skimlinks Multi-Merchant',
+      };
+    }
+    if (!isTagged && cfg.sovrnKey) {
+      const wrapped = `https://redirect.viglink.com?key=${encodeURIComponent(cfg.sovrnKey)}&u=${encodeURIComponent(parsed.toString())}`;
+      return {
+        url: wrapped,
+        isDirectMerchant: true,
+        isTagged: true,
+        network: 'Sovrn //Commerce',
+      };
+    }
+  }
+
+  return {
+    url: parsed.toString(),
+    isDirectMerchant: !isAgg,
+    isTagged,
+    network,
+  };
+}
+
+function extractDirectMerchantLinks(htmlOrText = '', fallbackUrl = '', cfg = getEnvMonetizationConfig()) {
+  const decodedHtml = decodeEntities(String(htmlOrText || ''));
+  const hrefMatches = Array.from(decodedHtml.matchAll(/href=["'](https?:\/\/[^"']+)["']/gi), (m) => m[1]);
+  const textMatches = decodedHtml.match(/https?:\/\/[^\s"'<>]+/g) || [];
+  const rawUrls = [...hrefMatches, ...textMatches, ...(fallbackUrl ? [fallbackUrl] : [])];
+  let amazonUsaUrl;
+  let amazonIndiaUrl;
+  let walmartUrl;
+  let directMerchantUrl;
+  let bestNetwork = null;
+  let bestTagged = false;
+
+  for (const raw of rawUrls) {
+    const u = unwrapCandidateUrl(raw);
+    if (!u) continue;
+    const host = u.hostname.toLowerCase();
+    if (isAggregatorHost(host)) continue;
+
+    // Skip image/CDN asset URLs that are not checkout/product pages
+    if (/\.(jpg|jpeg|png|gif|webp|avif|svg|css|js|ico)(\?|$)/i.test(u.pathname)) continue;
+    if (
+      host.includes('slickdealscdn') ||
+      host.includes('d3gqasl9vmjfd8') ||
+      host.includes('dlnws.com') ||
+      host.includes('dealnews')
+    ) {
+      continue;
+    }
+
+    const tagged = applyAffiliateTagToUrl(u.toString(), cfg);
+    if (host.includes('amazon.com') && !amazonUsaUrl) {
+      amazonUsaUrl = tagged.url;
+    } else if (host.includes('amazon.in') && !amazonIndiaUrl) {
+      amazonIndiaUrl = tagged.url;
+    } else if (host.includes('walmart.com') && !walmartUrl) {
+      walmartUrl = tagged.url;
+    }
+
+    if (!directMerchantUrl && (isDirectRetailerHost(host) || !isAggregatorHost(host))) {
+      directMerchantUrl = tagged.url;
+      bestNetwork = tagged.network;
+      bestTagged = tagged.isTagged;
+    }
+  }
+
+  return {
+    amazonUsaUrl,
+    amazonIndiaUrl,
+    walmartUrl,
+    directMerchantUrl: directMerchantUrl || amazonUsaUrl || amazonIndiaUrl || walmartUrl || null,
+    isTagged: bestTagged,
+    affiliateNetwork: bestNetwork,
+  };
 }
 
 function normalizeMerchantName(raw = '', link = '') {
@@ -202,22 +399,9 @@ function normalizeMerchantName(raw = '', link = '') {
   return 'Verified Merchant';
 }
 
-function buildDirectDealUrl(rawUrl, merchant) {
-  try {
-    const parsed = new URL(rawUrl);
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
-    const amazonUsTag = process.env.AMAZON_AFFILIATE_TAG;
-    const amazonInTag = process.env.AMAZON_INDIA_TAG;
-    if (parsed.hostname.includes('amazon.com') && amazonUsTag && !parsed.searchParams.has('tag')) {
-      parsed.searchParams.set('tag', amazonUsTag);
-    }
-    if (parsed.hostname.includes('amazon.in') && amazonInTag && !parsed.searchParams.has('tag')) {
-      parsed.searchParams.set('tag', amazonInTag);
-    }
-    return parsed.toString();
-  } catch {
-    return '';
-  }
+function buildDirectDealUrl(rawUrl) {
+  const tagged = applyAffiliateTagToUrl(rawUrl);
+  return tagged.url;
 }
 
 function isDealExpiredOrUnavailable(title, description, expiresIso) {
@@ -324,7 +508,13 @@ function parseDealNewsXml(xmlText, sourceName) {
     if (/free shipping|free s&h/i.test(`${rawTitle} ${description}`)) badges.push('Free Shipping');
 
     const idHash = crypto.createHash('sha1').update(`dn:${rawTitle}:${merchant}`).digest('hex').slice(0, 10);
-    const merchantLinks = extractDirectMerchantLinks(rawDescHtml, link, merchant);
+    const merchantLinks = extractDirectMerchantLinks(rawDescHtml, link);
+    const preferredOutbound = merchantLinks.directMerchantUrl || link;
+    const monetizationStatus = merchantLinks.isTagged
+      ? 'affiliate_tagged'
+      : merchantLinks.directMerchantUrl
+      ? 'direct_merchant_untagged'
+      : 'aggregator_source_only';
 
     parsed.push({
       id: `dn-${idHash}`,
@@ -334,15 +524,18 @@ function parseDealNewsXml(xmlText, sourceName) {
       originalPrice,
       discountPercent,
       currency: priceAttrCurrency === 'INR' ? 'INR' : 'USD',
-      merchant,
+      merchant: merchant === 'Verified Merchant' && merchantLinks.directMerchantUrl ? normalizeMerchantName('', merchantLinks.directMerchantUrl) : merchant,
       merchantVerified: true,
       score: isStaffPick ? 280 : isBlackFriday ? 220 : 140,
       couponCode,
-      affiliateUrl: link,
+      affiliateUrl: preferredOutbound,
+      directMerchantUrl: merchantLinks.directMerchantUrl,
+      monetizationStatus,
+      affiliateNetwork: merchantLinks.affiliateNetwork,
       amazonUsaUrl: merchantLinks.amazonUsaUrl,
       amazonIndiaUrl: merchantLinks.amazonIndiaUrl,
       walmartUrl: merchantLinks.walmartUrl,
-      primaryStore: merchant,
+      primaryStore: merchant === 'Verified Merchant' && merchantLinks.directMerchantUrl ? normalizeMerchantName('', merchantLinks.directMerchantUrl) : merchant,
       imageUrl: rawImage || DEFAULT_FALLBACK_IMAGES[category],
       description: description || `${rawTitle} available at ${merchant}.`,
       badges: badges.slice(0, 3),
@@ -407,7 +600,17 @@ function parseSlickdealsXml(xmlText, sourceName, forceBlackFriday = false) {
     if (/free shipping|free s&h/i.test(`${rawTitle} ${description}`)) badges.push('Free Shipping');
 
     const idHash = crypto.createHash('sha1').update(`sd:${rawTitle}:${merchant}`).digest('hex').slice(0, 10);
-    const merchantLinks = extractDirectMerchantLinks(contentHtml, link, merchant);
+    const merchantLinks = extractDirectMerchantLinks(contentHtml, link);
+    const resolvedMerchant =
+      merchant === 'Verified Merchant' && merchantLinks.directMerchantUrl
+        ? normalizeMerchantName('', merchantLinks.directMerchantUrl)
+        : merchant;
+    const preferredOutbound = merchantLinks.directMerchantUrl || link;
+    const monetizationStatus = merchantLinks.isTagged
+      ? 'affiliate_tagged'
+      : merchantLinks.directMerchantUrl
+      ? 'direct_merchant_untagged'
+      : 'aggregator_source_only';
 
     const cleanTitle = rawTitle
       .replace(/\s+\$[\d,.]+(?:\s*\+\s*Free\s*(?:Shipping|S&H))?$/i, '')
@@ -421,17 +624,20 @@ function parseSlickdealsXml(xmlText, sourceName, forceBlackFriday = false) {
       originalPrice,
       discountPercent,
       currency: 'USD',
-      merchant,
+      merchant: resolvedMerchant,
       merchantVerified: true,
       score: Math.max(50, 120 + thumbScore * 12),
       couponCode,
-      affiliateUrl: link,
+      affiliateUrl: preferredOutbound,
+      directMerchantUrl: merchantLinks.directMerchantUrl,
+      monetizationStatus,
+      affiliateNetwork: merchantLinks.affiliateNetwork,
       amazonUsaUrl: merchantLinks.amazonUsaUrl,
       amazonIndiaUrl: merchantLinks.amazonIndiaUrl,
       walmartUrl: merchantLinks.walmartUrl,
-      primaryStore: merchant,
+      primaryStore: resolvedMerchant,
       imageUrl: rawImage || DEFAULT_FALLBACK_IMAGES[category],
-      description: description || `${cleanTitle} listed at ${merchant}.`,
+      description: description || `${cleanTitle} listed at ${resolvedMerchant}.`,
       badges: badges.slice(0, 3),
       expiresInHours: null,
       expiresAt: null,
@@ -440,12 +646,12 @@ function parseSlickdealsXml(xmlText, sourceName, forceBlackFriday = false) {
       sourceFeed: sourceName,
       isBlackFriday,
       specifications: [
-        `Retailer: ${merchant}`,
+        `Retailer: ${resolvedMerchant}`,
         `Community Votes: +${Math.max(0, thumbScore)}`,
         couponCode ? `Coupon Code: ${couponCode}` : 'Direct Store Offer',
         `Source: ${sourceName}`,
       ],
-      highlight: `Live community-vetted offer from ${sourceName} at ${merchant}. Confirm final price & stock on retailer page.`,
+      highlight: `Live community-vetted offer from ${sourceName} at ${resolvedMerchant}. Confirm final price & stock on retailer page.`,
     });
   }
 
