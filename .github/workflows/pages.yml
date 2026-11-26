@@ -22,13 +22,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
+          node-version: 22
+      - run: npm install --no-audit --no-fund
       - name: Refresh real-time deals & Black Friday 2026 offers
         env:
           AMAZON_AFFILIATE_TAG: ${{ secrets.AMAZON_AFFILIATE_TAG }}
           AMAZON_INDIA_TAG: ${{ secrets.AMAZON_INDIA_TAG }}
+          WALMART_IMPACT_ID: ${{ secrets.WALMART_IMPACT_ID }}
+          BESTBUY_IMPACT_ID: ${{ secrets.BESTBUY_IMPACT_ID }}
+          EBAY_CAMPAIGN_ID: ${{ secrets.EBAY_CAMPAIGN_ID }}
+          SKIMLINKS_PUBLISHER_ID: ${{ secrets.SKIMLINKS_PUBLISHER_ID }}
+          SOVRN_API_KEY: ${{ secrets.SOVRN_API_KEY }}
         run: node scripts/refresh-deals.mjs || true
       - run: npm run lint
       - run: npm run build

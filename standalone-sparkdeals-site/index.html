@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SparkDeals Live · Verified Daily Drops &amp; Black Friday 2026 Deals</title>
+  <meta name="description" content="Real-time verified tech, electronics, home, and Black Friday 2026 price drops across Amazon, Walmart, Best Buy, Target, Newegg, and eBay.">
+  <meta property="og:title" content="SparkDeals Live · Verified Daily Drops &amp; Black Friday 2026 Deals">
+  <meta property="og:description" content="Auto-refreshed every 15 minutes with verified retail price drops, coupon codes, and direct merchant links.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="./assets/icon.svg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; background-color: #030712; color: #f8fafc; }
+    .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  </style>
+</head>
+<body class="bg-[#030712] text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Top Navigation Bar -->
+  <nav class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <a href="#top" class="flex items-center gap-3 group">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-rose-500 p-0.5 shadow-lg shadow-amber-500/15">
+          <div class="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center">
+            <img src="./assets/icon.svg" alt="SparkDeals Logo" class="w-5 h-5">
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-base tracking-tight text-white">SparkDeals</span>
+            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/35 font-mono font-bold text-[10px]">
+              LIVE 2026
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Verified Price Drops · Auto-Synced Every 15m</p>
+        </div>
+      </a>
+
+      <div class="flex items-center gap-2 sm:gap-3 text-xs font-mono">
+        <span id="status-pill" class="px-3 py-1.5 rounded-xl bg-emerald-950/80 text-emerald-300 border border-emerald-500/35 flex items-center gap-2 font-bold">
+          <span id="status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="status-text">Checking live feed...</span>
+        </span>
+        <button
+          id="sync-btn"
+          type="button"
+          onclick="refreshFeed()"
+          class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black transition-all active:scale-95"
+        >
+          Sync
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="top" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+    <!-- Freshness / Error Notice -->
+    <div id="stale-banner" class="hidden p-4 rounded-2xl bg-rose-950/60 border border-rose-500/50 text-xs text-rose-200 font-mono"></div>
+
+    <!-- Hero Banner -->
+    <section class="relative overflow-hidden rounded-3xl border border-amber-500/35 bg-slate-900/90 p-6 sm:p-8 shadow-2xl">
+      <div class="absolute inset-0 z-0 opacity-25 pointer-events-none">
+        <img src="./assets/sparkdeals-tech.jpg" alt="SparkDeals Featured Electronics" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-slate-950/50"></div>
+      </div>
+
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+        <div class="space-y-3 max-w-2xl">
+          <div class="inline-flex items-center gap-2 text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
+            <span>Verified Retail Deal Radar · U.S. &amp; Global Drops</span>
+          </div>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[1.1]">
+            Live Verified Deals &amp; Black Friday Tech Drops.
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Real-time price tracking across Amazon, Walmart, Best Buy, Target, Home Depot, Newegg, Costco &amp; eBay. Discounts and strike-through prices appear only when confirmed by the upstream feed.
+          </p>
+          <p id="telemetry-detail" class="text-[11px] text-slate-400 font-mono">
+            Loading live feed telemetry...
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onclick="filterBlackFridayElectronics()"
+            class="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-black shadow-lg shadow-rose-950/50 transition-all"
+          >
+            Black Friday Tech Drops ↓
+          </button>
+          <button
+            type="button"
+            onclick="openLegalModal()"
+            class="px-4 py-2.5 rounded-xl bg-slate-950/90 hover:bg-slate-900 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all"
+          >
+            Affiliate &amp; Legal Disclosure
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Black Friday Electronics Spotlight -->
+    <section id="spotlight-section" class="hidden p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-rose-950/25 border border-rose-500/35 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-xs font-mono font-bold text-rose-400">Black Friday Electronics Spotlight · Verified Offers</span>
+          <h2 class="text-lg sm:text-xl font-black text-white">Top TVs, Laptops, Audio &amp; Hardware Drops</h2>
+        </div>
+        <button
+          type="button"
+          onclick="filterBlackFridayElectronics()"
+          class="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition-colors"
+        >
+          View All Black Friday Tech →
+        </button>
+      </div>
+      <div id="spotlight-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
+    </section>
+
+    <!-- Search, Category, Sort & Store Chips -->
+    <section id="browse-deals" class="p-5 sm:p-6 rounded-3xl bg-slate-900/75 border border-slate-800 space-y-4 shadow-xl">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-3">
+        <div class="w-full lg:w-96">
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Search TV, laptop, tools, headphones, retailer, coupon..."
+            class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-amber-400 font-mono"
+          >
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
+          <select
+            id="category-select"
+            onchange="renderDeals()"
+            aria-label="Filter by category"
+            class="w-full sm:w-48 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-slate-200 font-mono text-xs font-bold focus:outline-none focus:border-amber-400"
+          >
+            <option value="all">All Categories</option>
+            <option value="electronics">Tech &amp; Electronics</option>
+            <option value="home">Home &amp; Tools</option>
+            <option value="gaming">Gaming</option>
+            <option value="apparel">Apparel &amp; Gear</option>
+            <option value="energy">Solar &amp; Energy</option>
+            <option value="beverages">Beverages &amp; Tumblers</option>
+            <option value="food">Kitchen &amp; Foods</option>
+            <option value="lifestyle">Lifestyle</option>
+          </select>
+
+          <select
+            id="sort-select"
+            onchange="renderDeals()"
+            aria-label="Sort deals"
+            class="w-full sm:w-52 px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-amber-300 font-mono text-xs font-bold focus:outline-none focus:border-amber-400"
+          >
+            <option value="newest">Newest Live Drops</option>
+            <option value="discount">Highest Discount %</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Store & Event Filters -->
+      <div id="filter-buttons" class="flex flex-wrap items-center gap-2 pt-1 font-mono text-xs"></div>
+
+      <!-- Active Feed Source Pills -->
+      <div id="sources-bar" class="hidden flex-wrap items-center gap-2 pt-1 text-[10px] font-mono text-slate-400"></div>
+    </section>
+
+    <!-- Live Deals Grid -->
+    <section aria-label="Live Deals">
+      <div id="deals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="col-span-full py-16 text-center text-slate-400 font-mono text-xs">
+          Loading verified live deals...
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 bg-slate-950 mt-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-[11px] text-slate-400 font-mono space-y-2">
+      <div id="affiliate-disclosure">
+        Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers.
+      </div>
+      <div>
+        U.S. Merchant Boundary (<button type="button" onclick="openLegalModal()" class="text-cyan-300 underline hover:text-cyan-200">Legal Shield &amp; Terms</button>): Independent referral publisher linking to Amazon.com, Walmart, Best Buy, Target, Home Depot, Newegg, Costco &amp; eBay. Orders, checkout, taxes, returns, and warranties are handled directly by each merchant.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Deal Detail Modal -->
+  <div id="deal-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm p-4 flex items-center justify-center" onclick="if(event.target===this) closeDealModal()">
+    <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border border-slate-700 overflow-hidden shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="modal-store" class="px-2.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono font-bold text-xs truncate"></span>
+          <span id="modal-bf-tag" class="hidden px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/35 font-mono font-bold text-[10px]">BLACK FRIDAY 2026</span>
+        </div>
+        <button type="button" onclick="closeDealModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">✕ Close</button>
+      </div>
+      <div class="p-5 sm:p-6 space-y-4 max-h-[82vh] overflow-y-auto">
+        <div class="h-56 rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center p-2">
+          <img id="modal-img" src="./assets/sparkdeals-tech.jpg" alt="" class="max-h-full max-w-full object-contain" onerror="this.onerror=null;this.src='./assets/sparkdeals-tech.jpg';">
+        </div>
+        <h3 id="modal-title" class="text-lg sm:text-xl font-black text-white leading-snug"></h3>
+        <div class="flex items-baseline gap-3 font-mono">
+          <span id="modal-price" class="text-2xl font-black text-amber-400"></span>
+          <span id="modal-orig" class="text-sm text-slate-500 line-through"></span>
+          <span id="modal-discount" class="hidden px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/35 text-xs font-bold"></span>
+        </div>
+        <p id="modal-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed"></p>
+        <div id="modal-coupon-box" class="hidden p-3 rounded-xl bg-slate-950 border border-amber-500/35 flex items-center justify-between font-mono text-xs">
+          <span class="text-amber-300">Promo Code: <strong id="modal-coupon-code" class="text-white"></strong></span>
+          <button type="button" id="modal-copy-btn" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-black">Copy Code</button>
+        </div>
+        <div class="pt-2 flex flex-col sm:flex-row gap-2.5">
+          <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer sponsored" class="flex-1 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm text-center transition-all">
+            Open Offer at Merchant ↗
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legal & Affiliate Disclosure Modal -->
+  <div id="legal-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-sm p-4 flex items-center justify-center" onclick="if(event.target===this) closeLegalModal()">
+    <div class="w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-700 p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-black text-white">Affiliate Disclosure &amp; U.S. Merchant Boundary</h3>
+        <button type="button" onclick="closeLegalModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">✕ Close</button>
+      </div>
+      <div class="space-y-3 text-xs text-slate-300 leading-relaxed">
+        <p>
+          <strong class="text-white">1. Independent Referral Publisher:</strong> SparkDeals surfaces live price drops and Black Friday promotions discovered across public deal feeds. Some outbound links may include referral or affiliate tracking tags at zero additional cost to shoppers.
+        </p>
+        <p>
+          <strong class="text-white">2. Merchant Fulfillment Responsibility:</strong> We do not hold inventory, process checkout payments, collect sales tax, ship orders, or adjudicate returns. All purchases are completed directly on the third-party merchant’s checkout page (Amazon, Walmart, Best Buy, Target, Home Depot, Newegg, Costco, eBay, etc.).
+        </p>
+        <p>
+          <strong class="text-white">3. Price Verification:</strong> Listed prices reflect feed observations at check time. Always verify final cart pricing, coupon eligibility, shipping, and stock directly on the merchant website before purchasing.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let dealsData = [];
+    let currentStore = 'all';
+    let feedIsStale = false;
+    let modalDeal = null;
+
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fmtPrice(val, curr) {
+      if (typeof val !== 'number' || !Number.isFinite(val) || val <= 0) return 'See Deal';
+      if (curr === 'INR') return '₹' + Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+      const hasCents = Math.round(Number(val) * 100) % 100 !== 0;
+      return '$' + Number(val).toLocaleString('en-US', {
+        minimumFractionDigits: hasCents ? 2 : 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function inferCategory(title, rawCategory) {
+      const c = String(rawCategory || '').toLowerCase();
+      if (['electronics', 'home', 'gaming', 'apparel', 'energy', 'beverages', 'food', 'lifestyle'].includes(c)) return c;
+      const t = String(title || '').toLowerCase();
+      if (/tv|oled|laptop|macbook|ipad|iphone|headphone|earbud|airpods|ssd|monitor|camera|speaker|router|tablet|watch|usb|charger|tech|pc|gpu|cpu/.test(t)) return 'electronics';
+      if (/ps5|xbox|nintendo|switch|gaming|controller|steam|game/.test(t)) return 'gaming';
+      if (/drill|tool|vacuum|home|mattress|furniture|mower|led|lamp|kitchen|blender|air fryer|coffee/.test(t)) return 'home';
+      if (/shoe|sneaker|jacket|hoodie|shirt|apparel|backpack|jeans|clothing/.test(t)) return 'apparel';
+      if (/solar|battery|power station|inverter|generator/.test(t)) return 'energy';
+      if (/drink|water|soda|coffee|tea|tumbler|stanley|yeti/.test(t)) return 'beverages';
+      return 'lifestyle';
+    }
+
+    function extractPriceFromTitle(title) {
+      const m = String(title || '').match(/\$\s?(\d{1,4}(?:,\d{3})*(?:\.\d{1,2})?)/);
+      if (!m) return null;
+      const parsed = parseFloat(m[1].replace(/,/g, ''));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    function normalizePayload(raw) {
+      if (!raw || !Array.isArray(raw.deals)) return null;
+      const normalized = raw.deals
+        .map((d, idx) => {
+          const title = String(d.title || '').trim();
+          if (!title) return null;
+          const merchant = String(d.primaryStore || d.merchant || d.store || d.source || 'Retailer').trim();
+          let currentPrice = typeof d.currentPrice === 'number' ? d.currentPrice : (typeof d.price === 'number' ? d.price : parseFloat(d.price));
+          if (!Number.isFinite(currentPrice) || currentPrice <= 0) {
+            currentPrice = extractPriceFromTitle(title);
+          }
+          const originalPrice = typeof d.originalPrice === 'number' && d.originalPrice > (currentPrice || 0) ? d.originalPrice : null;
+          const discountPercent = typeof d.discountPercent === 'number' && d.discountPercent > 0
+            ? d.discountPercent
+            : (originalPrice && currentPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0);
+          const isBlackFriday = Boolean(
+            d.isBlackFriday ||
+            /black[\s-]*friday|cyber[\s-]*monday|doorbuster|holiday|thanksgiving/i.test(title) ||
+            (Array.isArray(d.badges) && d.badges.some(b => /black[\s-]*friday|cyber[\s-]*monday|doorbuster|holiday/i.test(b)))
+          );
+          const directMerchantUrl = String(d.directMerchantUrl || d.merchantUrl || d.affiliateUrl || d.url || '').trim();
+          if (!directMerchantUrl) return null;
+          return {
+            id: d.id || `deal-${idx}-${merchant.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+            title,
+            description: String(d.description || 'Verified retail deal. Review full specs, shipping, and merchant return terms at checkout.').trim(),
+            currentPrice: Number.isFinite(currentPrice) && currentPrice > 0 ? currentPrice : 0,
+            originalPrice,
+            discountPercent,
+            currency: d.currency === 'INR' ? 'INR' : 'USD',
+            merchant,
+            primaryStore: merchant,
+            category: inferCategory(title, d.category),
+            imageUrl: String(d.imageUrl || d.image || '').trim() || './assets/sparkdeals-tech.jpg',
+            directMerchantUrl,
+            affiliateUrl: d.affiliateUrl || directMerchantUrl,
+            amazonUsaUrl: d.amazonUsaUrl || null,
+            walmartUrl: d.walmartUrl || null,
+            isBlackFriday,
+            availability: d.availability || 'Active at check',
+            publishedAt: d.publishedAt || d.fetchedAt || raw.lastRefreshedAt || raw.fetchedAt || null,
+            expiresAt: d.expiresAt || null,
+            couponCode: d.couponCode || null
+          };
+        })
+        .filter(Boolean);
+
+      return {
+        isStale: Boolean(raw.isStale),
+        lastRefreshedAt: raw.lastRefreshedAt || raw.fetchedAt || new Date().toISOString(),
+        lastCheckedLabel: raw.lastCheckedLabel || null,
+        affiliateDisclosure: raw.affiliateDisclosure || null,
+        sourcesStatus: Array.isArray(raw.sourcesStatus) ? raw.sourcesStatus : null,
+        deals: normalized
+      };
+    }
+
+    function applyPayload(raw) {
+      const data = normalizePayload(raw);
+      if (!data) return;
+
+      feedIsStale = Boolean(data.isStale);
+      dealsData = feedIsStale ? [] : data.deals;
+
+      const ts = data.lastRefreshedAt
+        ? new Date(data.lastRefreshedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : 'Just now';
+
+      const statusText = document.getElementById('status-text');
+      const statusDot = document.getElementById('status-dot');
+      if (statusText) {
+        statusText.textContent = feedIsStale
+          ? 'Feed Paused (>6h)'
+          : `Live · ${dealsData.length} deals (${ts})`;
+      }
+      if (statusDot) {
+        statusDot.className = feedIsStale
+          ? 'w-2 h-2 rounded-full bg-rose-400'
+          : 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+      }
+
+      const detail = document.getElementById('telemetry-detail');
+      if (detail) {
+        detail.textContent = `Last refreshed: ${data.lastCheckedLabel || ts} · Automated GitHub Actions sync every 15 minutes`;
+      }
+
+      const sourcesBar = document.getElementById('sources-bar');
+      if (sourcesBar && Array.isArray(data.sourcesStatus) && data.sourcesStatus.length > 0) {
+        sourcesBar.classList.remove('hidden');
+        sourcesBar.classList.add('flex');
+        sourcesBar.innerHTML = `<span class="text-slate-500 uppercase">Sources:</span>` + data.sourcesStatus.map(s => `
+          <span class="px-2 py-0.5 rounded border ${s.status === 'ok' ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300' : 'bg-rose-950/40 border-rose-500/30 text-rose-300'}">
+            ${esc(s.name)}: ${s.status === 'ok' ? `${s.itemCount} offers` : 'offline'}
+          </span>
+        `).join('');
+      }
+
+      const staleBanner = document.getElementById('stale-banner');
+      if (staleBanner) {
+        if (feedIsStale) {
+          staleBanner.classList.remove('hidden');
+          staleBanner.textContent = 'Upstream feeds exceeded the 6-hour freshness limit. Prices are paused until the next successful 15-minute sync.';
+        } else {
+          staleBanner.classList.add('hidden');
+        }
+      }
+
+      const disc = document.getElementById('affiliate-disclosure');
+      if (disc && data.affiliateDisclosure) {
+        disc.textContent = data.affiliateDisclosure;
+      }
+
+      buildStoreButtons();
+      renderSpotlight();
+      renderDeals();
+    }
+
+    async function refreshFeed() {
+      const btn = document.getElementById('sync-btn');
+      if (btn) btn.textContent = 'Syncing...';
+
+      const candidates = [
+        './deals-feed.json?t=' + Date.now(),
+        './data/sparkdeals.json?t=' + Date.now()
+      ];
+
+      let loaded = false;
+      for (const url of candidates) {
+        try {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (res.ok) {
+            const json = await res.json();
+            if (Array.isArray(json?.deals) && json.deals.length > 0) {
+              applyPayload(json);
+              loaded = true;
+              break;
+            }
+          }
+        } catch (e) { /* try next */ }
+      }
+
+      if (!loaded) {
+        const grid = document.getElementById('deals-grid');
+        if (grid) {
+          grid.innerHTML = '<div class="col-span-full p-8 rounded-2xl bg-slate-900 border border-rose-500/40 text-center text-rose-300 text-xs font-mono">Unable to load deals-feed.json right now. Click Sync to retry.</div>';
+        }
+      }
+      if (btn) btn.textContent = 'Sync';
+    }
+
+    function filterBlackFridayElectronics() {
+      currentStore = 'blackfriday';
+      const catSel = document.getElementById('category-select');
+      if (catSel) catSel.value = 'electronics';
+      buildStoreButtons();
+      renderDeals();
+      document.getElementById('browse-deals')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderSpotlight() {
+      const sec = document.getElementById('spotlight-section');
+      const grid = document.getElementById('spotlight-grid');
+      if (!sec || !grid) return;
+      if (feedIsStale) { sec.classList.add('hidden'); return; }
+      const featured = dealsData
+        .filter(d => (d.category === 'electronics' || d.category === 'gaming') && (d.isBlackFriday || /tv|oled|laptop|apple|macbook|ipad|airpods|headphone|bose|sony|samsung|lg|ssd|monitor|ps5|xbox|watch/i.test(d.title)))
+        .slice(0, 4);
+      if (featured.length === 0) { sec.classList.add('hidden'); return; }
+      sec.classList.remove('hidden');
+      grid.innerHTML = featured.map(d => {
+        const curr = d.currency || 'USD';
+        const hasRef = typeof d.originalPrice === 'number' && d.originalPrice > d.currentPrice && d.discountPercent > 0;
+        return `
+          <article onclick="openDealModalById('${esc(d.id)}')" class="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 hover:border-rose-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-2.5">
+            <div>
+              <div class="flex items-center justify-between text-[11px] font-mono mb-2">
+                <span class="text-rose-300 font-bold truncate">${esc(d.merchant)}</span>
+                ${hasRef ? `<span class="text-rose-400 font-bold">${d.discountPercent}% OFF</span>` : ''}
+              </div>
+              <div class="relative h-32 rounded-xl overflow-hidden bg-slate-950 mb-2.5 border border-slate-800">
+                <img src="${esc(d.imageUrl || './assets/sparkdeals-tech.jpg')}" alt="${esc(d.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='./assets/sparkdeals-tech.jpg';" class="w-full h-full object-contain p-1 bg-slate-950">
+              </div>
+              <h3 class="text-xs font-bold text-white line-clamp-2 leading-snug">${esc(d.title)}</h3>
+              <div class="mt-2 flex items-baseline gap-2 font-mono">
+                <strong class="text-base font-black text-amber-400">${fmtPrice(d.currentPrice, curr)}</strong>
+                ${hasRef ? `<span class="text-xs text-slate-500 line-through">${fmtPrice(d.originalPrice, curr)}</span>` : ''}
+              </div>
+            </div>
+            <a href="${esc(d.directMerchantUrl)}" target="_blank" rel="noopener noreferrer sponsored" onclick="event.stopPropagation()" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center">
+              View Deal ↗
+            </a>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function buildStoreButtons() {
+      const container = document.getElementById('filter-buttons');
+      if (!container) return;
+
+      const counts = new Map();
+      let bfCount = 0;
+      for (const d of dealsData) {
+        const st = d.primaryStore || d.merchant || 'Retailer';
+        counts.set(st, (counts.get(st) || 0) + 1);
+        if (d.isBlackFriday) bfCount += 1;
+      }
+
+      const topStores = Array.from(counts.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 7);
+
+      const buttons = [
+        { id: 'all', label: `All Deals (${dealsData.length})` },
+        { id: 'blackfriday', label: `Black Friday 2026 (${bfCount})` },
+        ...topStores.map(([name, cnt]) => ({ id: name, label: `${name} (${cnt})` }))
+      ];
+
+      container.innerHTML = buttons.map(b => {
+        const active = currentStore === b.id;
+        const cls = active
+          ? (b.id === 'blackfriday' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950')
+          : (b.id === 'blackfriday' ? 'bg-slate-950 border border-rose-500/40 text-rose-300 hover:bg-rose-950/40' : 'bg-slate-950 border border-slate-800 text-slate-300 hover:text-white');
+        return `<button type="button" onclick="filterStore('${esc(b.id)}')" class="px-3.5 py-1.5 rounded-full font-bold transition-colors ${cls}">${esc(b.label)}</button>`;
+      }).join('');
+    }
+
+    function renderDeals() {
+      const search = (document.getElementById('search-input')?.value || '').toLowerCase();
+      const cat = document.getElementById('category-select')?.value || 'all';
+      const sort = document.getElementById('sort-select')?.value || 'newest';
+      const grid = document.getElementById('deals-grid');
+      if (!grid) return;
+
+      const filtered = dealsData.filter(d => {
+        const matchesSearch = !search ||
+          (d.title || '').toLowerCase().includes(search) ||
+          (d.merchant || '').toLowerCase().includes(search) ||
+          (d.description || '').toLowerCase().includes(search) ||
+          (d.couponCode || '').toLowerCase().includes(search);
+        const matchesCat = cat === 'all' || d.category === cat;
+        let matchesStore = true;
+        if (currentStore === 'blackfriday') matchesStore = Boolean(d.isBlackFriday);
+        else if (currentStore !== 'all') matchesStore = (d.primaryStore || d.merchant) === currentStore;
+        return matchesSearch && matchesCat && matchesStore;
+      });
+
+      if (sort === 'discount') {
+        filtered.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+      } else if (sort === 'price-low') {
+        filtered.sort((a, b) => (a.currentPrice || 999999) - (b.currentPrice || 999999));
+      } else if (sort === 'price-high') {
+        filtered.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="col-span-full p-10 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-400 text-xs font-mono">No deals match your current filter. Click All Deals to reset.</div>';
+        return;
+      }
+
+      grid.innerHTML = filtered.map(d => {
+        const curr = d.currency || 'USD';
+        const hasRef = typeof d.originalPrice === 'number' && d.originalPrice > d.currentPrice && d.discountPercent > 0;
+        const storeLabel = d.primaryStore || d.merchant;
+        const expiryBadge = d.expiresAt ? `<span class="text-[10px] text-amber-300 font-mono">Ends ${new Date(d.expiresAt).toLocaleDateString()}</span>` : '';
+        const couponBadge = d.couponCode ? `
+          <button type="button" onclick="event.stopPropagation(); copyCoupon('${esc(d.couponCode)}', this)" class="mt-2 w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-amber-500/30 hover:bg-slate-800 text-[10px] font-mono text-amber-300 flex items-center justify-between">
+            <span>Code: <strong>${esc(d.couponCode)}</strong></span>
+            <span class="text-slate-400">Copy</span>
+          </button>` : '';
+
+        return `
+        <article onclick="openDealModalById('${esc(d.id)}')" class="p-4 rounded-2xl bg-slate-900 border border-slate-800 hover:border-amber-500/45 transition-all flex flex-col justify-between cursor-pointer group shadow-lg">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border truncate bg-amber-500/20 text-amber-300 border-amber-500/30">
+                  ${esc(storeLabel)}
+                </span>
+                ${d.isBlackFriday ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 shrink-0">BF 2026</span>` : ''}
+              </div>
+              ${hasRef
+                ? `<span class="text-[10px] font-mono font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded border border-rose-500/30 shrink-0">${d.discountPercent}% OFF</span>`
+                : `<span class="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-500/15 px-2 py-0.5 rounded border border-cyan-500/30 shrink-0">${curr} DROP</span>`
+              }
+            </div>
+
+            <div class="relative h-40 rounded-xl overflow-hidden bg-slate-950 mb-3 border border-slate-800">
+              <img src="${esc(d.imageUrl || './assets/sparkdeals-tech.jpg')}" alt="${esc(d.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='./assets/sparkdeals-tech.jpg';" class="w-full h-full object-contain p-1 bg-slate-950 group-hover:scale-105 transition-transform duration-300">
+              <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/90 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[9px]">${esc(d.merchant)}</span>
+            </div>
+
+            <h3 class="font-bold text-xs text-white group-hover:text-amber-300 transition-colors line-clamp-2 leading-snug min-h-[2.2rem]">${esc(d.title)}</h3>
+
+            <div class="mt-2.5 flex items-baseline gap-2 font-mono">
+              <span class="text-lg font-black text-amber-400">${fmtPrice(d.currentPrice, curr)}</span>
+              ${hasRef ? `<span class="text-xs text-slate-500 line-through">${fmtPrice(d.originalPrice, curr)}</span>` : ''}
+            </div>
+
+            <div class="mt-1 flex items-center justify-between text-[10px] text-emerald-400 font-mono">
+              <span>${esc(d.availability || 'Active at check')}</span>
+              ${expiryBadge}
+            </div>
+            ${couponBadge}
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-800 space-y-1.5">
+            <a href="${esc(d.directMerchantUrl)}" target="_blank" rel="noopener noreferrer sponsored" onclick="event.stopPropagation()" class="block w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs text-center transition-all">
+              View Deal at ${esc(d.merchant)} ↗
+            </a>
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    function filterStore(store) {
+      currentStore = store;
+      buildStoreButtons();
+      renderDeals();
+    }
+
+    function copyCoupon(code, btnEl) {
+      if (!navigator.clipboard) return;
+      navigator.clipboard.writeText(code);
+      if (btnEl) {
+        const label = btnEl.querySelector('span:last-child');
+        if (label) {
+          label.textContent = 'Copied!';
+          setTimeout(() => { label.textContent = 'Copy'; }, 1800);
+        }
+      }
+    }
+
+    function openDealModalById(id) {
+      const d = dealsData.find(x => x.id === id);
+      if (!d) return;
+      modalDeal = d;
+      const curr = d.currency || 'USD';
+      const hasRef = typeof d.originalPrice === 'number' && d.originalPrice > d.currentPrice && d.discountPercent > 0;
+      document.getElementById('modal-store').textContent = d.primaryStore || d.merchant;
+      const bfTag = document.getElementById('modal-bf-tag');
+      if (bfTag) bfTag.classList.toggle('hidden', !d.isBlackFriday);
+      const img = document.getElementById('modal-img');
+      img.src = d.imageUrl || './assets/sparkdeals-tech.jpg';
+      img.alt = d.title;
+      document.getElementById('modal-title').textContent = d.title;
+      document.getElementById('modal-price').textContent = fmtPrice(d.currentPrice, curr);
+      const orig = document.getElementById('modal-orig');
+      orig.textContent = hasRef ? fmtPrice(d.originalPrice, curr) : '';
+      const disc = document.getElementById('modal-discount');
+      if (hasRef) {
+        disc.classList.remove('hidden');
+        disc.textContent = `${d.discountPercent}% OFF`;
+      } else {
+        disc.classList.add('hidden');
+      }
+      document.getElementById('modal-desc').textContent = d.description;
+      const couponBox = document.getElementById('modal-coupon-box');
+      if (d.couponCode) {
+        couponBox.classList.remove('hidden');
+        document.getElementById('modal-coupon-code').textContent = d.couponCode;
+        document.getElementById('modal-copy-btn').onclick = function () {
+          navigator.clipboard?.writeText(d.couponCode);
+          this.textContent = 'Copied!';
+          setTimeout(() => { this.textContent = 'Copy Code'; }, 1800);
+        };
+      } else {
+        couponBox.classList.add('hidden');
+      }
+      const link = document.getElementById('modal-link');
+      link.href = d.directMerchantUrl;
+      link.textContent = `Open Offer at ${d.merchant} ↗`;
+      document.getElementById('deal-modal').classList.remove('hidden');
+    }
+
+    function closeDealModal() {
+      document.getElementById('deal-modal').classList.add('hidden');
+      modalDeal = null;
+    }
+
+    function openLegalModal() {
+      document.getElementById('legal-modal').classList.remove('hidden');
+    }
+
+    function closeLegalModal() {
+      document.getElementById('legal-modal').classList.add('hidden');
+    }
+
+    document.getElementById('search-input').addEventListener('input', renderDeals);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDealModal();
+        closeLegalModal();
+      }
+    });
+
+    refreshFeed();
+    setInterval(refreshFeed, 300000);
+  </script>
+</body>
+</html>

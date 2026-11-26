@@ -1654,11 +1654,14 @@ app.post('/api/lifespark/plan', async (req, res) => {
         const prompt = `Create 1 concise motivational coaching sentence and 1 practical cooking preparation tip tailored to:
 Goal=${body.lifestyleGoal || 'weight_loss'}, Diet=${body.dietPreference || 'high_protein'}, TargetCalories=${plan.dailyCalories}, WeightKg=${body.currentWeightKg || 74}, TargetKg=${body.targetWeightKg || 65}.
 Return plain text under 60 words with no markdown symbols.`;
-        const aiRes = await ai.models.generateContent({
-          model: 'gemini-4-hydrogen',
-          contents: prompt,
-        });
-        if (aiRes.text) {
+        const aiRes = await Promise.race([
+          ai.models.generateContent({
+            model: 'gemini-4-hydrogen',
+            contents: prompt,
+          }),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 4500)),
+        ]);
+        if (aiRes && aiRes.text) {
           plan.aiCoachNote = aiRes.text.trim();
         }
       } catch {
@@ -3678,13 +3681,26 @@ ${liveContextSummary}`;
       });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-4-hydrogen',
-      contents: prompt,
-      config: {
-        systemInstruction: combinedSystemInstruction,
-      },
-    });
+    const response = await Promise.race([
+      ai.models.generateContent({
+        model: 'gemini-4-hydrogen',
+        contents: prompt,
+        config: {
+          systemInstruction: combinedSystemInstruction,
+        },
+      }),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 12000)),
+    ]);
+
+    if (!response) {
+      return res.json({
+        available: true,
+        employeeName,
+        employeeRole,
+        response: `${employeeName} (${employeeRole}) live backend snapshot: ${liveContextSummary}`,
+        source: 'live-server-snapshot-fallback',
+      });
+    }
 
     const responseText =
       response.text || 'Your inquiry was processed. For formal quotes or partner onboarding, submit an Enterprise RFQ.';
@@ -3718,6 +3734,16 @@ async function startServer() {
   await hydrateInitialCache();
   await runChiefAgentAudit({ trigger: 'server_boot' }).catch(() => {});
   void runServerDealsRefresh();
+
+  // Live preview routes for the new standalone SparkDeals GitHub Pages site (separate from radiantsparkllc.com)
+  const standaloneSiteDir = path.resolve(process.cwd(), 'standalone-sparkdeals-site');
+  app.get(['/sparkdeals-site', '/sparkdeals-site/'], (_req, res) => {
+    return res.sendFile(path.join(standaloneSiteDir, 'index.html'));
+  });
+  app.use('/sparkdeals-site/assets', express.static(path.resolve(process.cwd(), 'public/assets')));
+  app.get('/sparkdeals-site/deals-feed.json', (_req, res) => {
+    return res.sendFile(path.resolve(process.cwd(), 'public/deals-feed.json'));
+  });
 
   if (!isProd) {
     const vite = await createViteServer({

@@ -15,9 +15,9 @@
   <div class="max-w-7xl mx-auto space-y-6">
 
     <!-- Header Navigation Bar -->
-    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md">
+    <header id="standalone-header" class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800 backdrop-blur-md">
       <div class="flex items-center gap-3">
-        <a href="./index.html#sparkdeals" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs transition-colors shrink-0">
+        <a id="back-to-platform-link" href="./index.html#sparkdeals" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 font-extrabold text-xs transition-colors shrink-0">
           ← Back to Platform
         </a>
         <div>
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-    <!-- Store & Event Filters -->
+      <!-- Store & Event Filters -->
       <div id="filter-buttons" class="flex flex-wrap items-center gap-2 pt-2 font-mono text-xs"></div>
     </div>
 
@@ -122,20 +122,46 @@
     <footer class="p-4 rounded-2xl bg-slate-950 border border-slate-900 text-center text-[11px] text-slate-400 font-mono space-y-1.5">
       <div id="affiliate-disclosure">Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers.</div>
       <div>
-        U.S. Merchant Boundary (<a href="./index.html#usa-legal-shield" class="text-cyan-300 underline hover:text-cyan-200">U.S. Legal Shield</a>): Radiant Spark LLC is an independent referral publisher for Amazon.com, Walmart, Best Buy, Target, Home Depot, Newegg, Costco &amp; eBay—all orders, checkout, returns &amp; warranties are governed directly by each retailer.
+        U.S. Merchant Boundary (<a href="./index.html#usa-legal-shield" target="_top" class="text-cyan-300 underline hover:text-cyan-200">U.S. Legal Shield</a>): Radiant Spark LLC is an independent referral publisher for Amazon.com, Walmart, Best Buy, Target, Home Depot, Newegg, Costco &amp; eBay—all orders, checkout, returns &amp; warranties are governed directly by each retailer.
       </div>
     </footer>
 
   </div>
 
   <script>
+    const IS_EMBED = new URLSearchParams(window.location.search).has('embed');
     let dealsData = [];
     let currentStore = 'all';
     let feedIsStale = false;
     let isServerFeed = false;
 
+    if (IS_EMBED) {
+      document.body.classList.remove('p-4', 'sm:p-8', 'min-h-screen');
+      document.body.classList.add('p-2', 'sm:p-4');
+      const backLink = document.getElementById('back-to-platform-link');
+      if (backLink) backLink.classList.add('hidden');
+    }
+
+    function postEmbedHeight() {
+      if (!IS_EMBED || !window.parent || window.parent === window) return;
+      try {
+        const h = Math.max(
+          document.documentElement ? document.documentElement.scrollHeight : 0,
+          document.body ? document.body.scrollHeight : 0
+        );
+        if (h > 0) {
+          window.parent.postMessage({ type: 'sparkdeals:height', height: h + 24 }, window.location.origin);
+        }
+      } catch (e) { /* ignore cross-origin */ }
+    }
+
+    if (IS_EMBED && typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => postEmbedHeight());
+      ro.observe(document.body);
+    }
+
     function getOutboundHref(d) {
-      return isServerFeed ? '/api/deals/redirect/' + encodeURIComponent(d.id) : (d.directMerchantUrl || d.affiliateUrl);
+      return isServerFeed ? '/api/deals/redirect/' + encodeURIComponent(d.id) : (d.directMerchantUrl || d.affiliateUrl || '#');
     }
 
     function esc(s) {
@@ -147,6 +173,7 @@
     }
 
     function fmtPrice(val, curr) {
+      if (typeof val !== 'number' || !Number.isFinite(val) || val <= 0) return 'See Deal';
       if (curr === 'INR') return '₹' + Number(val).toLocaleString('en-IN', { maximumFractionDigits: 2 });
       const hasCents = Math.round(Number(val) * 100) % 100 !== 0;
       return '$' + Number(val).toLocaleString('en-US', {
@@ -155,9 +182,92 @@
       });
     }
 
-    function applyPayload(data, sourceMode) {
+    function inferCategory(title, rawCategory) {
+      const c = String(rawCategory || '').toLowerCase();
+      if (['electronics', 'home', 'gaming', 'apparel', 'energy', 'beverages', 'food', 'lifestyle'].includes(c)) return c;
+      const t = String(title || '').toLowerCase();
+      if (/tv|oled|laptop|macbook|ipad|iphone|headphone|earbud|airpods|ssd|monitor|camera|speaker|router|tablet|watch|usb|charger|tech|pc|gpu|cpu/.test(t)) return 'electronics';
+      if (/ps5|xbox|nintendo|switch|gaming|controller|steam|game/.test(t)) return 'gaming';
+      if (/drill|tool|vacuum|home|mattress|furniture|mower|led|lamp|kitchen|blender|air fryer|coffee/.test(t)) return 'home';
+      if (/shoe|sneaker|jacket|hoodie|shirt|apparel|backpack|jeans|clothing/.test(t)) return 'apparel';
+      if (/solar|battery|power station|inverter|generator/.test(t)) return 'energy';
+      if (/drink|water|soda|coffee|tea|tumbler|stanley|yeti/.test(t)) return 'beverages';
+      return 'lifestyle';
+    }
+
+    function extractPriceFromTitle(title) {
+      const m = String(title || '').match(/\$\s?(\d{1,4}(?:,\d{3})*(?:\.\d{1,2})?)/);
+      if (!m) return null;
+      const parsed = parseFloat(m[1].replace(/,/g, ''));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    }
+
+    function normalizeAnyPayload(raw) {
+      if (!raw || !Array.isArray(raw.deals)) return null;
+      const normalizedDeals = raw.deals
+        .map((d, idx) => {
+          const title = String(d.title || '').trim();
+          if (!title) return null;
+          const merchant = String(d.primaryStore || d.merchant || d.store || d.source || 'Retailer').trim();
+          let currentPrice = typeof d.currentPrice === 'number' ? d.currentPrice : (typeof d.price === 'number' ? d.price : parseFloat(d.price));
+          if (!Number.isFinite(currentPrice) || currentPrice <= 0) {
+            currentPrice = extractPriceFromTitle(title);
+          }
+          const originalPrice = typeof d.originalPrice === 'number' && d.originalPrice > (currentPrice || 0) ? d.originalPrice : null;
+          const discountPercent = typeof d.discountPercent === 'number' && d.discountPercent > 0
+            ? d.discountPercent
+            : (originalPrice && currentPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0);
+          const isBlackFriday = Boolean(
+            d.isBlackFriday ||
+            /black[\s-]*friday|cyber[\s-]*monday|doorbuster|holiday|thanksgiving/i.test(title) ||
+            (Array.isArray(d.badges) && d.badges.some(b => /black[\s-]*friday|cyber[\s-]*monday|doorbuster|holiday/i.test(b)))
+          );
+          const imageUrl = String(d.imageUrl || d.image || '').trim() || './assets/sparkdeals-tech.jpg';
+          const directMerchantUrl = String(d.directMerchantUrl || d.merchantUrl || d.affiliateUrl || d.url || '').trim();
+          if (!directMerchantUrl) return null;
+          return {
+            id: d.id || `legacy-${idx}-${merchant.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+            title,
+            description: d.description || '',
+            currentPrice: Number.isFinite(currentPrice) && currentPrice > 0 ? currentPrice : 0,
+            originalPrice,
+            discountPercent,
+            currency: d.currency === 'INR' ? 'INR' : 'USD',
+            merchant,
+            primaryStore: merchant,
+            category: inferCategory(title, d.category),
+            imageUrl,
+            directMerchantUrl,
+            affiliateUrl: d.affiliateUrl || directMerchantUrl,
+            isBlackFriday,
+            availability: d.availability || 'Active at check',
+            publishedAt: d.publishedAt || d.fetchedAt || raw.lastRefreshedAt || raw.fetchedAt || null,
+            expiresAt: d.expiresAt || null,
+            couponCode: d.couponCode || null
+          };
+        })
+        .filter(Boolean);
+
+      return {
+        isStale: Boolean(raw.isStale),
+        lastRefreshedAt: raw.lastRefreshedAt || raw.fetchedAt || new Date().toISOString(),
+        lastCheckedLabel: raw.lastCheckedLabel || null,
+        affiliateDisclosure: raw.affiliateDisclosure || null,
+        sourcesStatus: Array.isArray(raw.sourcesStatus) ? raw.sourcesStatus : (
+          Array.isArray(raw.sources)
+            ? raw.sources.map(s => ({ name: s.store || s.name || s.id || 'Live Feed', status: 'ok', itemCount: s.count || normalizedDeals.length }))
+            : null
+        ),
+        deals: normalizedDeals
+      };
+    }
+
+    function applyPayload(rawData, sourceMode) {
+      const data = normalizeAnyPayload(rawData);
+      if (!data) return;
+
       feedIsStale = Boolean(data.isStale);
-      dealsData = feedIsStale ? [] : (Array.isArray(data.deals) ? data.deals : []);
+      dealsData = feedIsStale ? [] : data.deals;
 
       const statusText = document.getElementById('api-status-text');
       const checkedDetail = document.getElementById('last-checked-detail');
@@ -178,6 +288,8 @@
       if (checkedDetail && Array.isArray(data.sourcesStatus)) {
         const srcSummary = data.sourcesStatus.map(s => `${s.name}: ${s.status === 'ok' ? s.itemCount + ' items' : 'offline'}`).join(' · ');
         checkedDetail.textContent = `Last checked: ${data.lastCheckedLabel || ts} (15-min scheduled refresh) · ${srcSummary}`;
+      } else if (checkedDetail) {
+        checkedDetail.textContent = `Last checked: ${ts} (${dealsData.length} verified offers loaded)`;
       }
 
       if (staleBanner) {
@@ -192,6 +304,7 @@
       buildStoreButtons();
       renderBlackFridaySpotlight();
       renderDeals();
+      setTimeout(postEmbedHeight, 50);
     }
 
     function filterBlackFridayElectronics() {
@@ -216,9 +329,12 @@
         return `
           <article class="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 flex flex-col justify-between space-y-2.5">
             <div>
-              <div class="flex items-center justify-between text-[11px] font-mono mb-1.5">
+              <div class="flex items-center justify-between text-[11px] font-mono mb-2">
                 <span class="text-rose-300 font-bold truncate">${esc(d.merchant)}</span>
                 ${hasRef ? `<span class="text-rose-400 font-bold">${d.discountPercent}% OFF</span>` : ''}
+              </div>
+              <div class="relative h-32 rounded-xl overflow-hidden bg-slate-950 mb-2.5 border border-slate-800">
+                <img src="${esc(d.imageUrl || './assets/sparkdeals-tech.jpg')}" alt="${esc(d.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='./assets/sparkdeals-tech.jpg';" class="w-full h-full object-contain p-1 bg-slate-950" />
               </div>
               <h4 class="text-xs font-bold text-white line-clamp-2 leading-snug">${esc(d.title)}</h4>
               <div class="mt-2 flex items-baseline gap-2 font-mono">
@@ -233,6 +349,7 @@
     }
 
     async function loadServerDeals() {
+      // 1. Live Express preview backend
       try {
         const res = await fetch('/api/deals', { cache: 'no-store' });
         if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
@@ -241,22 +358,45 @@
           applyPayload(data, 'Server 15m Sync Active');
           return;
         }
-      } catch (e) { /* fallback below */ }
+      } catch (e) { /* static host fallback below */ }
 
+      // 2. Bundled static deals-feed.json (updated in SparkDeals-only package)
       try {
         const staticRes = await fetch('./deals-feed.json?t=' + Date.now(), { cache: 'no-store' });
-        if (staticRes.ok) {
+        if (staticRes.ok && (staticRes.headers.get('content-type') || '').includes('application/json')) {
           const staticData = await staticRes.json();
-          isServerFeed = false;
-          applyPayload(staticData, 'Automated Static Sync');
-          return;
+          if (Array.isArray(staticData?.deals) && staticData.deals.length > 0) {
+            isServerFeed = false;
+            applyPayload(staticData, 'Verified Live Feed');
+            return;
+          }
         }
-      } catch (e) { /* failed both */ }
+      } catch (e) { /* fallback to legacy data/sparkdeals.json */ }
+
+      // 3. Existing GitHub Pages feed (./data/sparkdeals.json)
+      const legacyUrls = [
+        './data/sparkdeals.json?t=' + Date.now(),
+        'https://raw.githubusercontent.com/RadiantSparkLLC/radiantspark-site/main/data/sparkdeals.json'
+      ];
+      for (const url of legacyUrls) {
+        try {
+          const legacyRes = await fetch(url, { cache: 'no-store' });
+          if (legacyRes.ok) {
+            const legacyData = await legacyRes.json();
+            if (Array.isArray(legacyData?.deals) && legacyData.deals.length > 0) {
+              isServerFeed = false;
+              applyPayload(legacyData, 'Live Repository Sync');
+              return;
+            }
+          }
+        } catch (e) { /* try next fallback */ }
+      }
 
       const grid = document.getElementById('deals-grid');
       if (grid) {
         grid.innerHTML = '<div class="col-span-full p-8 rounded-2xl bg-slate-900 border border-rose-500/40 text-center text-rose-300 text-xs font-mono">Unable to connect to live deal sources right now. Click Sync Now to retry.</div>';
       }
+      postEmbedHeight();
     }
 
     async function triggerManualSync() {
@@ -322,36 +462,41 @@
       if (sort === 'discount') {
         filtered.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
       } else if (sort === 'price-low') {
-        filtered.sort((a, b) => a.currentPrice - b.currentPrice);
+        filtered.sort((a, b) => (a.currentPrice || 999999) - (b.currentPrice || 999999));
       } else if (sort === 'price-high') {
-        filtered.sort((a, b) => b.currentPrice - a.currentPrice);
+        filtered.sort((a, b) => (b.currentPrice || 0) - (a.currentPrice || 0));
       }
 
       if (filtered.length === 0) {
         grid.innerHTML = '<div class="col-span-full p-8 rounded-2xl bg-slate-900 border border-slate-800 text-center text-slate-400 text-xs font-mono">No deals match your current filter. Try All Deals or clear search.</div>';
+        postEmbedHeight();
         return;
       }
 
       grid.innerHTML = filtered.map(d => {
         const curr = d.currency || 'USD';
         const hasRef = typeof d.originalPrice === 'number' && d.originalPrice > d.currentPrice && d.discountPercent > 0;
+        const storeLabel = d.primaryStore || d.merchant;
         const expiryBadge = d.expiresAt ? `<span class="text-[10px] text-amber-300 font-mono">Ends ${new Date(d.expiresAt).toLocaleDateString()}</span>` : '';
         const couponBadge = d.couponCode ? `<div class="mt-2 px-2 py-1 rounded bg-slate-950 border border-amber-500/30 text-[10px] font-mono text-amber-300">Code: <strong>${esc(d.couponCode)}</strong></div>` : '';
         return `
         <article class="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between hover:border-amber-500/40 transition-all shadow-lg">
           <div>
             <div class="flex items-center justify-between gap-2 mb-2">
-              <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border truncate max-w-[65%] ${d.isBlackFriday ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}">
-                ${esc(d.isBlackFriday ? 'Black Friday 2026' : (d.primaryStore || d.merchant))}
-              </span>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded border truncate bg-amber-500/20 text-amber-300 border-amber-500/30">
+                  ${esc(storeLabel)}
+                </span>
+                ${d.isBlackFriday ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 shrink-0">BF 2026</span>` : ''}
+              </div>
               ${hasRef
-                ? `<span class="text-[10px] font-mono font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded border border-rose-500/30">${d.discountPercent}% OFF</span>`
-                : `<span class="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-500/15 px-2 py-0.5 rounded border border-cyan-500/30">${curr} DROP</span>`
+                ? `<span class="text-[10px] font-mono font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded border border-rose-500/30 shrink-0">${d.discountPercent}% OFF</span>`
+                : `<span class="text-[10px] font-mono font-bold text-cyan-300 bg-cyan-500/15 px-2 py-0.5 rounded border border-cyan-500/30 shrink-0">${curr} DROP</span>`
               }
             </div>
 
             <div class="relative h-36 rounded-xl overflow-hidden bg-slate-950 mb-3 border border-slate-800">
-              <img src="${esc(d.imageUrl)}" alt="${esc(d.title)}" loading="lazy" referrerPolicy="no-referrer" class="w-full h-full object-contain p-1 bg-slate-950" />
+              <img src="${esc(d.imageUrl || './assets/sparkdeals-tech.jpg')}" alt="${esc(d.title)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='./assets/sparkdeals-tech.jpg';" class="w-full h-full object-contain p-1 bg-slate-950" />
               <span class="absolute top-2 left-2 px-2 py-0.5 rounded bg-slate-950/90 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[9px]">${esc(d.merchant)}</span>
             </div>
 
@@ -376,6 +521,8 @@
           </div>
         </article>`;
       }).join('');
+
+      setTimeout(postEmbedHeight, 40);
     }
 
     function filterStore(store) {
@@ -385,6 +532,7 @@
     }
 
     document.getElementById('search-input').addEventListener('input', renderDeals);
+    window.addEventListener('resize', postEmbedHeight);
     loadServerDeals();
     setInterval(loadServerDeals, 30000);
   </script>

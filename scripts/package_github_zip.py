@@ -72,6 +72,39 @@ with zipfile.ZipFile(full_codebase_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
             arcname = os.path.relpath(filepath, '.')
             zipf.write(filepath, arcname)
 
+# 3. SparkDeals-Only Drop-in ZIP (ONLY sparkdeals.html, deals-feed.json, assets/sparkdeals-tech.jpg — zero changes to index.html or rest of site)
+sparkdeals_only_zip = 'public/sparkdeals-only-update.zip'
+if os.path.exists(sparkdeals_only_zip):
+    os.remove(sparkdeals_only_zip)
+
+with zipfile.ZipFile(sparkdeals_only_zip, 'w', zipfile.ZIP_DEFLATED) as zf:
+    zf.write('dist/sparkdeals.html', 'sparkdeals.html')
+    zf.write('dist/deals-feed.json', 'deals-feed.json')
+    if os.path.exists('dist/assets/sparkdeals-tech.jpg'):
+        zf.write('dist/assets/sparkdeals-tech.jpg', 'assets/sparkdeals-tech.jpg')
+    elif os.path.exists('public/assets/sparkdeals-tech.jpg'):
+        zf.write('public/assets/sparkdeals-tech.jpg', 'assets/sparkdeals-tech.jpg')
+
+# 4. Brand-New Standalone SparkDeals GitHub Pages Site ZIP (for a NEW GitHub repo + Zoho Domain; zero impact on radiantsparkllc.com)
+standalone_zip = 'public/sparkdeals-github-pages-site.zip'
+if os.path.exists(standalone_zip):
+    os.remove(standalone_zip)
+
+with zipfile.ZipFile(standalone_zip, 'w', zipfile.ZIP_DEFLATED) as zf:
+    zf.write('standalone-sparkdeals-site/index.html', 'index.html')
+    zf.write('standalone-sparkdeals-site/README.md', 'README.md')
+    zf.write('standalone-sparkdeals-site/.github/workflows/pages.yml', '.github/workflows/pages.yml')
+    zf.write('standalone-sparkdeals-site/scripts/refresh-deals.mjs', 'scripts/refresh-deals.mjs')
+    zf.write('scripts/deals-fetcher.mjs', 'scripts/deals-fetcher.mjs')
+    zf.write('public/deals-feed.json', 'deals-feed.json')
+    zf.writestr('.nojekyll', '')
+    for fname in os.listdir('public/assets'):
+        fpath = os.path.join('public/assets', fname)
+        if os.path.isfile(fpath):
+            zf.write(fpath, os.path.join('assets', fname))
+
 print('Packaged successfully:')
 print(' -', final_zip_name, os.path.getsize(final_zip_name), 'bytes')
 print(' -', full_codebase_zip, os.path.getsize(full_codebase_zip), 'bytes')
+print(' -', sparkdeals_only_zip, os.path.getsize(sparkdeals_only_zip), 'bytes')
+print(' -', standalone_zip, os.path.getsize(standalone_zip), 'bytes')

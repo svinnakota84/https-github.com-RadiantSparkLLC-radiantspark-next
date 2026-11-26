@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
-import { ArrowUpRight, Zap, Globe, Shield, Sparkles, Building2, Cpu, ChevronDown, CheckCircle2, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowUpRight, Zap, Globe, Shield, Sparkles, Building2, Cpu, ChevronDown, CheckCircle2, TrendingUp, Flame, ExternalLink } from 'lucide-react';
 import { ThreeGlobeScene } from './ThreeGlobeScene';
 import { RealTimeMarketTerminal } from './RealTimeMarketTerminal';
+import { DealItem } from '../types';
 
 interface GlobalViewProps {
   onSwitchView: (view: 'india' | 'usa' | 'sparkdeals' | 'brain' | 'lifestyle') => void;
@@ -25,6 +26,47 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
   onOpenDownloadApp,
   onOpenBusinessInquiry,
 }) => {
+  const [previewDeals, setPreviewDeals] = useState<DealItem[]>([]);
+  const [previewTotalDeals, setPreviewTotalDeals] = useState<number>(0);
+  const [isServerPreview, setIsServerPreview] = useState<boolean>(false);
+
+  useEffect(() => {
+    let active = true;
+    const loadPreview = async () => {
+      try {
+        const res = await fetch('/api/deals', { cache: 'no-store' });
+        if (res.ok && (res.headers.get('content-type') || '').includes('application/json')) {
+          const data = await res.json();
+          if (active && !data.isStale && Array.isArray(data.deals)) {
+            setIsServerPreview(true);
+            setPreviewTotalDeals(data.deals.length);
+            setPreviewDeals(data.deals.slice(0, 8));
+            return;
+          }
+        }
+      } catch {
+        // static fallback below
+      }
+      try {
+        const staticRes = await fetch(`./deals-feed.json?t=${Date.now()}`, { cache: 'no-store' });
+        if (staticRes.ok) {
+          const staticData = await staticRes.json();
+          if (active && !staticData.isStale && Array.isArray(staticData.deals)) {
+            setIsServerPreview(false);
+            setPreviewTotalDeals(staticData.deals.length);
+            setPreviewDeals(staticData.deals.slice(0, 8));
+          }
+        }
+      } catch {
+        // offline fallback
+      }
+    };
+    void loadPreview();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <div className="space-y-16 pb-16">
       {/* Hero Section matching image_75289c42.png with 3D Celestial Globe in background */}
@@ -190,7 +232,7 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
             {/* Visual Image Banner */}
             <div className="h-44 -mx-8 -mt-8 mb-2 overflow-hidden relative">
               <img
-                src="/src/assets/images/hero_cloud_consulting_1794361984579.jpg"
+                src="./assets/spark-it.jpg"
                 alt="Cloud & AI Architecture Control Center"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 referrerPolicy="no-referrer"
@@ -236,7 +278,7 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
             {/* Visual Image Banner */}
             <div className="h-44 -mx-8 -mt-8 mb-2 overflow-hidden relative">
               <img
-                src="/src/assets/images/hero_india_industries_1794361986465.jpg"
+                src="./assets/spark-ev.jpg"
                 alt="Solar & Bottling Facility South India"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 referrerPolicy="no-referrer"
@@ -313,6 +355,110 @@ export const GlobalView: React.FC<GlobalViewProps> = ({
           </div>
         </div>
       </section>
+
+      {/* Live SparkDeals & Black Friday Preview Directly on Website Home */}
+      {previewDeals.length > 0 && (
+        <section id="deals-preview" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <div className="text-xs font-mono font-bold text-amber-400 flex items-center gap-1.5 mb-1">
+                <Flame className="w-4 h-4 fill-amber-400" />
+                <span>SPARKDEALS LIVE PREVIEW · AMAZON, WALMART, BEST BUY &amp; MORE</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Live &amp; Black Friday 2026 Verified Deals ({previewTotalDeals})
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                Auto-refreshed every 15 minutes with verified product pictures, retail stores, and affiliate-tracked merchant checkout links.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => onSwitchView('sparkdeals')}
+                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg whitespace-nowrap"
+              >
+                <span>View All {previewTotalDeals} Deals</span>
+                <ArrowUpRight className="w-4 h-4" />
+              </button>
+              <a
+                href="./sparkdeals.html"
+                className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-semibold text-xs whitespace-nowrap"
+              >
+                Standalone Hub ↗
+              </a>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {previewDeals.map((deal) => {
+              const hasDiscount =
+                typeof deal.originalPrice === 'number' &&
+                deal.originalPrice > deal.currentPrice &&
+                typeof deal.discountPercent === 'number' &&
+                deal.discountPercent > 0;
+              const outboundHref = isServerPreview
+                ? `/api/deals/redirect/${encodeURIComponent(deal.id)}`
+                : deal.directMerchantUrl || deal.affiliateUrl;
+              return (
+                <article
+                  key={`preview-${deal.id}`}
+                  className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-all flex flex-col justify-between space-y-3"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 text-[10px] font-mono font-bold mb-2">
+                      <span className="text-amber-300 truncate">{deal.primaryStore || deal.merchant}</span>
+                      {hasDiscount ? (
+                        <span className="text-rose-400 shrink-0">{deal.discountPercent}% OFF</span>
+                      ) : deal.isBlackFriday ? (
+                        <span className="text-rose-300 shrink-0">BLACK FRIDAY</span>
+                      ) : null}
+                    </div>
+                    <div className="relative h-36 rounded-xl overflow-hidden bg-slate-950 mb-2.5 border border-slate-800">
+                      <img
+                        src={deal.imageUrl || './assets/sparkdeals-tech.jpg'}
+                        alt={deal.title}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = './assets/sparkdeals-tech.jpg';
+                        }}
+                        className="w-full h-full object-contain bg-slate-950 p-1"
+                      />
+                    </div>
+                    <h3 className="text-xs font-bold text-white line-clamp-2 leading-snug min-h-[2.2rem]">
+                      {deal.title}
+                    </h3>
+                    <div className="mt-2 flex items-baseline gap-2 font-mono tabular-nums">
+                      <strong className="text-base font-black text-amber-400">
+                        {deal.currency === 'INR' ? '₹' : '$'}
+                        {deal.currentPrice.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                      </strong>
+                      {hasDiscount && (
+                        <span className="text-xs text-slate-500 line-through">
+                          {deal.currency === 'INR' ? '₹' : '$'}
+                          {deal.originalPrice!.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <a
+                    href={outboundHref}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1"
+                  >
+                    <span>View Deal</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Dedicated Mobile Apps & Download Center Section */}
       <section id="mobile-apps" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 scroll-mt-24">

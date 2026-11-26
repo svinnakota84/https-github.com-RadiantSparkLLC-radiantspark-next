@@ -416,7 +416,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 p-6 sm:p-8 rounded-3xl bg-slate-900/85 border border-amber-500/35 shadow-xl relative overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-25 pointer-events-none">
           <img
-            src="/assets/sparkdeals-tech.jpg"
+            src="./assets/sparkdeals-tech.jpg"
             alt="Black Friday Consumer Electronics Showcase"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
@@ -491,6 +491,20 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
                       {hasRef && (
                         <span className="text-rose-400 font-bold">{deal.discountPercent}% OFF</span>
                       )}
+                    </div>
+                    <div className="relative h-36 rounded-xl overflow-hidden bg-slate-950 mb-2.5 border border-slate-800">
+                      <img
+                        src={deal.imageUrl || './assets/sparkdeals-tech.jpg'}
+                        alt={deal.title}
+                        className="w-full h-full object-contain bg-slate-950 p-1"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = './assets/sparkdeals-tech.jpg';
+                        }}
+                      />
                     </div>
                     <h3 className="text-xs font-bold text-white line-clamp-2 leading-snug min-h-[2rem]">
                       {deal.title}
@@ -670,15 +684,16 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span
-                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border truncate max-w-[65%] ${
-                        deal.isBlackFriday
-                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                          : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                      }`}
-                    >
-                      {deal.isBlackFriday ? 'Black Friday 2026' : deal.primaryStore || deal.merchant}
-                    </span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded border truncate bg-amber-500/20 text-amber-300 border-amber-500/30">
+                        {deal.primaryStore || deal.merchant}
+                      </span>
+                      {deal.isBlackFriday && (
+                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 shrink-0">
+                          BF 2026
+                        </span>
+                      )}
+                    </div>
 
                     {hasValidRef ? (
                       <span className="text-[10px] font-mono font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded border border-rose-500/30 shrink-0">
@@ -693,7 +708,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
 
                   <div className="relative h-40 rounded-xl overflow-hidden bg-slate-950 mb-3 border border-slate-800">
                     <img
-                      src={deal.imageUrl}
+                      src={deal.imageUrl || './assets/sparkdeals-tech.jpg'}
                       alt={deal.title}
                       className="w-full h-full object-contain bg-slate-950 p-1 group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
@@ -701,7 +716,7 @@ export const SparkDealsView: React.FC<SparkDealsViewProps> = ({
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.onerror = null;
-                        target.src = '/assets/sparkdeals-tech.jpg';
+                        target.src = './assets/sparkdeals-tech.jpg';
                       }}
                     />
                     <div className="absolute top-2 left-2 bg-slate-950/90 text-emerald-300 border border-emerald-500/30 font-mono font-bold text-[9px] px-2 py-0.5 rounded flex items-center gap-1 shadow-md">

@@ -9,15 +9,15 @@ export const AFFILIATE_DISCLOSURE =
   'Disclosure: SparkDeals links directly to third-party retailer offers and deal listings. Some outbound links may contain affiliate tracking parameters at no extra cost to buyers. Verify final pricing, taxes, shipping, and stock directly on the merchant checkout page.';
 
 const DEFAULT_FALLBACK_IMAGES = {
-  electronics: '/assets/sparkdeals-tech.jpg',
-  home: '/spark-it.jpg',
-  gaming: '/assets/sparkdeals-tech.jpg',
-  apparel: '/radiant-sparkle-logo.png',
-  energy: '/spark-ev.jpg',
-  beverages: '/sparkle-drinks.jpg',
-  food: '/spicy-sparkle-naturals.jpg',
-  lifestyle: '/assets/lifespark-meal-prep.jpg',
-  logistics: '/sparkle-distribution.jpg',
+  electronics: './assets/sparkdeals-tech.jpg',
+  home: './assets/spark-it.jpg',
+  gaming: './assets/sparkdeals-tech.jpg',
+  apparel: './assets/radiant-sparkle-logo.png',
+  energy: './assets/spark-ev.jpg',
+  beverages: './assets/sparkle-drinks.jpg',
+  food: './assets/spicy-sparkle-naturals.jpg',
+  lifestyle: './assets/lifespark-meal-prep.jpg',
+  logistics: './assets/sparkle-distribution.jpg',
 };
 
 function decodeEntities(str = '') {

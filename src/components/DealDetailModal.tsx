@@ -97,10 +97,15 @@ export const DealDetailModal: React.FC<DealDetailModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="relative rounded-xl overflow-hidden bg-slate-950 h-56 border border-slate-800">
               <img
-                src={deal.imageUrl}
+                src={deal.imageUrl || './assets/sparkdeals-tech.jpg'}
                 alt={deal.title}
                 className="w-full h-full object-contain p-2 bg-slate-950"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null;
+                  target.src = './assets/sparkdeals-tech.jpg';
+                }}
               />
               {hasValidRef && (
                 <div className="absolute top-2 left-2 bg-rose-600 text-white font-extrabold text-xs px-2.5 py-1 rounded-md shadow">
